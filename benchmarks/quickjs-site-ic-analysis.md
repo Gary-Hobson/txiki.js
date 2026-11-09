@@ -2,6 +2,8 @@
 
 2026-11-10。比较基线是 `build/lto-benchmark/integrated-final/tjs`，已含 slot hint 与 load-field fusion。原型只在隔离构建转换源码，不改 submodule 或正式 performance patch。独立变换已归档为 [site-read-ic-transform.py](experiments/site-read-ic-transform.py)，快照与纯源码 replay 说明见 [experiments/README.md](experiments/README.md)；v1 快照比首测仅增加后来补充的编译期断言。本文件记录一个实际可测原型，不承诺倍率；先前 borrow 区域组合 -1% 的结果继续保留在 JIT 专项报告，不将其功能带入本实验。
 
+**最终性能结论：v1 六对中位 -1.28%，唯一 packed 修正版 -0.86%，两版均不接入正式 patch。**已有真实 IC 命中和正确性证据，但没有实际吞吐增量。下文保留设计、审计、框架分解与失败结果，不把可执行架构原型当作性能成果。
+
 ## 1. 为什么选这条边界
 
 slot hint 每次仍检查 slot 范围、descriptor atom 与 flags；普通 hash 查询还要计算 bucket 并跟踪 descriptor 链。此原型按 bytecode 访问点记录两个 `{layout_id, slot}`，命中直接从**当前**对象的 `prop[slot]` 读值并 dup，省去 descriptor/hash 查找。不是缓存字段值，普通赋值后仍读最新值。
@@ -115,7 +117,7 @@ ENABLE_DUMPS、inspector header 宏 JS_DEBUG_TRACE_DEBUGGER_STMT、显式 QJS_DI
 
 [禁用 IC 框架对照结果](results/final-site-ic-disabled.json)：双预热后三对 baseline 均 3.50，禁用 IC 候选分别 3.46、3.48、3.12；配对中位 -1.14%、0/3 胜。第三对存在显著干扰，不能用均值 -4.19% 估计框架税；前两对 -1.14%/-0.57% 仅支持框架存在负担的筛选判断。
 
-据此实现了唯一针对性修正版：[site-read-ic-packed-transform.py](/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/quickjs-hotpaths/site-read-ic-packed-transform.py)。它复用 v1 全部 handler、资格、warmup、miss 退休和 canonical 策略，只把 shape 的身份移入原有 hashed 字节与 padding，以 `uint32_t is_hashed:1; uint32_t read_ic_layout_id:31;` 表示；runtime 计数和 site 的两路 ID 缩到32位，饱和上限固定为 0x7fffffff。达到上限仍永久拒绝新 ID，既有 ID 保留，不改变 ABA 证明。C 代码只通过 bitfield 成员访问，不依赖其位序或大小端，也不把这个内部布局写入公有字节码。
+据此实现了唯一针对性修正版：[site-read-ic-packed-transform.py](experiments/site-read-ic-packed-transform.py)。它复用 v1 全部 handler、资格、warmup、miss 退休和 canonical 策略，只把 shape 的身份移入原有 hashed 字节与 padding，以 `uint32_t is_hashed:1; uint32_t read_ic_layout_id:31;` 表示；runtime 计数和 site 的两路 ID 缩到32位，饱和上限固定为 0x7fffffff。达到上限仍永久拒绝新 ID，既有 ID 保留，不改变 ABA 证明。C 代码只通过 bitfield 成员访问，不依赖其位序或大小端，也不把这个内部布局写入公有字节码。
 
 独立代理实际测得 arm64 布局如下。日志中原 `hash` 列实际是 `hash_table` offset，下面按其真实含义列出：
 
@@ -134,4 +136,23 @@ packed 的 flexible-array offset=20 而 sizeof(plan)=24 是对齐尾 padding；�
 
 packed 编译、专项、命中验证与计划分配失败注入均通过。扩充专项诊断 plans=22、sites=57、累计 bytes=3007、layouts=24、calls=1851、hits=1413、misses=438、unhashed=10、retired=12；缓存命中实际发生且验证当前 descriptor。只有 shape/entry 的体积税被缩减，function 仍多16字节。
 
-两种 debugger patch 应用顺序的纯源码 replay 已通过，不当成真实 inspector 构建结果。独立测试代理在对象构造诊断结束后顺序运行本版双预热与六对，避免主动重叠计分；外部系统负载仍需由原始结果判断。若本版没有稳定正增量，本轮结束 IC 候选，不再改准入、way 数或扩大 fusion 支持来继续筛选。
+两种 debugger patch 应用顺序的纯源码 replay 已通过，不当成真实 inspector 构建结果。独立测试代理在对象构造诊断结束后顺序运行本版双预热与六对，避免主动重叠计分；外部系统负载仍需由原始结果判断。packed 的 native active-frame canonical 用例随后独立通过：诊断 plans=1、sites=1、calls=1、misses=1，证明活跃帧中的 canonical 写出，而不是命中覆盖。JS 形状/协程/字节码与故障注入此前均已通过。
+
+## 9. Packed 六对完成：结束候选
+
+[完整评分 JSON](results/final-site-ic-packed.json)：
+
+| 对次 | integrated-final | + packed IC | 配对变化 |
+|---:|---:|---:|---:|
+| 1 | 3.50 | 3.47 | -0.86% |
+| 2 | 3.42 | 3.45 | +0.88% |
+| 3 | 3.50 | 3.46 | -1.14% |
+| 4 | 3.49 | 3.46 | -0.86% |
+| 5 | 3.49 | 3.45 | -1.15% |
+| 6 | 3.50 | 3.48 | -0.57% |
+
+配对中位 **-0.86%**、均值 **-0.62%**、**1/6 胜**。17 个子项的配对中位中14项为负，espree约零；prepack +0.70%、jshint +0.22%。最差为 typescript -2.39%、source-map -1.91%、uglify-js -1.90%，另有 terser -1.61%、babel-minify -1.59%。总分输出仅两位小数，不应把计算出的更多小数当作测量精度。
+
+v1 的全局结构负担值得检查，packed 也确实把 shape 和 entry 缩小，但这些改变没有获得正吞吐。结果说明**去掉该体积增量仍不足以使当前 per-site IC 胜过已有 hint+fusion**。剩余 function 字段、warmup、快路寻址/guard 和代码布局各占多少未被独立测明，不能从差分强行分摊。
+
+本轮到此结束 IC 候选：不继续调 warmup/退休阈值、增加 ways、扩大类型/原型支持或覆盖 fusion 来延长筛选。保留 canonical/稳定 PC、hashed-shape 身份及无 owning cache 引用的设计与定向 fixture，供后续有新成本证据时复用；不把它们合入当前发布构建。

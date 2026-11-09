@@ -901,6 +901,45 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 
 完整原始数据见 [benchmarks/results/final-site-ic.json](results/final-site-ic.json)。
 
+## 紧凑属性访问点缓存
+
+仅缩小身份存储，JSShape恢复56字节、site32降至24字节；函数元数据仍144字节，对照128。覆盖与退休策略不变；对照c4cc952f，双方预热后六对。形状专项、命中后断言、计划分配失败和活跃序列化通过；真实inspector构建未进行。完整审计见 [IC分析](quickjs-site-ic-analysis.md)。
+
+状态：舍弃，收益不稳定或退化。
+
+整体配对中位变化-0.86%，胜出1/6对。
+
+| 轮次 | 基线 | 候选 | 变化 |
+|---|---:|---:|---:|
+| 1 | 3.50 | 3.47 | -0.86% |
+| 2 | 3.42 | 3.45 | +0.88% |
+| 3 | 3.50 | 3.46 | -1.14% |
+| 4 | 3.49 | 3.46 | -0.86% |
+| 5 | 3.49 | 3.45 | -1.15% |
+| 6 | 3.50 | 3.48 | -0.57% |
+
+| 子项 | 配对中位变化 |
+|---|---:|
+| acorn | -0.33% |
+| babel | -1.22% |
+| babel-minify | -1.59% |
+| babylon | -0.93% |
+| buble | -0.76% |
+| chai | -0.66% |
+| espree | +0.00% |
+| esprima | -0.99% |
+| jshint | +0.22% |
+| lebab | -0.91% |
+| postcss | -0.13% |
+| prepack | +0.70% |
+| prettier | -0.76% |
+| source-map | -1.91% |
+| terser | -1.61% |
+| typescript | -2.39% |
+| uglify-js | -1.90% |
+
+完整原始数据见 [benchmarks/results/final-site-ic-packed.json](results/final-site-ic-packed.json)。
+
 ## 禁用IC的框架对照
 
 保留新增结构字段和初始化，禁用warmup及prepare，对照仍为c4cc952f；双方预热后三对，第三对候选受明显干扰。该对照同时改变编译优化和代码布局，不能把差异全部归因于shape体积；完整解释见 [IC分析](quickjs-site-ic-analysis.md)。

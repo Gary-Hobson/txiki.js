@@ -17,6 +17,7 @@ VARIANTS = {
     'borrow-quickening': ('borrow-quickening',),
     'hint-fusion-quickening': BASE + ('borrow-quickening',),
     'site-read-ic': BASE + ('site-read-ic',),
+    'site-read-ic-packed': BASE + ('site-read-ic-packed',),
     'object-layout': BASE + ('comparison-branch', 'object-layout'),
 }
 
