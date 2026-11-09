@@ -862,11 +862,89 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 
 完整原始数据见 [benchmarks/results/final-quickening-combined.json](results/final-quickening-combined.json)。
 
-## 最终三方独立确认
+## 按位点属性内联缓存
 
-属性缓存加局部字段融合已提交为 c4cc952f。原始基线、仅属性缓存和属性缓存加融合，各预热一套；6轮交错顺序运行，独立测量。每项为同轮吞吐比的中位数，正值代表最终版本提升。
+对照为c4cc952f属性缓存加字段融合；六对，第六对基线受干扰；定向验证plans=9、hits=674、misses=364、unhashed=5、retired=11。
 
-| 指标 | 最终 / 原始基线 | 最终 / 仅属性缓存 |
+状态：实验完成；当前未纳入提交。
+
+整体配对中位变化-1.28%，胜出1/6对。
+
+| 轮次 | 基线 | 候选 | 变化 |
+|---|---:|---:|---:|
+| 1 | 3.51 | 3.47 | -1.14% |
+| 2 | 3.50 | 3.44 | -1.71% |
+| 3 | 3.51 | 3.46 | -1.42% |
+| 4 | 3.33 | 3.27 | -1.80% |
+| 5 | 3.46 | 3.46 | +0.00% |
+| 6 | 3.11 | 3.36 | +8.04% |
+
+| 子项 | 配对中位变化 |
+|---|---:|
+| acorn | -0.32% |
+| babel | -1.52% |
+| babel-minify | +1.27% |
+| babylon | -0.94% |
+| buble | +0.59% |
+| chai | +0.30% |
+| espree | -0.89% |
+| esprima | -2.26% |
+| jshint | -1.11% |
+| lebab | -0.52% |
+| postcss | +0.25% |
+| prepack | +1.65% |
+| prettier | -0.76% |
+| source-map | -1.61% |
+| terser | -3.63% |
+| typescript | -0.79% |
+| uglify-js | -1.78% |
+
+完整原始数据见 [benchmarks/results/final-site-ic.json](results/final-site-ic.json)。
+
+## 比较与条件分支融合
+
+对照为已提交属性缓存加融合组合；八种比较直接消费紧邻短或长条件分支，保留异常路径及interrupt poll。双方预热后六对；可能与其他候选构建或测试并行。正式test-comparison-branch.js在对照及候选均通过且强制ESLint通过（独立运行，不计入下述套件数）；原生interrupt回调次数及异常堆栈与对照一致。完整套件503通过、1跳过、1失败：TCP中止测试在原始基线亦失败。独立完整CMake构建OFF源码与候选逐字一致，3项回归通过；ON构建及inspector/branch回归通过，重设OFF后重建通过；编译含ThinLTO且无PGO。
+
+状态：实验完成；当前未纳入提交。
+
+整体配对中位变化+1.71%，胜出6/6对。
+
+| 轮次 | 基线 | 候选 | 变化 |
+|---|---:|---:|---:|
+| 1 | 3.49 | 3.52 | +0.86% |
+| 2 | 3.51 | 3.55 | +1.14% |
+| 3 | 3.50 | 3.57 | +2.00% |
+| 4 | 3.50 | 3.56 | +1.71% |
+| 5 | 3.50 | 3.56 | +1.71% |
+| 6 | 3.49 | 3.56 | +2.01% |
+
+| 子项 | 配对中位变化 |
+|---|---:|
+| acorn | +1.96% |
+| babel | +0.81% |
+| babel-minify | +0.81% |
+| babylon | +1.88% |
+| buble | +2.67% |
+| chai | -0.73% |
+| espree | +2.63% |
+| esprima | +0.49% |
+| jshint | +1.68% |
+| lebab | +1.03% |
+| postcss | +3.01% |
+| prepack | +0.17% |
+| prettier | +1.70% |
+| source-map | +2.56% |
+| terser | +1.12% |
+| typescript | +7.58% |
+| uglify-js | +1.12% |
+
+完整原始数据见 [benchmarks/results/comparison-branch.json](results/comparison-branch.json)。
+
+## hint+fusion 阶段的三方确认（c4cc952f）
+
+属性缓存加局部字段融合已提交为 c4cc952f。原始基线、仅属性缓存和属性缓存加融合，各预热一套；6轮交错顺序运行，独立测量。每项为同轮吞吐比的中位数，正值代表该阶段hint+fusion版本提升。
+
+| 指标 | hint+fusion / 原始基线 | hint+fusion / 仅属性缓存 |
 |---|---:|---:|
 | acorn | +4.73% | +1.32% |
 | babel | +3.11% | +0.27% |
@@ -887,8 +965,8 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 | uglify-js | +1.79% | +0.00% |
 | Geometric mean | +2.35% | +0.58% |
 
-最终版本相对baseline总体胜出6/6轮。
+hint+fusion版本相对baseline总体胜出6/6轮。
 
-最终版本相对hint总体胜出5/6轮。
+hint+fusion版本相对hint总体胜出5/6轮。
 
 完整原始数据见 [final-triad.json](results/final-triad.json)。

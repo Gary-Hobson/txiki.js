@@ -65,7 +65,37 @@
  /* Release a counted reference an open var_ref held on the coroutine
     (async function / generator / async generator) owning the frame it
     points into. */
-@@ -18899,7 +18950,7 @@
+@@ -18050,6 +18101,29 @@
+     return can_store_error_stack(exc) || can_add_backtrace(exc);
+ }
+
++/* Comparisons produce canonical booleans. Consume the adjacent branch
++   without another dispatch; preserve its interrupt poll at the caller. */
++static inline bool js_take_comparison_branch(bool value, uint8_t **ppc)
++{
++#if defined(ENABLE_DUMPS) || defined(JS_DEBUG_TRACE_DEBUGGER_STMT)
++    return false;
++#else
++    uint8_t *pc = *ppc;
++    unsigned int op = *pc;
++    if (op - OP_if_false8 <= 1) {
++        *ppc = pc + 1 + (value == (op - OP_if_false8)
++                        ? (int8_t)pc[1] : 1);
++        return true;
++    }
++    if (op - OP_if_false <= 1) {
++        *ppc = pc + 1 + (value == (op - OP_if_false)
++                        ? (int32_t)get_u32(pc + 1) : 4);
++        return true;
++    }
++    return false;
++#endif
++}
++
+ /* argv[] is modified if (flags & JS_CALL_FLAG_COPY_ARGV) = 0. */
+ static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
+                                JSValueConst this_obj, JSValueConst new_target,
+@@ -18899,7 +18973,7 @@
                  int idx;
                  idx = get_u16(pc);
                  pc += 2;
@@ -74,7 +104,7 @@
                  sp++;
              }
              BREAK;
-@@ -18925,7 +18976,7 @@
+@@ -18925,7 +18999,7 @@
                  int idx;
                  idx = get_u16(pc);
                  pc += 2;
@@ -83,7 +113,7 @@
                  sp++;
              }
              BREAK;
-@@ -18947,7 +18998,7 @@
+@@ -18947,7 +19021,7 @@
              }
              BREAK;
 
@@ -92,7 +122,7 @@
          CASE(OP_put_loc8): set_value(ctx, &var_buf[*pc++], *--sp); BREAK;
          CASE(OP_set_loc8): set_value(ctx, &var_buf[*pc++], js_dup(sp[-1])); BREAK;
 
-@@ -18959,10 +19010,10 @@
+@@ -18959,10 +19033,10 @@
              *sp++ = js_dup(var_buf[1]);
              BREAK;
 
@@ -107,7 +137,7 @@
          CASE(OP_put_loc0): set_value(ctx, &var_buf[0], *--sp); BREAK;
          CASE(OP_put_loc1): set_value(ctx, &var_buf[1], *--sp); BREAK;
          CASE(OP_put_loc2): set_value(ctx, &var_buf[2], *--sp); BREAK;
-@@ -18971,10 +19022,10 @@
+@@ -18971,10 +19045,10 @@
          CASE(OP_set_loc1): set_value(ctx, &var_buf[1], js_dup(sp[-1])); BREAK;
          CASE(OP_set_loc2): set_value(ctx, &var_buf[2], js_dup(sp[-1])); BREAK;
          CASE(OP_set_loc3): set_value(ctx, &var_buf[3], js_dup(sp[-1])); BREAK;
@@ -122,7 +152,7 @@
          CASE(OP_put_arg0): set_value(ctx, &arg_buf[0], *--sp); BREAK;
          CASE(OP_put_arg1): set_value(ctx, &arg_buf[1], *--sp); BREAK;
          CASE(OP_put_arg2): set_value(ctx, &arg_buf[2], *--sp); BREAK;
-@@ -19573,8 +19624,8 @@
+@@ -19573,8 +19647,8 @@
                  obj = sp[-1];
                  if (likely(JS_VALUE_GET_TAG(obj) == JS_TAG_OBJECT)) {
                      p = JS_VALUE_GET_OBJ(obj);
@@ -132,7 +162,7 @@
                          if (prs) {
                              /* found */
                              if (unlikely(prs->flags & JS_PROP_TMASK))
-@@ -19594,6 +19645,7 @@
+@@ -19594,6 +19668,7 @@
                              val = JS_UNDEFINED;
                              break;
                          }
@@ -140,7 +170,7 @@
                      }
                  } else {
                  get_field_slow_path:
-@@ -19621,8 +19673,8 @@
+@@ -19621,8 +19696,8 @@
                  obj = sp[-1];
                  if (likely(JS_VALUE_GET_TAG(obj) == JS_TAG_OBJECT)) {
                      p = JS_VALUE_GET_OBJ(obj);
@@ -150,7 +180,7 @@
                          if (prs) {
                              /* found */
                              if (unlikely(prs->flags & JS_PROP_TMASK))
-@@ -19642,6 +19694,7 @@
+@@ -19642,6 +19717,7 @@
                              val = JS_UNDEFINED;
                              break;
                          }
@@ -158,3 +188,15 @@
                      }
                  } else {
                  get_field2_slow_path:
+@@ -20652,6 +20728,11 @@
+                     sp--;                                               \
+                 }                                                       \
+                 }                                                       \
++                if (js_take_comparison_branch(JS_VALUE_GET_INT(sp[-1]), &pc)) { \
++                    sp--; \
++                    if (unlikely(js_poll_interrupts(ctx))) \
++                        goto exception; \
++                } \
+             BREAK
+
+             OP_CMP(OP_lt, <, js_relational_slow(ctx, sp, opcode));
