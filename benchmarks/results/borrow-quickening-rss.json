@@ -1,0 +1,26 @@
+[
+  {
+    "trial": 1,
+    "mode": "baseline",
+    "wall_seconds": 15.91,
+    "max_rss_bytes": 731529216
+  },
+  {
+    "trial": 1,
+    "mode": "borrow-quickening",
+    "wall_seconds": 15.97,
+    "max_rss_bytes": 729333760
+  },
+  {
+    "trial": 2,
+    "mode": "borrow-quickening",
+    "wall_seconds": 15.86,
+    "max_rss_bytes": 729350144
+  },
+  {
+    "trial": 2,
+    "mode": "baseline",
+    "wall_seconds": 16.07,
+    "max_rss_bytes": 731398144
+  }
+]

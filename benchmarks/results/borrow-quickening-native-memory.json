@@ -1,0 +1,7 @@
+{
+  "description": "JS_ComputeMemoryUsage deltas after compiling 1000 generated functions and their enclosing global code; bytes",
+  "baseline_control": {"functions":1001,"function_bytes":220039,"code_bytes":20234,"total_used":280364,"malloc_bytes":303528},
+  "quickening_control": {"functions":1001,"function_bytes":252071,"code_bytes":20234,"total_used":312396,"malloc_bytes":335528},
+  "baseline_one_predicate": {"functions":1001,"function_bytes":224039,"code_bytes":30234,"total_used":294416,"malloc_bytes":303592},
+  "quickening_one_predicate": {"functions":1001,"function_bytes":334071,"code_bytes":30234,"total_used":404448,"malloc_bytes":415592}
+}
