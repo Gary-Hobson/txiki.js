@@ -163,11 +163,12 @@ declare global {
             * was compiled with. `wasm` corresponds to `BUILD_WITH_WASM` (the
             * `WebAssembly` global and `tjs:wasi`) and `sqlite` to
             * `BUILD_WITH_SQLITE` (the `tjs:sqlite` module and persistent
-            * `localStorage`).
+            * `localStorage`). `inspector` corresponds to `BUILD_WITH_INSPECTOR`.
             */
             readonly features: {
                 readonly wasm: boolean;
                 readonly sqlite: boolean;
+                readonly inspector: boolean;
             };
         }
 

@@ -62,6 +62,7 @@ xoption(BUILD_WITH_UBSAN "Build with UndefinedBehaviorSanitizer" OFF)
 xoption(BUILD_WITH_GC_STRESS "Force a full GC before every JS allocation (QuickJS FORCE_GC_AT_MALLOC)" OFF)
 xoption(BUILD_WITH_WASM "If ON (default), build with WASM/WAMR support" ON)
 xoption(BUILD_WITH_SQLITE "If ON (default), build with SQLite (the tjs:sqlite module)" ON)
+xoption(BUILD_WITH_INSPECTOR "Build with the CLI JavaScript inspector" ON)
 xoption(BUILD_WITH_STRIP "If ON, strip the tjs binary after linking" OFF)
 xoption(BUILD_WITH_LTO "If ON, enable link-time optimization" OFF)
 xoption(BUILD_WITH_GC_SECTIONS "If ON, compile with per-function/data sections and link with dead-code stripping" OFF)
@@ -242,7 +243,14 @@ add_executable(tjsc EXCLUDE_FROM_ALL
 ### Dependencies
 ###
 
-add_subdirectory(deps/quickjs EXCLUDE_FROM_ALL)
+if(BUILD_WITH_INSPECTOR)
+    include(cmake/QuickJSDebugger.cmake)
+    add_subdirectory("${quickjs_source}" quickjs-build EXCLUDE_FROM_ALL)
+    target_sources(tjs PRIVATE src/inspector.cpp)
+    target_compile_features(tjs PRIVATE cxx_std_17)
+else()
+    add_subdirectory(deps/quickjs EXCLUDE_FROM_ALL)
+endif()
 target_link_libraries(tjs PUBLIC qjs)
 target_link_libraries(tjsc qjs)
 

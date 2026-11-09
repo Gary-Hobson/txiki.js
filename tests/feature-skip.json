@@ -3,6 +3,9 @@
     "test-wasm-*.js",
     "test-app-compile.js"
   ],
+  "inspector": [
+    "test-inspector.js"
+  ],
   "sqlite": [
     "test-sqlite.js",
     "test-dispose-database.js",

@@ -47,6 +47,13 @@ make
 ./build/tjs
 ```
 
+The CLI inspector is built by default. CMake applies the
+[QuickJS debugger patch](https://github.com/quickjs-ng/quickjs/pull/1421) to a build
+directory copy of the QuickJS submodule. The CDP integration follows
+[QuickJS-Debugger](https://github.com/G-Yong/QuickJS-Debugger).
+To build without the inspector, use
+`cmake -S . -B build -DBUILD_WITH_INSPECTOR=OFF` before building.
+
 ## Windows
 
 Building requires Visual Studio 2022 (or the Build Tools) and [vcpkg](https://vcpkg.io/).

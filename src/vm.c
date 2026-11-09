@@ -22,6 +22,9 @@
  * THE SOFTWARE.
  */
 
+#ifdef BUILD_WITH_INSPECTOR
+#include "inspector.h"
+#endif
 #include "mem.h"
 #include "private.h"
 #include "tjs.h"
@@ -238,6 +241,21 @@ static JSValue tjs__set_import_map_resolver(JSContext *ctx, JSValue this_val, in
     return JS_UNDEFINED;
 }
 
+#ifdef BUILD_WITH_INSPECTOR
+static JSValue tjs__start_inspector(JSContext *ctx, JSValue this_val, int argc, JSValue *argv) {
+    TJSRuntime *qrt = TJS_GetRuntime(ctx);
+    int32_t port;
+    if (argc < 2 || qrt->is_worker || qrt->inspector) {
+        return JS_ThrowTypeError(ctx, "Cannot start an inspector in this runtime");
+    }
+    if (JS_ToInt32(ctx, &port, argv[0])) {
+        return JS_EXCEPTION;
+    }
+    qrt->inspector = tjs__inspector_start(ctx, &qrt->loop, port, JS_ToBool(ctx, argv[1]));
+    return qrt->inspector ? JS_UNDEFINED : JS_EXCEPTION;
+}
+#endif
+
 static void tjs__bootstrap_core(JSContext *ctx, JSValue ns) {
     tjs__mod_channel_init(ctx, ns);
     tjs__mod_dns_init(ctx, ns);
@@ -273,6 +291,14 @@ static void tjs__bootstrap_core(JSContext *ctx, JSValue ns) {
     tjs__mod_httpserver_init(ctx, ns);
 #ifndef _WIN32
     tjs__mod_posix_socket_init(ctx, ns);
+#endif
+
+#ifdef BUILD_WITH_INSPECTOR
+    JS_DefinePropertyValueStr(ctx,
+                              ns,
+                              "startInspector",
+                              JS_NewCFunction(ctx, tjs__start_inspector, "startInspector", 2),
+                              0);
 #endif
 
     /* Internal helpers. */
@@ -752,6 +778,9 @@ void TJS_FreeRuntime(TJSRuntime *qrt) {
      * that created it, and the drain below runs JS. Re-anchor QuickJS's stack
      * check on this thread, or every call can fail with a bogus stack overflow. */
     JS_UpdateStackTop(qrt->rt);
+#ifdef BUILD_WITH_INSPECTOR
+    tjs__inspector_stop(qrt->inspector);
+#endif
 
     /* Quiesce every active native handle before dismantling anything else, so no
      * handle callback can fire into a half-torn-down runtime: libuv-backed

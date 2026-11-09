@@ -1,0 +1,774 @@
+QuickJS-ng debugger interface from G-Yong (PR #1421), adapted for txiki.js.
+
+https://github.com/quickjs-ng/quickjs/pull/1421
+
+diff --git a/quickjs-opcode.h b/quickjs-opcode.h
+index ec2a5ad..7aae0e1 100644
+--- a/quickjs-opcode.h
++++ b/quickjs-opcode.h
+@@ -298,6 +298,9 @@ def( dispose_scope, 3, 0, 0, u16) /* emitted in phase 1, removed in phase 2 */
+
+ def(     source_loc, 9, 0, 0, u32x2) /* emitted in phase 1, removed in phase 3 */
+
++def(      debug_loc, 3, 0, 0, u16)
++def(   debugger_loc, 3, 0, 0, u16)
++
+ DEF(    push_minus1, 1, 0, 1, none_int)
+ DEF(         push_0, 1, 0, 1, none_int)
+ DEF(         push_1, 1, 0, 1, none_int)
+@@ -372,6 +375,11 @@ DEF(        is_null, 1, 1, 1, none)
+ DEF(typeof_is_undefined, 1, 1, 1, none)
+ DEF( typeof_is_function, 1, 1, 1, none)
+
++
++/* Keep the opcode numbers in txiki.js's bundled bytecode stable. */
++DEF(          debug, 3, 0, 0, u16)
++DEF(  debugger_stmt, 3, 0, 0, u16)
++
+ #undef DEF
+ #undef def
+ #endif  /* DEF */
+diff --git a/quickjs.c b/quickjs.c
+index 8cbc85e..096443d 100644
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -432,6 +432,7 @@ typedef struct JSStackFrame {
+     JSValue *arg_buf; /* arguments */
+     JSValue *var_buf; /* variables */
+     struct JSVarRef **var_refs; /* references to arguments or local variables */
++    int debug_scope_idx; /* innermost lexical scope at the last debug instruction */
+     uint8_t *cur_pc; /* only used in bytecode functions : PC of the
+                         instruction after the call */
+     uint16_t var_ref_count; /* number of var refs */
+@@ -619,6 +620,11 @@ struct JSContext {
+                              const char *input, size_t input_len,
+                              const char *filename, int line, int flags, int scope_idx);
+     void *user_opaque;
++
++    JSDebugTraceFunc *debug_trace;
++    void *debug_trace_opaque;
++    JSDebugSourceFunc *debug_source;
++    void *debug_source_opaque;
+ };
+
+ typedef union JSFloat64Union {
+@@ -1472,6 +1478,7 @@ static void js_async_function_resolve_mark(JSRuntime *rt, JSValueConst val,
+ static JSValue JS_EvalInternal(JSContext *ctx, JSValueConst this_obj,
+                                const char *input, size_t input_len,
+                                const char *filename, int line, int flags, int scope_idx);
++static const char *JS_AtomGetStr(JSContext *ctx, char *buf, int buf_size, JSAtom atom);
+ static void js_free_module_def(JSContext *ctx, JSModuleDef *m);
+ static int js_module_attributes_equal(JSContext *ctx, JSValueConst attr1,
+                                       JSValueConst attr2);
+@@ -2954,6 +2961,330 @@ JSValue JS_GetFunctionProto(JSContext *ctx)
+     return js_dup(ctx->function_proto);
+ }
+
++static bool js_class_has_bytecode(JSClassID class_id);
++
++void JS_SetDebugTraceHandler(JSContext *ctx, JSDebugTraceFunc *cb, void *opaque)
++{
++    ctx->debug_trace = cb;
++    ctx->debug_trace_opaque = opaque;
++}
++
++static JSStackFrame *js_get_stack_frame_at_level(JSContext *ctx, int level)
++{
++    JSRuntime *rt = ctx->rt;
++    JSStackFrame *sf = rt->current_stack_frame;
++    int current_level = 0;
++
++    while (sf != NULL && current_level < level) {
++        sf = sf->prev_frame;
++        current_level++;
++    }
++    return sf;
++}
++
++int JS_GetStackDepth(JSContext *ctx)
++{
++    JSRuntime *rt = ctx->rt;
++    JSStackFrame *sf = rt->current_stack_frame;
++    int depth = 0;
++
++    while (sf != NULL) {
++        depth++;
++        sf = sf->prev_frame;
++    }
++    return depth;
++}
++
++int JS_GetLocalVariablesAtLevel(JSContext *ctx, int level,
++                                JSDebugLocalVar **pvars, int *pcount)
++{
++    if (pvars)
++        *pvars = NULL;
++    if (pcount)
++        *pcount = 0;
++    if (!pvars) {
++        JS_ThrowTypeError(ctx, "pvars must not be NULL");
++        return -1;
++    }
++
++    JSStackFrame *sf = js_get_stack_frame_at_level(ctx, level);
++    if (sf == NULL)
++        return 0;
++
++    JSValue func = sf->cur_func;
++    if (JS_VALUE_GET_TAG(func) != JS_TAG_OBJECT)
++        return 0;
++
++    JSObject *p = JS_VALUE_GET_OBJ(func);
++    if (!js_class_has_bytecode(p->class_id))
++        return 0;
++
++    JSFunctionBytecode *b = p->u.func.function_bytecode;
++    int total_vars = b->arg_count + b->var_count + b->closure_var_count;
++
++    if (!b->vardefs && !b->closure_var_count)
++        return 0;
++
++    JSDebugLocalVar *vars = js_malloc(ctx, sizeof(JSDebugLocalVar) * total_vars);
++    if (!vars)
++        return -1;
++
++    int idx = 0;
++
++#define APPEND_VAR(vd_, value_, is_arg_)                                  \
++    do {                                                                  \
++        JSAtom name_ = (vd_)->var_name;                                   \
++        const char *name_str_;                                            \
++        if (name_ != JS_ATOM_NULL) {                                      \
++            char tmp_[32];                                                \
++            JS_AtomGetStr(ctx, tmp_, sizeof(tmp_), name_);                \
++            if (tmp_[0] == '<')                                           \
++                break;                                                    \
++        }                                                                 \
++        name_str_ = JS_AtomToCString(ctx, name_);                         \
++        if (unlikely(!name_str_))                                         \
++            goto fail;                                                    \
++        vars[idx].name = name_str_;                                       \
++        /* Do not expose the internal TDZ sentinel to C callers. */        \
++        if (JS_VALUE_GET_TAG(value_) == JS_TAG_UNINITIALIZED)             \
++            vars[idx].value = JS_UNDEFINED;                               \
++        else                                                              \
++            vars[idx].value = js_dup(value_);                             \
++        vars[idx].is_arg = (is_arg_);                                     \
++        vars[idx].is_closure = false;                                     \
++        vars[idx].scope_level = (vd_)->scope_level;                       \
++        idx++;                                                            \
++    } while (0)
++
++    for (int i = sf->debug_scope_idx; b->vardefs && i >= 0;) {
++        JSVarDef *vd = &b->vardefs[b->arg_count + i];
++        if (vd->scope_level > 0)
++            APPEND_VAR(vd, sf->var_buf[i], false);
++        i = vd->scope_next;
++    }
++
++    for (int i = 0; b->vardefs && i < b->arg_count; i++) {
++        JSVarDef *vd = &b->vardefs[i];
++        APPEND_VAR(vd, sf->arg_buf[i], true);
++    }
++
++    for (int i = 0; b->vardefs && i < b->var_count; i++) {
++        JSVarDef *vd = &b->vardefs[b->arg_count + i];
++        if (vd->scope_level == 0)
++            APPEND_VAR(vd, sf->var_buf[i], false);
++    }
++
++#undef APPEND_VAR
++
++    /* Append closure variables captured from enclosing scopes. */
++    {
++        JSVarRef **var_refs = p->u.func.var_refs;
++        for (int i = 0; i < b->closure_var_count; i++) {
++            JSClosureVar *cv = &b->closure_var[i];
++            JSAtom name = cv->var_name;
++            if (name != JS_ATOM_NULL) {
++                char tmp[32];
++                JS_AtomGetStr(ctx, tmp, sizeof(tmp), name);
++                if (tmp[0] == '<')
++                    continue;
++            }
++            const char *name_str = JS_AtomToCString(ctx, name);
++            if (unlikely(!name_str))
++                goto fail;
++            JSValue cv_val = JS_UNDEFINED;
++            if (var_refs && var_refs[i] && var_refs[i]->pvalue) {
++                JSValue v = *var_refs[i]->pvalue;
++                if (JS_VALUE_GET_TAG(v) != JS_TAG_UNINITIALIZED)
++                    cv_val = js_dup(v);
++            }
++            vars[idx].name = name_str;
++            vars[idx].value = cv_val;
++            vars[idx].is_arg = false;
++            vars[idx].is_closure = true;
++            vars[idx].scope_level = 0;
++            idx++;
++        }
++    }
++
++    if (idx == 0) {
++        js_free(ctx, vars);
++        return 0;
++    }
++
++    if (pvars)
++        *pvars = vars;
++    if (pcount)
++        *pcount = idx;
++    return 0;
++
++fail:
++    for (int i = 0; i < idx; i++) {
++        JS_FreeCString(ctx, vars[i].name);
++        JS_FreeValue(ctx, vars[i].value);
++    }
++    js_free(ctx, vars);
++    return -1;
++}
++
++void JS_FreeLocalVariables(JSContext *ctx, JSDebugLocalVar *vars, int count)
++{
++    if (!vars)
++        return;
++    for (int i = 0; i < count; i++) {
++        JS_FreeCString(ctx, vars[i].name);
++        JS_FreeValue(ctx, vars[i].value);
++    }
++    js_free(ctx, vars);
++}
++
++int JS_SetVariableAtLevel(JSContext *ctx, int level,
++                          const char *name, JSValue value, bool closure)
++{
++    if (!name) {
++        JS_FreeValue(ctx, value);
++        return -3;
++    }
++
++    JSStackFrame *sf = js_get_stack_frame_at_level(ctx, level);
++    if (sf == NULL) {
++        JS_FreeValue(ctx, value);
++        return -1;
++    }
++
++    JSValue func = sf->cur_func;
++    if (JS_VALUE_GET_TAG(func) != JS_TAG_OBJECT) {
++        JS_FreeValue(ctx, value);
++        return -1;
++    }
++    JSObject *p = JS_VALUE_GET_OBJ(func);
++    if (!js_class_has_bytecode(p->class_id)) {
++        JS_FreeValue(ctx, value);
++        return -1;
++    }
++    JSFunctionBytecode *b = p->u.func.function_bytecode;
++
++    JSAtom target_atom = JS_NewAtom(ctx, name);
++    if (target_atom == JS_ATOM_NULL) {
++        JS_FreeValue(ctx, value);
++        return -3;
++    }
++
++    int rc = -1;
++
++    /* Search the innermost active lexical binding before arguments and vars. */
++    for (int i = sf->debug_scope_idx; !closure && b->vardefs && i >= 0;) {
++        JSVarDef *vd = &b->vardefs[b->arg_count + i];
++        if (vd->scope_level > 0 && vd->var_name == target_atom) {
++            if (vd->is_const || JS_IsUninitialized(sf->var_buf[i])) {
++                rc = -2;
++            } else {
++                set_value(ctx, &sf->var_buf[i], js_dup(value));
++                rc = 0;
++            }
++            goto done;
++        }
++        i = vd->scope_next;
++    }
++
++    /* Search arguments. */
++    for (int i = 0; !closure && b->vardefs && i < b->arg_count; i++) {
++        if (b->vardefs[i].var_name == target_atom) {
++            JSValue old = sf->arg_buf[i];
++            sf->arg_buf[i] = js_dup(value);
++            JS_FreeValue(ctx, old);
++            rc = 0;
++            goto done;
++        }
++    }
++
++    /* Search locals. */
++    for (int i = 0; !closure && b->vardefs && i < b->var_count; i++) {
++        JSVarDef *vd = &b->vardefs[b->arg_count + i];
++        if (vd->scope_level == 0 && vd->var_name == target_atom) {
++            if (vd->is_const || JS_IsUninitialized(sf->var_buf[i])) {
++                rc = -2;
++                goto done;
++            }
++            JSValue old = sf->var_buf[i];
++            sf->var_buf[i] = js_dup(value);
++            JS_FreeValue(ctx, old);
++            rc = 0;
++            goto done;
++        }
++    }
++
++    /* Search closure vars. */
++    if (closure) {
++        JSVarRef **var_refs = p->u.func.var_refs;
++        for (int i = 0; i < b->closure_var_count; i++) {
++            JSClosureVar *cv = &b->closure_var[i];
++            if (cv->var_name == target_atom) {
++                if (cv->is_const) {
++                    rc = -2;
++                    goto done;
++                }
++                if (var_refs && var_refs[i] && var_refs[i]->pvalue &&
++                    !JS_IsUninitialized(*var_refs[i]->pvalue)) {
++                    set_value(ctx, var_refs[i]->pvalue, js_dup(value));
++                    rc = 0;
++                }
++                goto done;
++            }
++        }
++    }
++
++done:
++    JS_FreeAtom(ctx, target_atom);
++    JS_FreeValue(ctx, value);
++    return rc;
++}
++
++JSValue JS_EvalInStackFrame(JSContext *ctx, int level,
++                            const char *input, size_t input_len,
++                            const char *filename)
++{
++    if (!input)
++        return JS_ThrowTypeError(ctx, "input must not be NULL");
++
++    /* Reuse the normal direct-eval pipeline: temporarily swap the runtime's
++       current stack frame to the target frame so that JS_EVAL_TYPE_DIRECT
++       picks up its bytecode, var_refs and closure chain via the same path
++       used by the `eval(...)` operator at runtime. */
++    JSStackFrame *target = js_get_stack_frame_at_level(ctx, level);
++    if (!target)
++        return JS_ThrowReferenceError(ctx, "no stack frame at level %d", level);
++
++    if (JS_VALUE_GET_TAG(target->cur_func) != JS_TAG_OBJECT)
++        return JS_ThrowTypeError(ctx,
++                                 "stack frame at level %d is not a JS function",
++                                 level);
++    JSObject *p = JS_VALUE_GET_OBJ(target->cur_func);
++    if (!js_class_has_bytecode(p->class_id))
++        return JS_ThrowTypeError(ctx,
++                                 "stack frame at level %d is not a JS function",
++                                 level);
++    JSFunctionBytecode *b = p->u.func.function_bytecode;
++    if (!b->vardefs && (b->arg_count || b->var_count))
++        return JS_ThrowTypeError(ctx, "stack frame has no variable metadata");
++
++    JSRuntime *rt = ctx->rt;
++    JSStackFrame *saved = rt->current_stack_frame;
++    rt->current_stack_frame = target;
++
++    JSValue ret = JS_EvalInternal(ctx, JS_UNDEFINED, input, input_len,
++                                  filename ? filename : "<debugger-eval>",
++                                  1, JS_EVAL_TYPE_DIRECT, target->debug_scope_idx);
++
++    rt->current_stack_frame = saved;
++    return ret;
++}
++
++void JS_SetDebugSourceHandler(JSContext *ctx, JSDebugSourceFunc *cb, void *opaque)
++{
++    ctx->debug_source = cb;
++    ctx->debug_source_opaque = opaque;
++}
++
+ typedef enum JSFreeModuleEnum {
+     JS_FREE_MODULE_ALL,
+     JS_FREE_MODULE_NOT_RESOLVED,
+@@ -8129,6 +8460,24 @@ fail:
+     return b->line_num;
+ }
+
++bool JS_GetDebugFrame(JSContext *ctx, int level, JSAtom *filename,
++                      JSAtom *function, int *line, int *column)
++{
++    JSStackFrame *sf = js_get_stack_frame_at_level(ctx, level);
++    if (!sf || !JS_IsObject(sf->cur_func))
++        return false;
++    JSObject *p = JS_VALUE_GET_OBJ(sf->cur_func);
++    if (!js_class_has_bytecode(p->class_id))
++        return false;
++    JSFunctionBytecode *b = p->u.func.function_bytecode;
++    *filename = b->filename;
++    *function = b->func_name;
++    *column = 1;
++    *line = sf->cur_pc ? find_line_num(ctx, b, sf->cur_pc - b->byte_code_buf - 1, column) : 1;
++    return true;
++}
++
++
+ /* in order to avoid executing arbitrary code during the stack trace
+    generation, we only look at simple 'name' properties containing a
+    string. */
+@@ -18179,6 +18528,7 @@ static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
+     pc = b->byte_code_buf;
+     /* sf->cur_pc must we set to pc before any recursive calls to JS_CallInternal. */
+     sf->cur_pc = NULL;
++    sf->debug_scope_idx = -1;
+     sf->prev_frame = rt->current_stack_frame;
+     rt->current_stack_frame = sf;
+     ctx = b->realm; /* set the current realm */
+@@ -18194,6 +18544,41 @@ static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
+         JSValue *call_argv;
+
+         SWITCH(pc) {
++        CASE(OP_debug):
++        CASE(OP_debugger_stmt):
++        {
++            const int op = pc[-1];
++            sf->debug_scope_idx = (int)get_u16(pc) - 1;
++            pc += 2;
++            if (unlikely(ctx->debug_trace)) {
++                int col_num = 0;
++                int line_num = -1;
++                uint32_t pc_index = (uint32_t)(pc - b->byte_code_buf - 3);
++                int flags = (op == OP_debugger_stmt)
++                                ? JS_DEBUG_TRACE_DEBUGGER_STMT : 0;
++                line_num = find_line_num(ctx, b, pc_index, &col_num);
++
++                /* Pass the JSAtom values directly — no heap allocation.
++                   The atoms are valid for the lifetime of the bytecode
++                   object, which outlives the callback.  The embedder must
++                   call JS_DupAtom() if it needs to retain them. */
++                sf->cur_pc = pc;
++                int ret = ctx->debug_trace(ctx, b->filename, b->func_name,
++                                           line_num, col_num, flags,
++                                           ctx->debug_trace_opaque);
++
++                if (ret != 0) {
++                    /* If the callback indicated failure but did not raise
++                       an exception itself, synthesize a default one so the
++                       caller never observes JS_UNINITIALIZED via
++                       JS_GetException(). */
++                    if (ret != 0 && !JS_HasException(ctx))
++                        JS_ThrowInternalError(ctx, "aborted by debugger");
++                    goto exception;
++                }
++            }
++            BREAK;
++        }
+         CASE(OP_push_i32):
+             *sp++ = js_int32(get_u32(pc));
+             pc += 4;
+@@ -22479,6 +22864,26 @@ static const JSOpCode opcode_info[OP_COUNT + (OP_TEMP_END - OP_TEMP_START)] = {
+     opcode_info[(op) >= OP_TEMP_START ? \
+                 (op) + (OP_TEMP_END - OP_TEMP_START) : (op)]
+
++void JS_ForEachDebugLocation(JSContext *ctx, JSValueConst bytecode,
++                              JSDebugLocationFunc *callback, void *opaque)
++{
++    if (JS_VALUE_GET_TAG(bytecode) != JS_TAG_FUNCTION_BYTECODE)
++        return;
++    JSFunctionBytecode *b = JS_VALUE_GET_PTR(bytecode);
++    for (int pc = 0; pc < b->byte_code_len;) {
++        int op = b->byte_code_buf[pc];
++        if (op == OP_debug || op == OP_debugger_stmt) {
++            int column = 0;
++            int line = find_line_num(ctx, b, pc, &column);
++            if (line > 0)
++                callback(line, column, opaque);
++        }
++        pc += short_opcode_info(op).size;
++    }
++    for (int i = 0; i < b->cpool_count; i++)
++        JS_ForEachDebugLocation(ctx, b->cpool[i], callback, opaque);
++}
++
+ static void json_free_token(JSParseState *s, JSToken *token) {
+     // Only free actual allocated values
+     switch(token->val) {
+@@ -24059,6 +24464,30 @@ static void emit_source_loc(JSParseState *s)
+     emit_source_loc_at(s, s->token.line_num, s->token.col_num);
+ }
+
++static void emit_debug_opcode(JSParseState *s, uint8_t opcode)
++{
++    JSFunctionDef *fd = s->cur_func;
++    dbuf_putc(&fd->byte_code, opcode);
++    dbuf_put_u16(&fd->byte_code, fd->scope_level);
++    /* Use direct eval's capture rules so all bindings are inspectable,
++       including enclosing variables not otherwise used by the function. */
++    fd->has_eval_call = true;
++}
++
++static void emit_debug(JSParseState *s)
++{
++    if (unlikely(s->ctx->debug_trace))
++        emit_debug_opcode(s, OP_debug_loc);
++}
++
++static void emit_source_loc_debug(JSParseState *s)
++{
++    if (unlikely(s->ctx->debug_trace)) {
++        emit_source_loc(s);
++        emit_debug_opcode(s, OP_debug_loc);
++    }
++}
++
+ static void emit_op(JSParseState *s, uint8_t val)
+ {
+     JSFunctionDef *fd = s->cur_func;
+@@ -29431,6 +29860,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+             goto fail;
+         break;
+     case TOK_RETURN:
++        emit_source_loc_debug(s);
+         if (s->cur_func->is_eval) {
+             js_parse_error(s, "return not in a function");
+             goto fail;
+@@ -29459,6 +29889,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+             goto fail;
+         }
+         emit_source_loc(s);
++        emit_debug(s);
+         if (js_parse_expr(s))
+             goto fail;
+         emit_op(s, OP_throw);
+@@ -29482,6 +29913,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+                     goto fail;
+                 }
+                 s->cur_func->has_await = true;
++                emit_source_loc_debug(s);
+                 if (next_token(s)) /* skip 'using' */
+                     goto fail;
+                 if (js_parse_var(s, PF_IN_ACCEPTED | PF_AWAIT_USING, TOK_USING, /*export_flag*/false))
+@@ -29504,6 +29936,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+         }
+         /* fall thru */
+     case TOK_VAR:
++        emit_source_loc_debug(s);
+         if (next_token(s))
+             goto fail;
+         if (js_parse_var(s, PF_IN_ACCEPTED, tok, /*export_flag*/false))
+@@ -29514,6 +29947,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+     case TOK_IF:
+         {
+             int label1, label2, mask;
++            emit_source_loc_debug(s);
+             if (next_token(s))
+                 goto fail;
+             /* create a new scope for `let f;if(1) function f(){}` */
+@@ -29549,7 +29983,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+         {
+             int label_cont, label_break;
+             BlockEnv break_entry;
+-
++            emit_source_loc_debug(s);
+             label_cont = new_label(s);
+             label_break = new_label(s);
+
+@@ -29624,6 +30058,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+             int source_line_num, source_col_num;
+             bool is_async;
+
++            emit_source_loc_debug(s);
+             source_line_num = s->token.line_num;
+             source_col_num = s->token.col_num;
+             if (next_token(s))
+@@ -29859,6 +30294,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+             int default_label_pos;
+             BlockEnv break_entry;
+
++            emit_source_loc_debug(s);
+             if (next_token(s))
+                 goto fail;
+
+@@ -30210,6 +30646,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+                     js_parse_error(s, "using declaration is not allowed at the top level of a script");
+                     goto fail;
+                 }
++                emit_source_loc_debug(s);
+                 if (next_token(s))
+                     goto fail;
+                 if (js_parse_var(s, PF_IN_ACCEPTED, TOK_USING, /*export_flag*/false))
+@@ -30247,7 +30684,10 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+         break;
+
+     case TOK_DEBUGGER:
+-        /* currently no debugger, so just skip the keyword */
++        if (unlikely(s->ctx->debug_trace)) {
++            emit_source_loc(s);
++            emit_debug_opcode(s, OP_debugger_loc);
++        }
+         if (next_token(s))
+             goto fail;
+         if (js_parse_expect_semi(s))
+@@ -30263,6 +30703,7 @@ static __exception int js_parse_statement_or_decl(JSParseState *s,
+     default:
+     hasexpr:
+         emit_source_loc(s);
++        emit_debug(s);
+         if (js_parse_expr(s))
+             goto fail;
+         if (s->cur_func->eval_ret_idx >= 0) {
+@@ -35249,6 +35690,13 @@ static __exception int resolve_variables(JSContext *ctx, JSFunctionDef *s)
+                 dbuf_put_u16(&bc_out, s->scopes[scope].first + 1);
+             }
+             break;
++        case OP_debug_loc:
++        case OP_debugger_loc:
++            scope = get_u16(bc_buf + pos + 1);
++            mark_eval_captured_variables(ctx, s, scope);
++            dbuf_putc(&bc_out, op);
++            dbuf_put_u16(&bc_out, s->scopes[scope].first + 1);
++            break;
+         case OP_apply_eval: /* convert scope index to adjusted variable index */
+             scope = get_u16(bc_buf + pos + 1);
+             mark_eval_captured_variables(ctx, s, scope);
+@@ -35927,6 +36375,13 @@ static __exception int resolve_labels(JSContext *ctx, JSFunctionDef *s)
+             col_num = get_u32(bc_buf + pos + 5);
+             break;
+
++        case OP_debug_loc:
++        case OP_debugger_loc:
++            add_pc2line_info(s, bc_out.size, line_num, col_num);
++            dbuf_putc(&bc_out, op == OP_debug_loc ? OP_debug : OP_debugger_stmt);
++            dbuf_put_u16(&bc_out, get_u16(bc_buf + pos + 1));
++            break;
++
+         case OP_label:
+             {
+                 label = get_u32(bc_buf + pos + 1);
+@@ -38293,6 +38748,8 @@ static JSValue __JS_EvalInternal(JSContext *ctx, JSValueConst this_obj,
+
+     err = js_parse_program(s);
+     if (err) {
++        if (ctx->debug_source && eval_type != JS_EVAL_TYPE_DIRECT)
++            ctx->debug_source(ctx, filename, input, input_len, m != NULL, JS_UNDEFINED, ctx->debug_source_opaque);
+     fail:
+         free_token(s, &s->token);
+         js_free_function_def(ctx, fd);
+@@ -38306,6 +38763,8 @@ static JSValue __JS_EvalInternal(JSContext *ctx, JSValueConst this_obj,
+     fun_obj = js_create_function(ctx, fd);
+     if (JS_IsException(fun_obj))
+         goto fail1;
++    if (ctx->debug_source && eval_type != JS_EVAL_TYPE_DIRECT)
++        ctx->debug_source(ctx, filename, input, input_len, m != NULL, fun_obj, ctx->debug_source_opaque);
+     /* Could add a flag to avoid resolution if necessary */
+     if (m) {
+         m->func_obj = fun_obj;
+diff --git a/quickjs.h b/quickjs.h
+index d0f8a7f..c2c0bfd 100644
+--- a/quickjs.h
++++ b/quickjs.h
+@@ -544,6 +544,104 @@ JS_EXTERN void JS_SetClassProto(JSContext *ctx, JSClassID class_id, JSValue obj)
+ JS_EXTERN JSValue JS_GetClassProto(JSContext *ctx, JSClassID class_id);
+ JS_EXTERN JSValue JS_GetFunctionProto(JSContext *ctx);
+
++/* Debug callback - invoked when the interpreter hits an OP_debug opcode.
++   Return 0 to continue execution. Return non-zero to abort execution at
++   this point: the engine will jump to the exception handler.  The
++   callback may itself call JS_Throw* to provide a specific exception;
++   if the callback returns non-zero without having raised one, the engine
++   will synthesize a default InternalError("aborted by debugger").
++
++   OP_debug opcodes are only emitted at statement boundaries when a debug
++   trace handler is registered at parse time.  Therefore only code that
++   is parsed (e.g. by JS_Eval / JS_Compile) AFTER JS_SetDebugTraceHandler
++   has been called will be instrumented; previously compiled bytecode
++   will not invoke the callback.  In practice, install the handler before
++   evaluating any application code.
++
++   'filename' and 'funcname' are JSAtom values identifying the source file
++   and enclosing function name.  They are valid only for the duration of
++   the callback; call JS_DupAtom() if you need to retain them.  Either
++   may be JS_ATOM_NULL (0) for anonymous functions or eval code.  Use
++   JS_AtomToCString() / JS_AtomToString() to convert to a C string or
++   JSValue when needed.  Accepting JSAtom avoids a heap allocation on
++   every instrumented statement when the embedder only needs to compare
++   against a known set of breakpoint locations. */
++/* Flags passed to JSDebugTraceFunc.  Use bitwise-AND to test specific bits. */
++#define JS_DEBUG_TRACE_DEBUGGER_STMT (1 << 0) /* triggered by `debugger;` statement */
++
++typedef int JSDebugTraceFunc(JSContext *ctx,
++                             JSAtom filename,
++                             JSAtom funcname,
++                             int line,
++                             int col,
++                             int flags,
++                             void *opaque);
++
++/* Set (or clear) the debug trace handler on a context.  Pass NULL to
++   disable.  Works with any context, including those created with
++   JS_NewContextRaw.  See JSDebugTraceFunc above for the parse-time
++   instrumentation contract. */
++JS_EXTERN void JS_SetDebugTraceHandler(JSContext *ctx,
++                                       JSDebugTraceFunc *cb,
++                                       void *opaque);
++
++/* Borrowed filename / function atoms. Returns false for native frames. */
++JS_EXTERN bool JS_GetDebugFrame(JSContext *ctx, int level, JSAtom *filename,
++                                JSAtom *function, int *line, int *column);
++
++typedef void JSDebugSourceFunc(JSContext *ctx, const char *filename,
++                               const char *source, size_t length,
++                               bool is_module, JSValueConst bytecode, void *opaque);
++/* bytecode is borrowed, or undefined if parsing failed. */
++JS_EXTERN void JS_SetDebugSourceHandler(JSContext *ctx, JSDebugSourceFunc *cb, void *opaque);
++
++typedef void JSDebugLocationFunc(int line, int column, void *opaque);
++JS_EXTERN void JS_ForEachDebugLocation(JSContext *ctx, JSValueConst bytecode,
++                                       JSDebugLocationFunc *callback, void *opaque);
++
++/* Debug API: Get local variables in stack frames */
++typedef struct JSDebugLocalVar {
++    const char *name;
++    JSValue value;
++    bool is_arg;
++    bool is_closure;       /* true if captured from an enclosing scope */
++    int scope_level;
++} JSDebugLocalVar;
++
++/* Get the call stack depth (0 when no frames are active). */
++JS_EXTERN int JS_GetStackDepth(JSContext *ctx);
++
++/* Get local variables at a specific stack level (0 = current frame, 1 = caller, etc.).
++   On success, *pvars receives an allocated array of JSDebugLocalVar entries
++   that must be freed with JS_FreeLocalVariables(), and *pcount receives the
++   entry count.  If no variables are available, *pvars is set to NULL and
++   *pcount is set to 0.  Returns -1 on exception.
++
++   The returned array contains arguments first, then locals, then any closure
++   variables captured from enclosing scopes (with `is_closure = true`). */
++JS_EXTERN int JS_GetLocalVariablesAtLevel(JSContext *ctx, int level,
++                                          JSDebugLocalVar **pvars,
++                                          int *pcount);
++
++/* Free local variables array returned by JS_GetLocalVariablesAtLevel */
++JS_EXTERN void JS_FreeLocalVariables(JSContext *ctx, JSDebugLocalVar *vars, int count);
++
++/* Set a local or closure variable in a stack frame by name.
++   Returns 0 on success, -1 if the variable is not found, -2 if it is a const
++   binding (read-only), or -3 on type/argument errors. */
++JS_EXTERN int JS_SetVariableAtLevel(JSContext *ctx, int level,
++                                    const char *name, JSValue value, bool closure);
++
++/* Evaluate an expression in the context of the given stack frame.
++   The expression has access to the frame's local and closure variables.
++   On success, returns the resulting JSValue.  On error, returns
++   JS_EXCEPTION (the exception is set on `ctx`).
++
++   This uses the engine's direct eval mechanism with the selected frame. */
++JS_EXTERN JSValue JS_EvalInStackFrame(JSContext *ctx, int level,
++                                      const char *input, size_t input_len,
++                                      const char *filename);
++
+ /* the following functions are used to select the intrinsic object to
+    save memory */
+ JS_EXTERN JSContext *JS_NewContextRaw(JSRuntime *rt);

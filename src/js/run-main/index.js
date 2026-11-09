@@ -53,6 +53,16 @@ const Trailer = {
 };
 
 const exeName = path.basename(tjs.args[0]);
+const inspectorHelp = core.startInspector ? `
+  --inspect
+        Listen for a debugger on 127.0.0.1:9229 and run immediately
+
+  --inspect-brk
+        Wait for a debugger and pause on the first JavaScript statement
+
+  --inspect-port PORT
+        Set the inspector port (0 selects a free port)
+` : '';
 const help = `Usage: ${exeName} [options] [subcommand]
 
 Options:
@@ -75,6 +85,7 @@ Options:
         Path to a custom CA bundle PEM file
         (env: TJS_CA_BUNDLE, SSL_CERT_FILE)
 
+${inspectorHelp}
 Subcommands:
   run
         Run a JavaScript program
@@ -205,8 +216,9 @@ if (!isBundled) {
             help: 'h',
             version: 'v'
         },
-        boolean: [ 'h', 'v' ],
-        string: [ 'e', 'tls-ca' ],
+        boolean: [ 'h', 'v', 'inspect', 'inspect-brk' ],
+        string: [ 'e', 'tls-ca', 'inspect-port' ],
+        default: { 'inspect-port': null },
         stopEarly: true,
         unknown: option => {
             if (![ 'memory-limit', 'stack-size', 'wasm-stack-size' ].includes(option)) {
@@ -247,6 +259,34 @@ if (!isBundled) {
 
         const [ command, ...subargv ] = options._;
 
+        const inspect = options.inspect || options['inspect-brk'];
+
+        if (options['inspect-port'] !== null && !inspect) {
+            throw '--inspect-port requires --inspect or --inspect-brk';
+        }
+
+        const startInspector = () => {
+            if (!inspect) {
+                return;
+            }
+
+            if (!core.startInspector) {
+                throw 'This build does not include the JavaScript inspector';
+            }
+
+            const port = options['inspect-port'] ?? '9229';
+
+            if (!/^\d+$/.test(port) || Number(port) > 65535) {
+                throw 'Invalid inspector port (expected 0–65535)';
+            }
+
+            core.startInspector(Number(port), options['inspect-brk']);
+        };
+
+        if (inspect && ![ 'run', 'eval', 'serve' ].includes(command)) {
+            throw 'The JavaScript inspector requires run, eval, or serve';
+        }
+
         if (!command) {
             if (tjs.stdin.isTerminal) {
                 core.runRepl();
@@ -260,6 +300,7 @@ if (!isBundled) {
                 throw helpEval;
             }
 
+            startInspector();
             core.evalScript(expr);
         } else if (command === 'run') {
             const runOpts = getopts(subargv, {
@@ -276,6 +317,10 @@ if (!isBundled) {
             const ext = path.extname(filename).toLowerCase();
 
             if (ext === '.wasm') {
+                if (inspect) {
+                    throw 'The JavaScript inspector cannot debug WASI programs';
+                }
+
                 const { WASI } = await import('tjs:wasi');
                 const bytes = await tjs.readFile(filename);
                 const module = new WebAssembly.Module(bytes);
@@ -304,6 +349,7 @@ if (!isBundled) {
                     tjs.setImportMap(mapObj, path.dirname(resolvedMapPath));
                 }
 
+                startInspector();
                 await core.evalFile(filename);
             }
         } else if (command === 'serve') {
@@ -335,6 +381,7 @@ if (!isBundled) {
                 };
             }
 
+            startInspector();
             const mod = await import(path.resolve(filename));
             const handler = mod.default?.fetch;
 

@@ -25,6 +25,39 @@ These options apply before the subcommand:
 | `--stack-size SIZE` | Maximum JavaScript stack size, in bytes (default: 1024 KB) |
 | `--wasm-stack-size SIZE` | WebAssembly stack size, in bytes (default: 512 KB) |
 | `--tls-ca FILE` | Path to a custom CA bundle PEM file (overrides the embedded Mozilla bundle) |
+| `--inspect` | Start the JavaScript inspector and run immediately |
+| `--inspect-brk` | Wait for a debugger and pause at the first instrumented statement |
+| `--inspect-port PORT` | Inspector port (default: 9229, use 0 to select a free port) |
+
+## Debugging JavaScript
+
+Pass the inspector options before `run`, `eval`, or `serve`:
+
+```bash
+tjs --inspect-brk run app.js
+tjs --inspect --inspect-port 9230 serve app.js
+```
+
+The inspector listens on IPv4 loopback and prints its WebSocket URL to stderr.
+In Chrome, open `chrome://inspect`, configure the printed address as a network target
+if needed, and click **inspect**. For VS Code, use a JavaScript attach configuration
+with the same port:
+
+```json
+{
+  "type": "node",
+  "request": "attach",
+  "name": "Attach to txiki.js",
+  "address": "127.0.0.1",
+  "port": 9229
+}
+```
+
+The inspector accepts one Chrome DevTools Protocol (CDP) client at a time. It supports
+breakpoints in the entry script and imported JavaScript modules, `debugger;` statements,
+stepping, call stacks, scope inspection, and expression evaluation. It debugs source
+code in the main runtime. Workers, WASI programs, and precompiled standalone
+executables are outside its scope.
 
 ## Subcommands
 

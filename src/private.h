@@ -143,6 +143,9 @@ struct TJSRuntime {
     JSRuntime *rt;
     JSContext *ctx;
     uv_loop_t loop;
+#ifdef BUILD_WITH_INSPECTOR
+    struct TJSInspector *inspector;
+#endif
     struct {
         uv_check_t check;
         uv_idle_t idle;
