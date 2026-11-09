@@ -324,7 +324,7 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 
 64位JSString填充空间存储atom索引，省去hash链反查；32位保持原实现。
 
-状态：实验完成；当前未纳入提交。
+状态：未保留；独立收益较小，组合尚无可靠增量证据。
 
 整体配对中位变化+0.75%，胜出7/8对。
 
@@ -556,7 +556,7 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 
 仅混合数值及指针路径，避免字符串key额外指令开销；第四对基线异常慢，存在并发波动。
 
-状态：实验完成；当前未纳入提交。
+状态：舍弃，收益不稳定或退化。
 
 整体配对中位变化+0.46%，胜出4/6对。
 
@@ -671,7 +671,7 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 
 对照是property-hint而非原始基线；六对中基线数轮明显受并发干扰。
 
-状态：实验完成；当前未纳入提交。
+状态：未保留；多轮控制版受并发影响，不能按表面增益采纳。
 
 整体配对中位变化+4.16%，胜出5/6对。
 
@@ -866,7 +866,7 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 
 对照为c4cc952f属性缓存加字段融合；六对，第六对基线受干扰；定向验证plans=9、hits=674、misses=364、unhashed=5、retired=11。
 
-状态：实验完成；当前未纳入提交。
+状态：舍弃，收益不稳定或退化。
 
 整体配对中位变化-1.28%，胜出1/6对。
 
@@ -901,11 +901,86 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 
 完整原始数据见 [benchmarks/results/final-site-ic.json](results/final-site-ic.json)。
 
+## 禁用IC的框架对照
+
+保留新增结构字段和初始化，禁用warmup及prepare，对照仍为c4cc952f；双方预热后三对，第三对候选受明显干扰。该对照同时改变编译优化和代码布局，不能把差异全部归因于shape体积；完整解释见 [IC分析](quickjs-site-ic-analysis.md)。
+
+状态：框架成本对照，非拟接入的产品优化；三对仅作筛选。
+
+整体配对中位变化-1.14%，胜出0/3对。
+
+| 轮次 | 基线 | 候选 | 变化 |
+|---|---:|---:|---:|
+| 1 | 3.50 | 3.46 | -1.14% |
+| 2 | 3.50 | 3.48 | -0.57% |
+| 3 | 3.50 | 3.12 | -10.86% |
+
+| 子项 | 配对中位变化 |
+|---|---:|
+| acorn | +0.00% |
+| babel | -1.08% |
+| babel-minify | -1.02% |
+| babylon | +0.75% |
+| buble | +0.58% |
+| chai | -1.32% |
+| espree | +0.00% |
+| esprima | -0.99% |
+| jshint | +0.45% |
+| lebab | -2.31% |
+| postcss | -0.25% |
+| prepack | -3.09% |
+| prettier | -0.77% |
+| source-map | -2.88% |
+| terser | -5.22% |
+| typescript | -3.07% |
+| uglify-js | -2.91% |
+
+完整原始数据见 [benchmarks/results/final-site-ic-disabled.json](results/final-site-ic-disabled.json)。
+
+## 对象初始化区域预规划
+
+对照为ef801eaa，包含hint、字段融合及比较分支融合；对未逃逸的直线初始化区域预建最终shape并直接初始化字段，保持initializer执行顺序。双方预热后六对，第二对候选受干扰。完整套件503通过、1跳过、2失败：TCP为原始基线已知失败，storage为显式TJS_HOME触发的fixture环境问题（基线同环境复现，无该环境变量时双方单独通过）。native GC、默认原型换置、活跃函数序列化及双向字节码互读通过；详细机制和内存成本见 [对象构造分析](quickjs-object-construction-analysis.md)。
+
+状态：舍弃，收益不稳定或退化。
+
+整体配对中位变化-0.14%，胜出2/6对。
+
+| 轮次 | 基线 | 候选 | 变化 |
+|---|---:|---:|---:|
+| 1 | 3.56 | 3.53 | -0.84% |
+| 2 | 3.54 | 3.36 | -5.08% |
+| 3 | 3.55 | 3.58 | +0.85% |
+| 4 | 3.53 | 3.59 | +1.70% |
+| 5 | 3.56 | 3.56 | +0.00% |
+| 6 | 3.56 | 3.55 | -0.28% |
+
+| 子项 | 配对中位变化 |
+|---|---:|
+| acorn | -1.58% |
+| babel | +0.68% |
+| babel-minify | +1.81% |
+| babylon | +0.37% |
+| buble | -3.98% |
+| chai | +0.59% |
+| espree | -5.98% |
+| esprima | +9.13% |
+| jshint | +0.88% |
+| lebab | +0.38% |
+| postcss | -0.24% |
+| prepack | +1.21% |
+| prettier | -0.19% |
+| source-map | +0.78% |
+| terser | +0.00% |
+| typescript | +0.53% |
+| uglify-js | -0.32% |
+
+完整原始数据见 [benchmarks/results/object-layout.json](results/object-layout.json)。
+
 ## 比较与条件分支融合
 
 对照为已提交属性缓存加融合组合；八种比较直接消费紧邻短或长条件分支，保留异常路径及interrupt poll。双方预热后六对；可能与其他候选构建或测试并行。正式test-comparison-branch.js在对照及候选均通过且强制ESLint通过（独立运行，不计入下述套件数）；原生interrupt回调次数及异常堆栈与对照一致。完整套件503通过、1跳过、1失败：TCP中止测试在原始基线亦失败。独立完整CMake构建OFF源码与候选逐字一致，3项回归通过；ON构建及inspector/branch回归通过，重设OFF后重建通过；编译含ThinLTO且无PGO。
 
-状态：实验完成；当前未纳入提交。
+状态：已集成至提交ef801eaa；收益为相对c4cc952f的增量。
 
 整体配对中位变化+1.71%，胜出6/6对。
 

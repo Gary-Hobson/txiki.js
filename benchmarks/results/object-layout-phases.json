@@ -1,0 +1,588 @@
+{
+  "note": "Diagnostic counts only. Each workload boundary forces GC, changing heap residency. capacity_model_resizes is a counterfactual estimate against initial growth capacity, not a measured baseline difference; later delete/compact history is not reconstructed.",
+  "phases": [
+    {
+      "name": "acorn",
+      "OBJECT_LAYOUT_COST": {
+        "added": 8,
+        "resized": 6,
+        "cloned": 3,
+        "capacity_model_resizes": 0
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 228342,
+        "3": 449,
+        "4": 8751,
+        "5": 1,
+        "6": 2
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 41650,
+        "fields": 4851
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 17,
+        "objects": 237545,
+        "initialized": 493052
+      }
+    },
+    {
+      "name": "babel",
+      "OBJECT_LAYOUT_COST": {
+        "added": 1572,
+        "resized": 625,
+        "cloned": 293,
+        "capacity_model_resizes": 112
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 6959,
+        "3": 1343,
+        "4": 6136,
+        "5": 330897,
+        "6": 107,
+        "7": 5,
+        "8": 107,
+        "9": 23,
+        "12": 2,
+        "14": 390,
+        "31": 1
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 631807,
+        "fields": 119524
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 389,
+        "objects": 345970,
+        "initialized": 1704231
+      }
+    },
+    {
+      "name": "babel-minify",
+      "OBJECT_LAYOUT_COST": {
+        "added": 415,
+        "resized": 373,
+        "cloned": 84,
+        "capacity_model_resizes": 2
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 5194,
+        "3": 3493,
+        "4": 21156,
+        "5": 51492,
+        "6": 9,
+        "7": 3,
+        "8": 4,
+        "11": 6,
+        "14": 216,
+        "15": 2,
+        "16": 1,
+        "18": 2,
+        "19": 3,
+        "20": 1,
+        "21": 1,
+        "24": 1,
+        "28": 2,
+        "31": 1,
+        "33": 1,
+        "37": 1,
+        "38": 3,
+        "42": 1,
+        "49": 1,
+        "53": 1,
+        "57": 1,
+        "59": 2
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 173529,
+        "fields": 39784
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 599,
+        "objects": 81598,
+        "initialized": 366942
+      }
+    },
+    {
+      "name": "babylon",
+      "OBJECT_LAYOUT_COST": {
+        "added": 3,
+        "resized": 2,
+        "cloned": 1,
+        "capacity_model_resizes": 0
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 640,
+        "3": 3,
+        "4": 1,
+        "5": 1,
+        "6": 1
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 123836,
+        "fields": 136720
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 0,
+        "objects": 646,
+        "initialized": 1304
+      }
+    },
+    {
+      "name": "buble",
+      "OBJECT_LAYOUT_COST": {
+        "added": 4513,
+        "resized": 2259,
+        "cloned": 566,
+        "capacity_model_resizes": 156
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 28072,
+        "3": 18233,
+        "4": 6711,
+        "5": 161,
+        "6": 1,
+        "13": 2
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 15830,
+        "fields": 2210
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 30,
+        "objects": 53180,
+        "initialized": 138524
+      }
+    },
+    {
+      "name": "chai",
+      "OBJECT_LAYOUT_COST": {
+        "added": 3,
+        "resized": 2,
+        "cloned": 1,
+        "capacity_model_resizes": 0
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 174,
+        "3": 3891,
+        "4": 1,
+        "5": 1,
+        "6": 1
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 24256,
+        "fields": 24016
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 88,
+        "objects": 4068,
+        "initialized": 12036
+      }
+    },
+    {
+      "name": "espree",
+      "OBJECT_LAYOUT_COST": {
+        "added": 51,
+        "resized": 50,
+        "cloned": 25,
+        "capacity_model_resizes": 8
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 612,
+        "3": 583,
+        "4": 6785,
+        "5": 1,
+        "6": 1,
+        "11": 16
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 34284,
+        "fields": 8506
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 7,
+        "objects": 7998,
+        "initialized": 30300
+      }
+    },
+    {
+      "name": "esprima",
+      "OBJECT_LAYOUT_COST": {
+        "added": 402975,
+        "resized": 402974,
+        "cloned": 202505,
+        "capacity_model_resizes": 0
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 1240356,
+        "3": 153193,
+        "4": 4131,
+        "5": 3047,
+        "6": 390105,
+        "7": 10012,
+        "9": 568,
+        "13": 8,
+        "26": 8
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 211642,
+        "fields": 5972
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 30,
+        "objects": 1801428,
+        "initialized": 5388188
+      }
+    },
+    {
+      "name": "jshint",
+      "OBJECT_LAYOUT_COST": {
+        "added": 10718,
+        "resized": 6359,
+        "cloned": 1446,
+        "capacity_model_resizes": 937
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 81006,
+        "3": 8591,
+        "4": 14465,
+        "5": 3119,
+        "6": 14325,
+        "7": 510,
+        "8": 724,
+        "15": 724,
+        "17": 6
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 13648,
+        "fields": 140515
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 47,
+        "objects": 123470,
+        "initialized": 367514
+      }
+    },
+    {
+      "name": "lebab",
+      "OBJECT_LAYOUT_COST": {
+        "added": 83,
+        "resized": 80,
+        "cloned": 72,
+        "capacity_model_resizes": 2
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 119586,
+        "3": 85857,
+        "4": 34824,
+        "5": 9185,
+        "6": 1,
+        "8": 2,
+        "9": 2,
+        "11": 2
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 138623,
+        "fields": 30262
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 81,
+        "objects": 249459,
+        "initialized": 682026
+      }
+    },
+    {
+      "name": "postcss",
+      "OBJECT_LAYOUT_COST": {
+        "added": 44709,
+        "resized": 44466,
+        "cloned": 256,
+        "capacity_model_resizes": 0
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 207709,
+        "3": 4780,
+        "4": 321,
+        "5": 1185,
+        "6": 1,
+        "12": 12
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 107689,
+        "fields": 2096
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 13,
+        "objects": 214008,
+        "initialized": 437117
+      }
+    },
+    {
+      "name": "prepack",
+      "OBJECT_LAYOUT_COST": {
+        "added": 446,
+        "resized": 420,
+        "cloned": 47,
+        "capacity_model_resizes": 263
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 31660,
+        "3": 30855,
+        "4": 5073,
+        "5": 37669,
+        "6": 97,
+        "7": 266,
+        "13": 26,
+        "17": 2
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 124228,
+        "fields": 40606
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 121,
+        "objects": 105648,
+        "initialized": 367338
+      }
+    },
+    {
+      "name": "prettier",
+      "OBJECT_LAYOUT_COST": {
+        "added": 56,
+        "resized": 14,
+        "cloned": 12,
+        "capacity_model_resizes": 2
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 69546,
+        "3": 2274,
+        "4": 7577,
+        "5": 1,
+        "6": 1,
+        "7": 1,
+        "8": 54,
+        "10": 1,
+        "37": 1,
+        "48": 1
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 39016,
+        "fields": 40895
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 51,
+        "objects": 79457,
+        "initialized": 176767
+      }
+    },
+    {
+      "name": "source-map",
+      "OBJECT_LAYOUT_COST": {
+        "added": 17,
+        "resized": 12,
+        "cloned": 9,
+        "capacity_model_resizes": 0
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 108336,
+        "3": 3,
+        "4": 25999,
+        "5": 18537,
+        "6": 1
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 270894,
+        "fields": 1028962
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 7,
+        "objects": 152876,
+        "initialized": 413368
+      }
+    },
+    {
+      "name": "terser",
+      "OBJECT_LAYOUT_COST": {
+        "added": 14566,
+        "resized": 7323,
+        "cloned": 7116,
+        "capacity_model_resizes": 6916
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 214,
+        "3": 2177,
+        "4": 1413,
+        "5": 335,
+        "6": 109,
+        "7": 112,
+        "9": 2,
+        "10": 7040,
+        "15": 2,
+        "18": 2,
+        "22": 652
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 2400,
+        "fields": 25862
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 49,
+        "objects": 12058,
+        "initialized": 100552
+      }
+    },
+    {
+      "name": "typescript",
+      "OBJECT_LAYOUT_COST": {
+        "added": 299,
+        "resized": 298,
+        "cloned": 297,
+        "capacity_model_resizes": 0
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 2574,
+        "3": 603,
+        "4": 1065,
+        "5": 39,
+        "6": 5,
+        "7": 356,
+        "8": 156,
+        "9": 4,
+        "11": 4,
+        "27": 140,
+        "32": 8,
+        "37": 4,
+        "40": 4
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 20802,
+        "fields": 13204
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 43,
+        "objects": 4962,
+        "initialized": 19606
+      }
+    },
+    {
+      "name": "uglify-js",
+      "OBJECT_LAYOUT_COST": {
+        "added": 32059,
+        "resized": 17276,
+        "cloned": 15857,
+        "capacity_model_resizes": 14438
+      },
+      "OBJECT_LAYOUT_HIST": {
+        "2": 1758,
+        "3": 6441,
+        "4": 1469,
+        "5": 1127,
+        "6": 1,
+        "7": 2,
+        "10": 14858,
+        "13": 4,
+        "20": 8064
+      },
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 18280,
+        "fields": 277500
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 1,
+        "sites": 1,
+        "fields": 2,
+        "bytes": 56,
+        "shapes": 56,
+        "objects": 33724,
+        "initialized": 344282
+      }
+    },
+    {
+      "name": "Geometric mean",
+      "OBJECT_LAYOUT_COST": {
+        "added": 0,
+        "resized": 0,
+        "cloned": 0,
+        "capacity_model_resizes": 0
+      },
+      "OBJECT_LAYOUT_HIST": {},
+      "OBJECT_LAYOUT_ORDINARY": {
+        "objects": 4,
+        "fields": 4
+      },
+      "OBJECT_LAYOUT": {
+        "plans": 0,
+        "sites": 0,
+        "fields": 0,
+        "bytes": 0,
+        "shapes": 0,
+        "objects": 0,
+        "initialized": 0
+      }
+    }
+  ]
+}

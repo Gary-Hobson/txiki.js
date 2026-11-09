@@ -22,7 +22,8 @@ python3 benchmarks/experiments/replay.py \
 | `borrow-quickening` | 入口特化修正版，独立六对 +0.59% |
 | `hint-fusion-quickening` | 修正版叠加已有优化，六对 -1.00%，舍弃 |
 | `site-read-ic` | 第一版按访问点缓存，增量六对 -1.28%，舍弃 |
+| `object-layout` | 第一版对象初始化预规划，相对 ef801eaa 六对 -0.14%，espree -5.98%，舍弃 |
 
 数值是历史实验的配对中位数，基线不同，不能相加。方法、17 项分数、并发与测量限制见 [实验记录](../quickjs-optimization.md)。此目录是归档时的审查快照：site IC 在首轮测试后补了非 inspector 模式的 opcode 数量静态断言，不能将该快照的源码哈希宣称为首轮计分源码哈希。测试时关闭 PGO、inspector 和诊断计数；这些原型不代表已完成跨平台验证。
 
-归档验证：前五个 variant 的输出与本机保存的已测速候选源码逐字相同；site IC 的差异仅为上述静态断言。`retained-ef801eaa --format patch` 与正式补丁逐字相同，并在独立临时目录验证了应用结果和拒绝覆盖已有输出。这些是源码重建检查，没有用重建工具重新生成历史性能分数。
+归档验证：前五个 variant 的输出与本机保存的已测速候选源码逐字相同；site IC 和 object-layout 的差异仅为首测后补充的非 inspector 私有 opcode 区间静态断言。`retained-ef801eaa --format patch` 与正式补丁逐字相同，并在独立临时目录验证了应用结果和拒绝覆盖已有输出。这些是源码重建检查，没有用重建工具重新生成历史性能分数。

@@ -4,6 +4,7 @@
 - [架构分析](quickjs-architecture-analysis.md)：引擎成本、属性布局身份、所有权值流与对象构造路线。
 - [JIT / Java 优化分析](quickjs-jit-inspired-analysis.md)：跨平台借鉴与已验证原型的边界。
 - [架构实验源码快照](experiments/README.md)：重建已保留和已舍弃的主要候选，无需依赖本机构建目录。
+- [属性访问缓存分析](quickjs-site-ic-analysis.md)与[对象构造分析](quickjs-object-construction-analysis.md)：具体实现边界、实测成本及修正验证状态。
 - `results/`：原始分数、采样和内存数据。分数是吞吐量，越高越好。
 
 ## 复测现有二进制

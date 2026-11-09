@@ -1,0 +1,138 @@
+{
+  "integrated-branch": [
+    {
+      "phase": "initial",
+      "functions": 0,
+      "function_bytes": 0,
+      "used_bytes": 90542,
+      "malloc_bytes": 95520,
+      "shapes": 106,
+      "shape_bytes": 18552,
+      "objects": 187,
+      "props_bytes": 17824
+    },
+    {
+      "phase": "compiled",
+      "functions": 1001,
+      "function_bytes": 225039,
+      "used_bytes": 428042,
+      "malloc_bytes": 447224,
+      "shapes": 106,
+      "shape_bytes": 18552,
+      "objects": 187,
+      "props_bytes": 17824
+    },
+    {
+      "phase": "installed",
+      "functions": 1000,
+      "function_bytes": 208890,
+      "used_bytes": 547363,
+      "malloc_bytes": 566304,
+      "shapes": 107,
+      "shape_bytes": 34304,
+      "objects": 1187,
+      "props_bytes": 81776
+    },
+    {
+      "phase": "objects",
+      "functions": 1000,
+      "function_bytes": 208890,
+      "used_bytes": 738115,
+      "malloc_bytes": 758720,
+      "shapes": 108,
+      "shape_bytes": 34440,
+      "objects": 2189,
+      "props_bytes": 177824
+    },
+    {
+      "phase": "mutated",
+      "functions": 1000,
+      "function_bytes": 208890,
+      "used_bytes": 978213,
+      "malloc_bytes": 1014824,
+      "shapes": 1107,
+      "shape_bytes": 226304,
+      "objects": 2191,
+      "props_bytes": 225888
+    },
+    {
+      "phase": "dropped",
+      "functions": 0,
+      "function_bytes": 0,
+      "used_bytes": 164880,
+      "malloc_bytes": 172920,
+      "shapes": 106,
+      "shape_bytes": 34208,
+      "objects": 190,
+      "props_bytes": 33872
+    }
+  ],
+  "object-layout": [
+    {
+      "phase": "initial",
+      "functions": 0,
+      "function_bytes": 0,
+      "used_bytes": 90542,
+      "malloc_bytes": 95520,
+      "shapes": 106,
+      "shape_bytes": 18552,
+      "objects": 187,
+      "props_bytes": 17824
+    },
+    {
+      "phase": "compiled",
+      "functions": 1001,
+      "function_bytes": 329055,
+      "used_bytes": 532058,
+      "malloc_bytes": 551224,
+      "shapes": 106,
+      "shape_bytes": 18552,
+      "objects": 187,
+      "props_bytes": 17824
+    },
+    {
+      "phase": "installed",
+      "functions": 1000,
+      "function_bytes": 312890,
+      "used_bytes": 651363,
+      "malloc_bytes": 670304,
+      "shapes": 107,
+      "shape_bytes": 34304,
+      "objects": 1187,
+      "props_bytes": 81776
+    },
+    {
+      "phase": "objects",
+      "functions": 1000,
+      "function_bytes": 312890,
+      "used_bytes": 993851,
+      "malloc_bytes": 1014952,
+      "shapes": 1107,
+      "shape_bytes": 170304,
+      "objects": 2189,
+      "props_bytes": 177824
+    },
+    {
+      "phase": "mutated",
+      "functions": 1000,
+      "function_bytes": 312890,
+      "used_bytes": 1234085,
+      "malloc_bytes": 1271192,
+      "shapes": 2107,
+      "shape_bytes": 362304,
+      "objects": 2191,
+      "props_bytes": 225888
+    },
+    {
+      "phase": "dropped",
+      "functions": 0,
+      "function_bytes": 0,
+      "used_bytes": 180752,
+      "malloc_bytes": 189288,
+      "shapes": 106,
+      "shape_bytes": 34208,
+      "objects": 190,
+      "props_bytes": 33872
+    }
+  ]
+}
