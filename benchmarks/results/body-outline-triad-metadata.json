@@ -1,0 +1,33 @@
+{
+  "started_utc": "2026-11-09T20:53:11.405668+00:00",
+  "platform": "macOS-15.6.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "suite": {
+    "path": "/private/tmp/txiki-webtooling-src.Xpz6vi/dist/cli.js",
+    "sha256": "a7a227840538deb2d44dcadbf3da6b12187b29961f2e134db2269b785f7d9931"
+  },
+  "binaries": {
+    "anchor": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/integrated-regexp-anchor/tjs",
+      "sha256": "4b72cddcecddc52e49614d6cf486fe001214a717d662a9064eb2faa831c47894"
+    },
+    "body": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-charcode/tjs",
+      "sha256": "016d487ebb2e636e66464f1b35a43889e6ceebaff1f8f6e22a98f66db1ac49c0"
+    },
+    "outline": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/quickjs-hotpaths/field-chain-outline/tjs",
+      "sha256": "a376e20a6034a8d01bdd9a5ac56756443028e8df4a6979bb5b4af8942d62cabb"
+    }
+  },
+  "rounds": 6,
+  "warmups_per_binary": 1,
+  "script": "globalThis.eval(new TextDecoder().decode(await tjs.readFile(tjs.env.WEB_TOOLING_BUNDLE))); tjs.exit(0);",
+  "note": "Build flags must be verified separately; these are existing binaries.",
+  "source_sha256": {
+    "build/lto-benchmark/integrated-regexp-anchor/quickjs-patched/quickjs.c": "4025d0bc28c45b8a68aaccd603b0309cfe53fef70dc37f3e3957f133fdf29d58",
+    "build/lto-benchmark/integrated-regexp-anchor/quickjs-patched/libregexp.c": "24ea589d535ab3a58627b64ba795647aa62eb94f60ee9bcd2eaf9d496c8d8dde",
+    "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-charcode/quickjs.c": "11eca481e7473212d99fbd3ec03a7241a7ad68ba64d7249f3ec2c5582dc5fff9",
+    "build/lto-benchmark/quickjs-hotpaths/field-chain-outline/quickjs.c": "ba373e7cdac40d8762adb1042cad5970dc3f6ad1d9b8a2f6199f0a0495ae36c8"
+  }
+}

@@ -35,3 +35,7 @@ python3 benchmarks/experiments/replay.py \
 字符串 intrinsic 也验证了重建源码与计分候选逐字一致，专项 JS/C fixture 一并归档。`native-call-profile-transform.py` 是独立频率诊断；该插桩版本的吞吐分数不能用于优化评价。原生 fixture 的归档副本经过 C 格式化，程序字符串保持不变。
 
 整数区域的transform、JS专项和独立差分fixture按原文归档；native C fixture在通过测试后仅做clang-format格式化，执行副本与格式化归档的哈希分别记录，未在独占计时窗口追加格式化后的运行。`object-int-region`重建源码与实际验证候选逐字一致，SHA-256为 `233e7987e9001d28d6adaa713901031848e23569556b5d90766516dbcba56160`。完整输入与fixture哈希见 [int-region-replay-evidence.json](int-region-replay-evidence.json)，正确性、分配失败和同run分派计数见 [诊断数据](../results/int-region-diagnostics.json)，方法及拒绝边界见 [分析报告](../quickjs-int-region-analysis.md)。它通过语义验证，但因覆盖低而未运行六对，不能将其记成实测吞吐退化。
+
+`field-chain`重建连续自有字段借用循环：六对相对fa509604中位−3.23%，拒绝。此variant仅生成quickjs.c，计分链接的libregexp.c来自已保留的正则裁剪版本，参见[完整记录](../quickjs-field-chain-analysis.md)。
+
+`field-chain-outline`将续读循环移到独立helper，三方六轮相对fa509604中位−9.79%，拒绝；源代码重建与测试候选逐字一致。

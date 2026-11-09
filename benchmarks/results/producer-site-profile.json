@@ -1,0 +1,1918 @@
+{
+  "method": "One full diagnostic WTB run, current integrated-regexp-anchor archive/link baseline. Successful direct OP_call_method actual charCodeAt identity + flat-string/int/in-bounds domain; same-function canonical successor syntax to first barrier, not observed successor execution or a performance score.",
+  "baseline": "integrated-regexp-anchor / engine fa509604",
+  "source_sha256": {
+    "baseline_quickjs.c": "4025d0bc28c45b8a68aaccd603b0309cfe53fef70dc37f3e3957f133fdf29d58",
+    "baseline_libregexp.c": "24ea589d535ab3a58627b64ba795647aa62eb94f60ee9bcd2eaf9d496c8d8dde",
+    "diagnostic_quickjs.c": "2dfb166e1cf5a9fd93fee35c1aa517212066ef6efe01063b45d25a43b7adf4f5"
+  },
+  "archive_replay_matches_tested_source": true,
+  "stats": {
+    "method_success": 126319295,
+    "charcode_identity": 20645353,
+    "pure_domain": 13192121,
+    "single_argument": 13192121,
+    "extra_arguments": 0,
+    "in_bounds": 13189821,
+    "out_of_bounds": 2300,
+    "invalid_caller": 0,
+    "coroutine": 64,
+    "own_captured": 268,
+    "successor_insns": 53550404,
+    "tainted_computes": 10958248,
+    "pattern_overflow": 0
+  },
+  "categories": {
+    "direct_compare": {
+      "count": 86549,
+      "normal_single_uncaptured": 86549
+    },
+    "local_compare": {
+      "count": 10871699,
+      "normal_single_uncaptured": 10871699
+    },
+    "multi_compute": {
+      "count": 0,
+      "normal_single_uncaptured": 0
+    },
+    "arithmetic": {
+      "count": 0,
+      "normal_single_uncaptured": 0
+    },
+    "store_only": {
+      "count": 1492002,
+      "normal_single_uncaptured": 1491866
+    },
+    "truthiness": {
+      "count": 0,
+      "normal_single_uncaptured": 0
+    },
+    "other": {
+      "count": 739571,
+      "normal_single_uncaptured": 739439
+    }
+  },
+  "stops": {
+    "branch": 12019239,
+    "call": 277772,
+    "property": 289137,
+    "closure": 105406,
+    "return": 428,
+    "other": 496781,
+    "preexisting_stack": 1058,
+    "limit": 0,
+    "invalid": 0
+  },
+  "patterns": [
+    {
+      "slot": 145,
+      "count": 4814812,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc0",
+        "push_i32",
+        "gt",
+        "if_false"
+      ],
+      "first_example": {
+        "slot": "145",
+        "function": "utf8ToBytes",
+        "line": "202209",
+        "call_pc": "40",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 20,
+      "count": 3458114,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc0",
+        "push_i32",
+        "lte",
+        "dup",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "20",
+        "function": "fullCharCodeAtPos",
+        "line": "162348",
+        "call_pc": "24",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 209,
+      "count": 2048960,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc1",
+        "dup",
+        "push_i8",
+        "strict_eq",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "209",
+        "function": "<null>",
+        "line": "66135",
+        "call_pc": "40",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 190,
+      "count": 1034374,
+      "category": "store_only",
+      "stop": "branch",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc3",
+        "goto8"
+      ],
+      "first_example": {
+        "slot": "190",
+        "function": "<null>",
+        "line": "66118",
+        "call_pc": "120",
+        "category": "store_only",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 27,
+      "count": 460560,
+      "category": "other",
+      "stop": "other",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "put_arg0"
+      ],
+      "first_example": {
+        "slot": "27",
+        "function": "is_surrogate_pair_head",
+        "line": "524258",
+        "call_pc": "17",
+        "category": "other",
+        "stop": "other"
+      }
+    },
+    {
+      "slot": 59,
+      "count": 259648,
+      "category": "other",
+      "stop": "call",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "call_method"
+      ],
+      "first_example": {
+        "slot": "59",
+        "function": "<null>",
+        "line": "148783",
+        "call_pc": "671",
+        "category": "other",
+        "stop": "call"
+      }
+    },
+    {
+      "slot": 35,
+      "count": 198054,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc2",
+        "get_loc3",
+        "get_field"
+      ],
+      "first_example": {
+        "slot": "35",
+        "function": "skipLineComment",
+        "line": "162389",
+        "call_pc": "59",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 103,
+      "count": 180814,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc3",
+        "get_arg0",
+        "strict_eq",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "103",
+        "function": "<null>",
+        "line": "66496",
+        "call_pc": "77",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 113,
+      "count": 105242,
+      "category": "store_only",
+      "stop": "closure",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "get_var_ref0"
+      ],
+      "first_example": {
+        "slot": "113",
+        "function": "jsxReadWord",
+        "line": "128604",
+        "call_pc": "43",
+        "category": "store_only",
+        "stop": "closure"
+      }
+    },
+    {
+      "slot": 249,
+      "count": 93998,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc1",
+        "push_i8",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "249",
+        "function": "<null>",
+        "line": "375803",
+        "call_pc": "19",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 243,
+      "count": 65752,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc0",
+        "push_i8",
+        "gte",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "243",
+        "function": "readToken_dot",
+        "line": "162477",
+        "call_pc": "26",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 51,
+      "count": 65360,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc1",
+        "get_loc2",
+        "get_field"
+      ],
+      "first_example": {
+        "slot": "51",
+        "function": "<null>",
+        "line": "66201",
+        "call_pc": "65",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 26,
+      "count": 56905,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc0",
+        "push_i8",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "26",
+        "function": "readToken_eq_excl",
+        "line": "162597",
+        "call_pc": "26",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 198,
+      "count": 42584,
+      "category": "direct_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 0,
+      "ops": [
+        "dup",
+        "push_i8",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "198",
+        "function": "skipSpace",
+        "line": "162404",
+        "call_pc": "251",
+        "category": "direct_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 184,
+      "count": 40324,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc1",
+        "push_i8",
+        "gte",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "184",
+        "function": "getIdentifierToken",
+        "line": "543760",
+        "call_pc": "20",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 101,
+      "count": 36194,
+      "category": "store_only",
+      "stop": "other",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc3",
+        "inc_loc"
+      ],
+      "first_example": {
+        "slot": "101",
+        "function": "computeLineStarts",
+        "line": "542818",
+        "call_pc": "27",
+        "category": "store_only",
+        "stop": "other"
+      }
+    },
+    {
+      "slot": 1,
+      "count": 30703,
+      "category": "direct_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 0,
+      "ops": [
+        "push_i8",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "1",
+        "function": "getTokenFromCode",
+        "line": "162609",
+        "call_pc": "292",
+        "category": "direct_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 68,
+      "count": 23629,
+      "category": "store_only",
+      "stop": "branch",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "get_loc2",
+        "get_loc8",
+        "lt",
+        "dup",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "68",
+        "function": "<null>",
+        "line": "403815",
+        "call_pc": "1283",
+        "category": "store_only",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 211,
+      "count": 23216,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "undefined",
+        "put_loc8",
+        "get_loc8",
+        "push_i8",
+        "gte",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "211",
+        "function": "readInt",
+        "line": "162767",
+        "call_pc": "66",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 70,
+      "count": 22028,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc3",
+        "push_i8",
+        "strict_eq",
+        "dup",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "70",
+        "function": "<null>",
+        "line": "66544",
+        "call_pc": "70",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 228,
+      "count": 22008,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc3",
+        "get_loc8",
+        "get_field"
+      ],
+      "first_example": {
+        "slot": "228",
+        "function": "<null>",
+        "line": "66118",
+        "call_pc": "68",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 65,
+      "count": 14016,
+      "category": "other",
+      "stop": "call",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "call1"
+      ],
+      "first_example": {
+        "slot": "65",
+        "function": "get_full_char_length",
+        "line": "524239",
+        "call_pc": "18",
+        "category": "other",
+        "stop": "call"
+      }
+    },
+    {
+      "slot": 189,
+      "count": 13676,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc0",
+        "get_arg0",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "189",
+        "function": "readToken_pipe_amp",
+        "line": "162530",
+        "call_pc": "26",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 84,
+      "count": 12101,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc0",
+        "dup",
+        "push_i8",
+        "strict_eq",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "84",
+        "function": "skipSpace",
+        "line": "162404",
+        "call_pc": "48",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 152,
+      "count": 11008,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc2",
+        "push_i8",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "152",
+        "function": "<null>",
+        "line": "66448",
+        "call_pc": "172",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 8,
+      "count": 10608,
+      "category": "direct_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 0,
+      "ops": [
+        "push_i8",
+        "strict_eq",
+        "dup",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "8",
+        "function": "isReservedMemberName",
+        "line": "569772",
+        "call_pc": "7",
+        "category": "direct_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 37,
+      "count": 9204,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc0",
+        "get_arg0",
+        "strict_eq",
+        "if_false"
+      ],
+      "first_example": {
+        "slot": "37",
+        "function": "readToken_plus_min",
+        "line": "162549",
+        "call_pc": "26",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 174,
+      "count": 5380,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc0",
+        "push_i8",
+        "strict_eq",
+        "dup",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "174",
+        "function": "getTokenFromCode",
+        "line": "162609",
+        "call_pc": "632",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 227,
+      "count": 5298,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "put_loc2",
+        "push_i32",
+        "get_loc2",
+        "lte",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "227",
+        "function": "isIdentifierNameES6",
+        "line": "296016",
+        "call_pc": "32",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 221,
+      "count": 4108,
+      "category": "other",
+      "stop": "call",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "push_true",
+        "call2"
+      ],
+      "first_example": {
+        "slot": "221",
+        "function": "<null>",
+        "line": "62186",
+        "call_pc": "140",
+        "category": "other",
+        "stop": "call"
+      }
+    },
+    {
+      "slot": 168,
+      "count": 3500,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "get_loc8",
+        "push_i8",
+        "lte",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "168",
+        "function": "<null>",
+        "line": "403815",
+        "call_pc": "83",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 253,
+      "count": 2931,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "push_1",
+        "put_loc1",
+        "get_loc0",
+        "get_arg0",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "253",
+        "function": "readToken_lt_gt",
+        "line": "162570",
+        "call_pc": "26",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 219,
+      "count": 1626,
+      "category": "store_only",
+      "stop": "branch",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "goto16"
+      ],
+      "first_example": {
+        "slot": "219",
+        "function": "<null>",
+        "line": "403815",
+        "call_pc": "678",
+        "category": "store_only",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 118,
+      "count": 1412,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc2",
+        "dup",
+        "push_i8",
+        "strict_eq",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "118",
+        "function": "jsxReadToken",
+        "line": "128460",
+        "call_pc": "85",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 99,
+      "count": 1232,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "get_loc1",
+        "get_field"
+      ],
+      "first_example": {
+        "slot": "99",
+        "function": "<null>",
+        "line": "66214",
+        "call_pc": "21",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 153,
+      "count": 1226,
+      "category": "direct_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 0,
+      "ops": [
+        "push_i8",
+        "strict_eq",
+        "if_false"
+      ],
+      "first_example": {
+        "slot": "153",
+        "function": "<null>",
+        "line": "66544",
+        "call_pc": "109",
+        "category": "direct_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 58,
+      "count": 1166,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "get_loc3",
+        "get_field2"
+      ],
+      "first_example": {
+        "slot": "58",
+        "function": "<null>",
+        "line": "66619",
+        "call_pc": "26",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 3,
+      "count": 1092,
+      "category": "store_only",
+      "stop": "branch",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc2",
+        "goto8"
+      ],
+      "first_example": {
+        "slot": "3",
+        "function": "skipLineComment",
+        "line": "162389",
+        "call_pc": "149",
+        "category": "store_only",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 107,
+      "count": 956,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "get_loc1",
+        "get_length"
+      ],
+      "first_example": {
+        "slot": "107",
+        "function": "<null>",
+        "line": "403815",
+        "call_pc": "17",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 21,
+      "count": 846,
+      "category": "other",
+      "stop": "preexisting_stack",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "xor"
+      ],
+      "first_example": {
+        "slot": "21",
+        "function": "hashString",
+        "line": "420401",
+        "call_pc": "37",
+        "category": "other",
+        "stop": "preexisting_stack"
+      }
+    },
+    {
+      "slot": 136,
+      "count": 826,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc2",
+        "push_i8",
+        "strict_eq",
+        "dup",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "136",
+        "function": "<null>",
+        "line": "62186",
+        "call_pc": "97",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 55,
+      "count": 536,
+      "category": "direct_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 0,
+      "ops": [
+        "push_i8",
+        "eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "55",
+        "function": "<null>",
+        "line": "66250",
+        "call_pc": "66",
+        "category": "direct_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 215,
+      "count": 478,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "push_i8",
+        "strict_eq",
+        "set_loc1",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "215",
+        "function": "<null>",
+        "line": "66448",
+        "call_pc": "75",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 88,
+      "count": 440,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc2",
+        "get_arg0",
+        "strict_eq",
+        "if_true"
+      ],
+      "first_example": {
+        "slot": "88",
+        "function": "jsxReadString",
+        "line": "128525",
+        "call_pc": "92",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 25,
+      "count": 428,
+      "category": "direct_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 0,
+      "ops": [
+        "push_i8",
+        "strict_neq",
+        "dup",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "25",
+        "function": "isReservedMemberName",
+        "line": "569772",
+        "call_pc": "41",
+        "category": "direct_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 206,
+      "count": 428,
+      "category": "direct_compare",
+      "stop": "return",
+      "computes": 1,
+      "stores": 0,
+      "ops": [
+        "push_i8",
+        "strict_neq",
+        "return"
+      ],
+      "first_example": {
+        "slot": "206",
+        "function": "isReservedMemberName",
+        "line": "569772",
+        "call_pc": "58",
+        "category": "direct_compare",
+        "stop": "return"
+      }
+    },
+    {
+      "slot": 192,
+      "count": 340,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc2",
+        "get_arg0",
+        "strict_eq",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "192",
+        "function": "readString",
+        "line": "162872",
+        "call_pc": "92",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 104,
+      "count": 280,
+      "category": "store_only",
+      "stop": "branch",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc1",
+        "get_loc0",
+        "push_i8",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "104",
+        "function": "readToken_dot",
+        "line": "162477",
+        "call_pc": "75",
+        "category": "store_only",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 178,
+      "count": 202,
+      "category": "store_only",
+      "stop": "branch",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "push_1",
+        "put_loc1",
+        "get_arg0",
+        "push_i8",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "178",
+        "function": "<null>",
+        "line": "66221",
+        "call_pc": "21",
+        "category": "store_only",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 52,
+      "count": 194,
+      "category": "other",
+      "stop": "preexisting_stack",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "strict_eq"
+      ],
+      "first_example": {
+        "slot": "52",
+        "function": "<null>",
+        "line": "175290",
+        "call_pc": "436",
+        "category": "other",
+        "stop": "preexisting_stack"
+      }
+    },
+    {
+      "slot": 114,
+      "count": 184,
+      "category": "store_only",
+      "stop": "branch",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc1",
+        "push_i8",
+        "get_loc0",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "114",
+        "function": "<null>",
+        "line": "175290",
+        "call_pc": "78",
+        "category": "store_only",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 130,
+      "count": 128,
+      "category": "other",
+      "stop": "property",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "get_loc8",
+        "put_array_el"
+      ],
+      "first_example": {
+        "slot": "130",
+        "function": "<null>",
+        "line": "272871",
+        "call_pc": "114",
+        "category": "other",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 120,
+      "count": 97,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "get_loc8",
+        "get_loc8",
+        "put_field"
+      ],
+      "first_example": {
+        "slot": "120",
+        "function": "<null>",
+        "line": "403815",
+        "call_pc": "1209",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 160,
+      "count": 94,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "push_i8",
+        "get_loc0",
+        "strict_neq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "160",
+        "function": "<null>",
+        "line": "175290",
+        "call_pc": "26",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 226,
+      "count": 72,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "get_loc2",
+        "get_field"
+      ],
+      "first_example": {
+        "slot": "226",
+        "function": "readToken_question",
+        "line": "227775",
+        "call_pc": "26",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 220,
+      "count": 64,
+      "category": "store_only",
+      "stop": "closure",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "get_var_ref"
+      ],
+      "first_example": {
+        "slot": "220",
+        "function": "<eval>",
+        "line": "1",
+        "call_pc": "5234",
+        "category": "store_only",
+        "stop": "closure"
+      }
+    },
+    {
+      "slot": 195,
+      "count": 60,
+      "category": "store_only",
+      "stop": "closure",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "set_loc8",
+        "get_var_ref0"
+      ],
+      "first_example": {
+        "slot": "195",
+        "function": "tokenize",
+        "line": "398880",
+        "call_pc": "94",
+        "category": "store_only",
+        "stop": "closure"
+      }
+    },
+    {
+      "slot": 154,
+      "count": 36,
+      "category": "direct_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 0,
+      "ops": [
+        "push_i8",
+        "strict_neq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "154",
+        "function": "<null>",
+        "line": "64155",
+        "call_pc": "160",
+        "category": "direct_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 229,
+      "count": 34,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "undefined",
+        "put_loc8",
+        "get_loc8",
+        "get_field2"
+      ],
+      "first_example": {
+        "slot": "229",
+        "function": "readInt",
+        "line": "228043",
+        "call_pc": "140",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 201,
+      "count": 24,
+      "category": "other",
+      "stop": "closure",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "set_var_ref"
+      ],
+      "first_example": {
+        "slot": "201",
+        "function": "nextToken",
+        "line": "156161",
+        "call_pc": "26",
+        "category": "other",
+        "stop": "closure"
+      }
+    },
+    {
+      "slot": 251,
+      "count": 24,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "put_loc2",
+        "get_loc2",
+        "push_i8",
+        "strict_eq",
+        "dup",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "251",
+        "function": "<null>",
+        "line": "66448",
+        "call_pc": "230",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 77,
+      "count": 21,
+      "category": "other",
+      "stop": "other",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "insert2"
+      ],
+      "first_example": {
+        "slot": "77",
+        "function": "<null>",
+        "line": "158473",
+        "call_pc": "19",
+        "category": "other",
+        "stop": "other"
+      }
+    },
+    {
+      "slot": 43,
+      "count": 18,
+      "category": "other",
+      "stop": "preexisting_stack",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "add"
+      ],
+      "first_example": {
+        "slot": "43",
+        "function": "mixkey",
+        "line": "446347",
+        "call_pc": "37",
+        "category": "other",
+        "stop": "preexisting_stack"
+      }
+    },
+    {
+      "slot": 33,
+      "count": 16,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "push_i8",
+        "strict_eq",
+        "put_loc1",
+        "push_false",
+        "put_loc2",
+        "get_arg0",
+        "lnot",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "33",
+        "function": "readNumber",
+        "line": "162802",
+        "call_pc": "29",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 141,
+      "count": 16,
+      "category": "store_only",
+      "stop": "branch",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "get_loc1",
+        "push_const8",
+        "strict_neq",
+        "dup",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "141",
+        "function": "<null>",
+        "line": "66619",
+        "call_pc": "381",
+        "category": "store_only",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 231,
+      "count": 16,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc3",
+        "push_i8",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "231",
+        "function": "readNumber",
+        "line": "162802",
+        "call_pc": "121",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 93,
+      "count": 16,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "get_loc8",
+        "get_field"
+      ],
+      "first_example": {
+        "slot": "93",
+        "function": "<null>",
+        "line": "175290",
+        "call_pc": "192",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 94,
+      "count": 16,
+      "category": "store_only",
+      "stop": "branch",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "push_i8",
+        "get_loc8",
+        "strict_eq",
+        "if_false"
+      ],
+      "first_example": {
+        "slot": "94",
+        "function": "<null>",
+        "line": "175290",
+        "call_pc": "223",
+        "category": "store_only",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 139,
+      "count": 12,
+      "category": "store_only",
+      "stop": "closure",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc2",
+        "get_var_ref0"
+      ],
+      "first_example": {
+        "slot": "139",
+        "function": "isIdentifierNameES5",
+        "line": "295993",
+        "call_pc": "15",
+        "category": "store_only",
+        "stop": "closure"
+      }
+    },
+    {
+      "slot": 119,
+      "count": 10,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc0",
+        "get_arg0",
+        "strict_neq",
+        "if_false"
+      ],
+      "first_example": {
+        "slot": "119",
+        "function": "<null>",
+        "line": "175290",
+        "call_pc": "26",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 24,
+      "count": 7,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "push_i8",
+        "strict_eq",
+        "put_loc1",
+        "push_false",
+        "put_loc2",
+        "push_false",
+        "put_loc3",
+        "get_arg0",
+        "lnot",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "24",
+        "function": "readNumber",
+        "line": "228127",
+        "call_pc": "29",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 222,
+      "count": 7,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "set_loc8",
+        "push_i8",
+        "strict_eq",
+        "if_false8"
+      ],
+      "first_example": {
+        "slot": "222",
+        "function": "readNumber",
+        "line": "228127",
+        "call_pc": "123",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 36,
+      "count": 6,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "push_i8",
+        "get_loc8",
+        "strict_neq",
+        "dup",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "36",
+        "function": "<null>",
+        "line": "175290",
+        "call_pc": "135",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 69,
+      "count": 4,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "push_atom_value",
+        "get_field2"
+      ],
+      "first_example": {
+        "slot": "69",
+        "function": "<null>",
+        "line": "403803",
+        "call_pc": "71",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 171,
+      "count": 4,
+      "category": "other",
+      "stop": "property",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "push_i8",
+        "put_array_el"
+      ],
+      "first_example": {
+        "slot": "171",
+        "function": "<null>",
+        "line": "272871",
+        "call_pc": "136",
+        "category": "other",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 4,
+      "count": 4,
+      "category": "store_only",
+      "stop": "closure",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc3",
+        "get_var_ref2"
+      ],
+      "first_example": {
+        "slot": "4",
+        "function": "createExpressionFromSymbolChain",
+        "line": "571198",
+        "call_pc": "101",
+        "category": "store_only",
+        "stop": "closure"
+      }
+    },
+    {
+      "slot": 233,
+      "count": 4,
+      "category": "other",
+      "stop": "other",
+      "computes": 0,
+      "stores": 0,
+      "ops": [
+        "get_loc_check"
+      ],
+      "first_example": {
+        "slot": "233",
+        "function": "formatWithCursor",
+        "line": "507369",
+        "call_pc": "65",
+        "category": "other",
+        "stop": "other"
+      }
+    },
+    {
+      "slot": 128,
+      "count": 2,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "push_atom_value",
+        "get_field2"
+      ],
+      "first_example": {
+        "slot": "128",
+        "function": "<null>",
+        "line": "403803",
+        "call_pc": "11",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 157,
+      "count": 2,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc1",
+        "push_atom_value",
+        "get_field2"
+      ],
+      "first_example": {
+        "slot": "157",
+        "function": "<null>",
+        "line": "403803",
+        "call_pc": "26",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 17,
+      "count": 2,
+      "category": "local_compare",
+      "stop": "branch",
+      "computes": 1,
+      "stores": 1,
+      "ops": [
+        "put_loc0",
+        "push_i8",
+        "get_loc0",
+        "strict_eq",
+        "dup",
+        "if_true8"
+      ],
+      "first_example": {
+        "slot": "17",
+        "function": "<null>",
+        "line": "175290",
+        "call_pc": "767",
+        "category": "local_compare",
+        "stop": "branch"
+      }
+    },
+    {
+      "slot": 2,
+      "count": 1,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc2",
+        "push_atom_value",
+        "get_field2"
+      ],
+      "first_example": {
+        "slot": "2",
+        "function": "<null>",
+        "line": "403803",
+        "call_pc": "41",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 95,
+      "count": 1,
+      "category": "store_only",
+      "stop": "property",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc3",
+        "push_atom_value",
+        "get_field2"
+      ],
+      "first_example": {
+        "slot": "95",
+        "function": "<null>",
+        "line": "403803",
+        "call_pc": "56",
+        "category": "store_only",
+        "stop": "property"
+      }
+    },
+    {
+      "slot": 96,
+      "count": 1,
+      "category": "store_only",
+      "stop": "other",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc8",
+        "get_arg0",
+        "fclosure8"
+      ],
+      "first_example": {
+        "slot": "96",
+        "function": "<null>",
+        "line": "403803",
+        "call_pc": "135",
+        "category": "store_only",
+        "stop": "other"
+      }
+    },
+    {
+      "slot": 124,
+      "count": 1,
+      "category": "store_only",
+      "stop": "other",
+      "computes": 0,
+      "stores": 1,
+      "ops": [
+        "put_loc2",
+        "get_arg0",
+        "fclosure8"
+      ],
+      "first_example": {
+        "slot": "124",
+        "function": "<null>",
+        "line": "404122",
+        "call_pc": "41",
+        "category": "store_only",
+        "stop": "other"
+      }
+    }
+  ],
+  "derived": {
+    "local_compare_percent_of_in_bounds": 82.42491691130607,
+    "top_three_pattern_calls": 10321886,
+    "top_three_percent_of_in_bounds": 78.25645245678467,
+    "top_three_syntactic_dispatches_potentially_collapsed": 39930846
+  },
+  "validation": {
+    "baseline_and_diagnostic_js_fixtures": [
+      "producer-site-profile-correctness.js",
+      "string-intrinsic-correctness.js",
+      "object-layout-correctness.js",
+      "private-bytecode-correctness.js"
+    ],
+    "fixture_gc_contiguous_in_bounds_deltas": [
+      20,
+      20,
+      20,
+      20,
+      0
+    ],
+    "caller_invariant_failures": 0
+  },
+  "limitations": [
+    "Only direct successful call_method sites; does not count native API/Function.call/Proxy nested calls as direct producer sites",
+    "Pattern buckets aggregate multiple sites; first_example is not attribution of all bucket calls",
+    "Successor syntax is not proof of complete future execution or current type/ownership eligibility",
+    "No all-callee denominator for selecting the same static suffix patterns",
+    "No paired throughput run; no producer optimization implemented",
+    "Future comparison must include any retained callee-body charCodeAt optimization to avoid claiming its savings again"
+  ]
+}

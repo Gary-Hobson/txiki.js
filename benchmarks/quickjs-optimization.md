@@ -1267,3 +1267,67 @@ hint+fusion版本相对hint总体胜出5/6轮。
 | Geometric mean | +5.87% | +9.25% | +3.19% |
 
 完整证据：[18次原分](results/retained-regexp-triad.json)、[二进制与工作负载指纹](results/retained-regexp-triad-metadata.json)、[全部配对统计](results/retained-regexp-triad-summary.json)。主代理另行重算17项中位及胜率，并核对现存三份二进制与suite哈希全部一致。
+
+## 连续自有字段的循环借用：拒绝内联循环版本
+
+对照fa509604。把已有单字段local/arg融合扩展为连续plain-own字段循环，仅为最后的值增加引用；根及属性强边保持中间对象存活，遇getter/原型/primitive前提交拥有引用的前缀值并回原路径。无新metadata、opcode或字节码改写。
+
+诊断同run额外消除37,930,918次主VM分派（0.9125%），但各完整预热后的独占六对总分中位−3.23%，0/6胜，17项中位全部下降。拒绝此版本；减少指令次数并未自动带来更快的执行。
+
+| 项目 | 配对中位变化 |
+|---|---:|
+| acorn | -4.63% |
+| babel | -3.47% |
+| babel-minify | -2.46% |
+| babylon | -1.30% |
+| buble | -3.96% |
+| chai | -3.27% |
+| espree | -3.82% |
+| esprima | -4.50% |
+| jshint | -1.96% |
+| lebab | -3.83% |
+| postcss | -2.88% |
+| prepack | -1.90% |
+| prettier | -2.24% |
+| source-map | -6.46% |
+| terser | -2.16% |
+| typescript | -5.32% |
+| uglify-js | -2.66% |
+| Geometric mean | -3.23% |
+
+三份二进制通过链式读取专项及已有fusion/property回归。实际二进制JS_CallInternal到下一text函数的符号跨度46,248→53,644字节；这表明布局改变，但不是cache miss或spill的因果测量。仅据该证据另试将续读循环移至no_inline helper的独立候选，不能预设有效。
+
+完整 [分析及边界](quickjs-field-chain-analysis.md)、[原分](results/field-chain.json)、[指纹](results/field-chain-metadata.json)、[诊断](results/field-chain-diagnostics.json)。
+
+## 纯内建producer的同调用点后继诊断
+
+当前fa509604基线上在call_method自身成功返回、清理前识别真实callee及flat-string/int/in-bounds输入，解码当前活函数内的后继canonical指令，不拼接跨调用的动态opcode pair。约13.19M目标调用中约10.87M为存local后单比较，multi-compute为0；这只是调用加权的后继语法，不能当作已执行完后继、满足local旧值guard的覆盖或性能收益。
+
+诊断fixture及快照增量通过；归档源码与测试source逐字一致。后续跨producer优化必须保留call poll、native stack check、原顺序cleanup及条件分支poll，cleanup后重新检查可变状态；三种dup位置分别保留code unit或boolean，不能混用stack effect。详见 [完整分析与设计](quickjs-producer-site-analysis.md) 及 [原始统计](results/producer-site-profile.json)。当前无新的producer区域计时结论。
+
+## 连续字段续读移至独立helper：仍拒绝
+
+只将首个field之后的续读循环放到no_inline helper，原单字段快路保留。主解释器符号跨度恢复至46,488字节（对照46,248），但独立三方各预热、六轮全部排列后，总分中位−9.79%，0/6胜，17项每轮均落后。三项专项通过；停止本轮连续字段候选，不把首版退化全归因于代码体积。
+
+| 项目 | 配对中位变化 |
+|---|---:|
+| acorn | -17.98% |
+| babel | -13.21% |
+| babel-minify | -13.23% |
+| babylon | -15.47% |
+| buble | -11.48% |
+| chai | -1.99% |
+| espree | -16.71% |
+| esprima | -19.55% |
+| jshint | -4.02% |
+| lebab | -4.45% |
+| postcss | -6.22% |
+| prepack | -9.22% |
+| prettier | -5.06% |
+| source-map | -5.40% |
+| terser | -6.75% |
+| typescript | -8.30% |
+| uglify-js | -4.43% |
+| Geometric mean | -9.79% |
+
+方法、生命周期及限制见[完整分析](quickjs-field-chain-analysis.md)；[三方原始分数](results/body-outline-triad.json)、[指纹](results/body-outline-triad-metadata.json)、[配对统计](results/body-outline-triad-summary.json)。

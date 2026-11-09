@@ -1,0 +1,20 @@
+{
+  "baseline": "build/lto-benchmark/integrated-regexp-anchor/tjs",
+  "method": "single Web Tooling diagnostic run with GC before exit; not a performance score",
+  "stats": {
+    "extra_fields": 37930918,
+    "dispatches": 4118873785,
+    "depth0": 977768150,
+    "depth1": 184261472,
+    "depth2": 37002158,
+    "depth3": 464167,
+    "depth4": 142,
+    "depth5": 0,
+    "depth6": 0,
+    "depth7": 0,
+    "depth8": 0
+  },
+  "reference_dispatches": 4156804703,
+  "saved_percent": 0.912501806318323,
+  "semantic_tests": "baseline, candidate and diagnostic passed field-chain-correctness.js, test-load-field-fusion.js and test-property-cache.js"
+}

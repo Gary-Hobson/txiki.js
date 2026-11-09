@@ -1,0 +1,37 @@
+{
+  "started_utc": "2026-11-09T20:40:47.982711+00:00",
+  "platform": "macOS-15.6.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "suite": {
+    "path": "/private/tmp/txiki-webtooling-src.Xpz6vi/dist/cli.js",
+    "sha256": "a7a227840538deb2d44dcadbf3da6b12187b29961f2e134db2269b785f7d9931"
+  },
+  "binaries": {
+    "anchor": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/integrated-regexp-anchor/tjs",
+      "sha256": "4b72cddcecddc52e49614d6cf486fe001214a717d662a9064eb2faa831c47894"
+    },
+    "chain": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/quickjs-hotpaths/field-chain/tjs",
+      "sha256": "5041e85ab908c9d04b9b06c88ef8d5b26422d1233bfa02d25b50daccf52367cd"
+    }
+  },
+  "rounds": 6,
+  "warmups_per_binary": 1,
+  "script": "globalThis.eval(new TextDecoder().decode(await tjs.readFile(tjs.env.WEB_TOOLING_BUNDLE))); tjs.exit(0);",
+  "note": "Build flags must be verified separately; these are existing binaries.",
+  "source_sha256": {
+    "build/lto-benchmark/integrated-regexp-anchor/quickjs-patched/quickjs.c": "4025d0bc28c45b8a68aaccd603b0309cfe53fef70dc37f3e3957f133fdf29d58",
+    "build/lto-benchmark/integrated-regexp-anchor/quickjs-patched/libregexp.c": "24ea589d535ab3a58627b64ba795647aa62eb94f60ee9bcd2eaf9d496c8d8dde",
+    "build/lto-benchmark/quickjs-hotpaths/field-chain/quickjs.c": "faf6b6906273db81fce3140de6ff2862f38c045b3cc843b0daee495327563436",
+    "build/lto-benchmark/quickjs-hotpaths/field-chain-transform.py": "a7813049f1cb894cfac8764895f497e204ec1500688d6726dc689488fb606203"
+  },
+  "static_symbol_observation": {
+    "method": "xcrun nm -an; distance to next text function symbol, may include alignment",
+    "JS_CallInternal_span_bytes": {
+      "baseline": 46248,
+      "chain": 53644
+    },
+    "independent_js_load_local_or_field_symbol": false
+  }
+}
