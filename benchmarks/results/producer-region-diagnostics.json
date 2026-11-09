@@ -1,0 +1,35 @@
+{
+  "baseline": "build/lto-benchmark/integrated-charcode-body/tjs",
+  "method": "one diagnostic WTB run, GC before exit; not a score",
+  "stats": {
+    "scanned": 68998,
+    "plans": 51,
+    "sites": 52,
+    "bytes": 1856,
+    "live_bytes": 1856,
+    "peak_bytes": 1856,
+    "entries": 12150351,
+    "target": 12150347,
+    "nontarget_retired": 4,
+    "domain_miss": 11,
+    "postpoll_domain_miss": 0,
+    "generic_calls": 15,
+    "fast_flat": 10335399,
+    "fast_cached_rope": 1814937,
+    "local_guard_fail": 0,
+    "suffix_hits": 12150336,
+    "hit_none": 4814812,
+    "hit_code": 2763073,
+    "hit_bool": 4572451,
+    "saved_dispatches": 48358983,
+    "dispatches": 4107759691
+  },
+  "reference_dispatches": 4156118674,
+  "saved_percent": 1.1635611683209601,
+  "validation": {
+    "baseline_candidate_diagnostic_js": "producer/object/private passed",
+    "allocation_failure": "producer target passed; compile and read injections both verified",
+    "native": "poll 15/abort2, active serialization, recursive retirement, local guard, cached rope, ROM, cleanup finalizer, stack check and cross-realm fallback passed"
+  },
+  "logs": "build/lto-benchmark/quickjs-hotpaths/producer-region-diagnostic/"
+}

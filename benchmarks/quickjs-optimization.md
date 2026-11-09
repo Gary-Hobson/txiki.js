@@ -1364,3 +1364,34 @@ Release + ThinLTO，PGO/inspector OFF。相对fa509604，独占预热后首组�
 正式集成OFF→ON→OFF构建和六项优化回归通过，ON模式inspector通过；重复configure保持计分源码一致。全套507通过、1个inspector跳过、1个既有baseline同样失败的test-tcp-connect-abort.js。JS专项4940例，native差分102052例含ASAN/UBSAN/强制GC；正常poll=15与中断poll=2和对照一致。尚未运行其他平台验证。
 
 完整[字符串生命周期分析](quickjs-string-lifecycle-analysis.md)、[首轮原分](results/string-lifecycle-charcode.json)、[独立复测](results/body-outline-triad.json)、[专项验证](results/string-lifecycle-charcode-validation.json)、[正式集成](results/string-lifecycle-charcode-integration.json)。
+
+## 内建producer与后继区域融合：拒绝首版
+
+对照已保留的charCodeAt body-only（ba423c89源码）。在编译/读取阶段识别三类call_method→local→比较→分支模式，只改写三字节调用入口；验证真实内建身份及flat/cached-rope/int域，保留call poll、native stack check、原cleanup顺序及cleanup后local guard，再直接计算后继输出。非目标callee永久恢复canonical入口，动态域失败回原调用，序列化恢复canonical副本。
+
+实际同run52sites/51plans/1856B计划，12,150,336次成功融合，净少48,358,983次主VM分派（重建参照1.16356%）；这不计额外每函数指针及扫描成本，也不是CPU周期收益。JS/native、重入、序列化及编译/读取分配失败专项通过，独立静态review未发现缺陷。
+
+独占Release + ThinLTO、无PGO/inspector，双二进制各完整预热一次，再六对交替。总分配对中位−1.21%，均值−1.25%，0/6胜；15/17项中位下降。拒绝当前实现，不进入正式补丁。尚未完成inspector构建与ASAN/UBSAN/强制GC集成门槛，不能将OFF专项视为完整验证。
+
+| 项目 | 配对中位变化 |
+|---|---:|
+| acorn | -0.54% |
+| babel | -0.54% |
+| babel-minify | -2.00% |
+| babylon | +1.10% |
+| buble | -1.19% |
+| chai | -0.29% |
+| espree | -0.29% |
+| esprima | -2.44% |
+| jshint | +1.87% |
+| lebab | -1.27% |
+| postcss | -2.86% |
+| prepack | -0.17% |
+| prettier | -1.30% |
+| source-map | -2.12% |
+| terser | -3.24% |
+| typescript | -2.71% |
+| uglify-js | -2.20% |
+| Geometric mean | -1.21% |
+
+完整[设计、检查点与限制](quickjs-producer-region-analysis.md)、[原分](results/producer-region.json)、[源码/二进制指纹](results/producer-region-metadata.json)、[诊断](results/producer-region-diagnostics.json)、[重放证据](results/producer-region-replay-evidence.json)。归档保留失败候选供复核；当前数据不能单独归因于I-cache、分支预测或函数结构增大。

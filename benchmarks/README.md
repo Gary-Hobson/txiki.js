@@ -10,6 +10,7 @@
 - [整数区域执行实验](quickjs-int-region-analysis.md)：SSA/DAG 原型通过正确性验证，但 WTB 主解释器分派覆盖过低，按覆盖门槛停止；[退役后频率与结构分析](quickjs-region-coverage-analysis.md)进一步排除了三个早退数字解析位点存在大量遗漏机会的假设。
 - [正则根搜索裁剪](quickjs-regexp-analysis.md)：对必经起始锚点排除不可能的后续起点，六对总分中位 +3.62%，Espree +47.41%、Acorn +16.14%；增量对照为共享对象布局版。
 - [连续字段借用](quickjs-field-chain-analysis.md)：循环与独立helper版本分别 −3.23% / −9.79%，均拒绝；分派次数减少并不保证吞吐提高。
+- [内建调用与后继区域融合](quickjs-producer-region-analysis.md)：实际消除1.16%主VM分派，但相对body-only六对总分−1.21%、0/6胜，拒绝首版。
 - [内建调用后继诊断](quickjs-producer-site-analysis.md)：按同一个调用点统计真实内建身份与后续指令，明确调用、清理和分支的可重入边界。
 - [架构实验源码快照](experiments/README.md)：重建已保留和已舍弃的主要候选，无需依赖本机构建目录。
 - [属性访问缓存分析](quickjs-site-ic-analysis.md)与[对象构造分析](quickjs-object-construction-analysis.md)：具体实现边界、实测成本及修正验证状态。

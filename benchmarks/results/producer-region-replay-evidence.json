@@ -1,0 +1,39 @@
+{
+  "baseline_source_sha256": "11eca481e7473212d99fbd3ec03a7241a7ad68ba64d7249f3ec2c5582dc5fff9",
+  "candidate_source_sha256": "2fa928c10fefee23d4a7c4e1059d0e72d72b8604cd975593d8c01efb211c467d",
+  "expected_candidate_source_sha256": "2fa928c10fefee23d4a7c4e1059d0e72d72b8604cd975593d8c01efb211c467d",
+  "replay_matches": true,
+  "files": [
+    {
+      "path": "benchmarks/experiments/producer-region-transform.py",
+      "executed_sha256": "8e595dadbd15a2b2206799af7f64022a031e17be7122c6a2d78671b8a885db16",
+      "archived_sha256": "8e595dadbd15a2b2206799af7f64022a031e17be7122c6a2d78671b8a885db16",
+      "format_only_archive_change": false
+    },
+    {
+      "path": "benchmarks/experiments/producer-region-correctness.js",
+      "executed_sha256": "f1407175364fe80dee8a6198113043b2f3b95e3eee137c5016634795b84ec3ad",
+      "archived_sha256": "f1407175364fe80dee8a6198113043b2f3b95e3eee137c5016634795b84ec3ad",
+      "format_only_archive_change": false
+    },
+    {
+      "path": "benchmarks/experiments/producer-region-bytecode.js",
+      "executed_sha256": "1abb657264505b67fb412e002a145ac39bcfc84c93c81f428fe42cfad41a44c3",
+      "archived_sha256": "1abb657264505b67fb412e002a145ac39bcfc84c93c81f428fe42cfad41a44c3",
+      "format_only_archive_change": false
+    },
+    {
+      "path": "benchmarks/experiments/producer-region-native.c",
+      "executed_sha256": "39f0d11b8b9a70af33f324048d0fd8a336f2311ecbf4ec01908ba67af498dbaa",
+      "archived_sha256": "7100822d710d30777fb61c2d71f301ac0a01718f8ae2eefc7498312b5631f64c",
+      "format_only_archive_change": true
+    },
+    {
+      "path": "benchmarks/experiments/producer-region-checkpoint-extra.c",
+      "executed_sha256": "519a190075858fd35bebf712522c0709f5295d71348e323965a890e1dcf3353c",
+      "archived_sha256": "9e4737b429c04c4af0df166d9da566b3fcba592ccd0624efb33c25dca00c9533",
+      "format_only_archive_change": true
+    }
+  ],
+  "note": "Native archives are clang-format-only copies of the executed fixtures. Candidate transform is byte-identical. No extra native build was run during paired benchmark CPU isolation."
+}

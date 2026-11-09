@@ -1,0 +1,52 @@
+{
+  "method": "Read-only nm/otool/size inspection of the scored binaries; no new build or timing.",
+  "text_section": {
+    "baseline_bytes": 4087476,
+    "candidate_bytes": 4092252,
+    "delta_bytes": 4776
+  },
+  "JS_CallInternal_symbol_interval": {
+    "baseline_bytes": 46248,
+    "candidate_bytes": 48832,
+    "delta_bytes": 2584,
+    "note": "distance to following symbol, not profiler self-time"
+  },
+  "JS_CallInternal_prologue": {
+    "baseline_callee_save_bytes": 96,
+    "candidate_callee_save_bytes": 96,
+    "baseline_local_stack_bytes": 864,
+    "candidate_local_stack_bytes": 880,
+    "local_delta_bytes": 16,
+    "note": "ARM64 binary observation; does not prove spills or cache misses are responsible"
+  },
+  "pairs_percent": [
+    -1.072386058981234,
+    -1.6042780748663166,
+    -1.6042780748663166,
+    -1.3368983957219305,
+    -1.0752688172043001,
+    -0.8086253369272156
+  ],
+  "median_percent": -1.2060836064631153,
+  "mean_percent": -1.2502891264278855,
+  "wins": 0,
+  "per_test_median_percent": {
+    "acorn": -0.5420094007050569,
+    "babel": -0.536193029490617,
+    "babel-minify": -1.9982901904648298,
+    "babylon": 1.1029411764705843,
+    "buble": -1.1864729077843805,
+    "chai": -0.2941176470588225,
+    "espree": -0.28901734104046506,
+    "esprima": -2.4406073001887965,
+    "jshint": 1.8704089305338734,
+    "lebab": -1.2739039557557785,
+    "postcss": -2.857142857142858,
+    "prepack": -0.16835016835017313,
+    "prettier": -1.3031959163291418,
+    "source-map": -2.11587734523514,
+    "terser": -3.24032403240323,
+    "typescript": -2.7085119412124934,
+    "uglify-js": -2.2014537902388334
+  }
+}
