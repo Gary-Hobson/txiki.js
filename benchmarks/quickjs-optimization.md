@@ -1202,7 +1202,7 @@ hint+fusion版本相对hint总体胜出5/6轮。
 
 验证：对照/候选/诊断三项JS专项及native活跃帧序列化、读取执行通过；中断正常回调4次、主动中止2次均一致；两处可选分配的真实失败注入通过；独立生成式差分4320个返回值/异常结果逐字相同。实际inspector ON和全平台构建未测。
 
-详见 [完整设计与裁决](quickjs-int-region-analysis.md)、[原始计数和验证摘要](results/int-region-diagnostics.json)、[可重建原型](experiments/README.md)。
+详见 [完整设计与裁决](quickjs-int-region-analysis.md)、[原始计数和验证摘要](results/int-region-diagnostics.json)、[可重建原型](experiments/README.md)。 补充[结构与退役后频率诊断](quickjs-region-coverage-analysis.md)定位三个数字lexer被正常Number溢出退役，但同run完整资格仅能再增加约0.001795个百分点的主VM分派覆盖；不足以推进backoff或Number DAG，关闭此分支。
 
 ## 正则必经起始锚点：裁掉不可能的根搜索
 

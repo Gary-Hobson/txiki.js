@@ -1,0 +1,212 @@
+{
+  "method": "Static analysis of existing opcode counts and the actual WTB dependency sources; no benchmark or new engine prototype. Dynamic pairs can cross function calls; counts do not give adjacency proof or self time.",
+  "profile": "opcode-profile.json",
+  "pairs": {
+    "comparison": {
+      "total": 396523299,
+      "preceding_property_or_length": 82831593,
+      "preceding_push_i16": 48822469,
+      "by_previous": {
+        "push_i8": 71803349,
+        "get_length": 69174640,
+        "push_i16": 48822469,
+        "get_loc8": 45471213,
+        "push_atom_value": 32060261,
+        "push_0": 22568615,
+        "push_i32": 19268508,
+        "get_field": 13311323,
+        "get_arg2": 10121076,
+        "get_var_ref": 9917371,
+        "get_arg0": 7334607,
+        "push_1": 6264569,
+        "get_loc1": 6184125,
+        "get_arg1": 4621345,
+        "get_arg3": 4325143,
+        "get_loc_check": 2481592,
+        "push_false": 2155491,
+        "push_6": 2073511,
+        "push_minus1": 1823509,
+        "get_loc2": 1797809,
+        "get_loc0": 1753367,
+        "null": 1586775,
+        "push_7": 1463618,
+        "get_var": 1241279,
+        "get_var_ref2": 1110448,
+        "get_loc3": 1062050,
+        "push_3": 872790,
+        "get_loc0_loc1": 779989,
+        "push_4": 740001,
+        "get_var_ref1": 695670,
+        "push_2": 545194,
+        "call_method": 448454,
+        "push_true": 446702,
+        "get_array_el": 345630,
+        "push_empty_string": 343778,
+        "mod": 304388,
+        "push_5": 290239,
+        "get_var_ref0": 205981,
+        "get_var_ref3": 199911,
+        "add": 140219,
+        "if_true8": 113373,
+        "sub": 78993,
+        "get_var_ref_check": 61412,
+        "return_undef": 35796,
+        "return": 28217,
+        "neg": 12989,
+        "get_arg": 12010,
+        "plus": 11330,
+        "push_const8": 7386,
+        "instanceof": 1327,
+        "set_var_ref2": 1255,
+        "set_loc0": 942,
+        "goto8": 362,
+        "tail_call_method": 358,
+        "call1": 345,
+        "and": 136,
+        "typeof": 56,
+        "undefined": 3
+      }
+    },
+    "arithmetic_including_inc_dec": {
+      "total": 59155516,
+      "preceding_property_or_length": 14488532,
+      "preceding_push_i16": 210849,
+      "by_previous": {
+        "push_1": 17085016,
+        "get_field2": 6650066,
+        "get_field": 6105030,
+        "get_loc8": 5363936,
+        "get_arg2": 5061399,
+        "goto8": 2866798,
+        "get_array_el": 1359616,
+        "return": 1263754,
+        "get_loc1": 1254347,
+        "get_loc0": 1165502,
+        "get_arg0": 1090917,
+        "get_var_ref1": 1083727,
+        "push_2": 851830,
+        "get_var_ref0": 793729,
+        "get_arg1": 784443,
+        "get_var_ref": 655755,
+        "call_method": 569771,
+        "push_i32": 569071,
+        "get_var_ref2": 501125,
+        "push_atom_value": 489728,
+        "push_i8": 441000,
+        "get_length": 373820,
+        "push_0": 345952,
+        "not": 336288,
+        "push_5": 303905,
+        "get_loc2": 280166,
+        "tail_call_method": 223958,
+        "push_i16": 210849,
+        "get_loc3": 188398,
+        "shl": 181607,
+        "add": 93043,
+        "sub": 72866,
+        "mul": 69526,
+        "get_var_ref3": 64918,
+        "to_propkey": 64514,
+        "push_4": 57451,
+        "get_loc_check": 57399,
+        "or": 56344,
+        "get_loc0_loc1": 37935,
+        "push_3": 32049,
+        "if_true8": 23287,
+        "call1": 21063,
+        "and": 15120,
+        "sar": 14542,
+        "push_empty_string": 7596,
+        "get_arg": 5894,
+        "push_7": 5261,
+        "get_arg3": 1913,
+        "get_var": 768,
+        "push_6": 683,
+        "set_var_ref": 561,
+        "plus": 426,
+        "get_var_ref_check": 337,
+        "shr": 109,
+        "push_const8": 93,
+        "push_false": 82,
+        "put_var_ref3": 51,
+        "mod": 44,
+        "put_loc1": 36,
+        "get_loc": 25,
+        "div": 17,
+        "call2": 17,
+        "lnot": 15,
+        "push_minus1": 14,
+        "strict_neq": 10,
+        "define_array_el": 3,
+        "fclosure8": 1
+      }
+    }
+  },
+  "sources": [
+    {
+      "package": "acorn",
+      "version": "5.5.3",
+      "relative_path": "node_modules/acorn/dist/acorn.js",
+      "sha256": "68e3a625d88cf8e3259d3290cfa4271bb8479af734d24c295876bfdec5c1f4f4",
+      "sections": [
+        {
+          "start_line": 4666,
+          "end_line": 4710,
+          "text": "pp$8.skipSpace = function() {\n  var this$1 = this;\n\n  loop: while (this.pos < this.input.length) {\n    var ch = this$1.input.charCodeAt(this$1.pos);\n    switch (ch) {\n    case 32: case 160: // ' '\n      ++this$1.pos;\n      break\n    case 13:\n      if (this$1.input.charCodeAt(this$1.pos + 1) === 10) {\n        ++this$1.pos;\n      }\n    case 10: case 8232: case 8233:\n      ++this$1.pos;\n      if (this$1.options.locations) {\n        ++this$1.curLine;\n        this$1.lineStart = this$1.pos;\n      }\n      break\n    case 47: // '/'\n      switch (this$1.input.charCodeAt(this$1.pos + 1)) {\n      case 42: // '*'\n        this$1.skipBlockComment();\n        break\n      case 47:\n        this$1.skipLineComment(2);\n        break\n      default:\n        break loop\n      }\n      break\n    default:\n      if (ch > 8 && ch < 14 || ch >= 5760 && nonASCIIwhitespace.test(String.fromCharCode(ch))) {\n        ++this$1.pos;\n      } else {\n        break loop\n      }\n    }\n  }\n};\n\n// Called at the end of every token. Sets `end`, `val`, and\n// maintains `context` and `exprAllowed`, and skips the space after\n// the token, so that the next one's `start` will point at the"
+        },
+        {
+          "start_line": 4950,
+          "end_line": 4968,
+          "text": "pp$8.readInt = function(radix, len) {\n  var this$1 = this;\n\n  var start = this.pos, total = 0;\n  for (var i = 0, e = len == null ? Infinity : len; i < e; ++i) {\n    var code = this$1.input.charCodeAt(this$1.pos), val = (void 0);\n    if (code >= 97) { val = code - 97 + 10; } // a\n    else if (code >= 65) { val = code - 65 + 10; } // A\n    else if (code >= 48 && code <= 57) { val = code - 48; } // 0-9\n    else { val = Infinity; }\n    if (val >= radix) { break }\n    ++this$1.pos;\n    total = total * radix + val;\n  }\n  if (this.pos === start || len != null && this.pos - start !== len) { return null }\n\n  return total\n};\n"
+        }
+      ]
+    },
+    {
+      "package": "typescript",
+      "version": "3.3.1",
+      "relative_path": "node_modules/typescript/lib/typescript.js",
+      "sha256": "02d78a3cb4452a06c72edd0f9b77db07a3c0a84a2347064963f39241e5e6829c",
+      "sections": [
+        {
+          "start_line": 6885,
+          "end_line": 6910,
+          "text": "    function createScanner(languageVersion, skipTrivia, languageVariant, textInitial, onError, start, length) {\n        if (languageVariant === void 0) { languageVariant = 0 /* Standard */; }\n        var text = textInitial;\n        // Current position (end position of text of current token)\n        var pos;\n        // end of text\n        var end;\n        // Start position of whitespace before current token\n        var startPos;\n        // Start position of text of current token\n        var tokenPos;\n        var token;\n        var tokenValue;\n        var tokenFlags;\n        var inJSDocType = 0;\n        setText(text, start, length);\n        return {\n            getStartPos: function () { return startPos; },\n            getTextPos: function () { return pos; },\n            getToken: function () { return token; },\n            getTokenPos: function () { return tokenPos; },\n            getTokenText: function () { return text.substring(tokenPos, pos); },\n            getTokenValue: function () { return tokenValue; },\n            hasExtendedUnicodeEscape: function () { return (tokenFlags & 8 /* ExtendedUnicodeEscape */) !== 0; },\n            hasPrecedingLineBreak: function () { return (tokenFlags & 1 /* PrecedingLineBreak */) !== 0; },\n            isIdentifier: function () { return token === 72 /* Identifier */ || token > 108 /* LastReservedWord */; },"
+        },
+        {
+          "start_line": 6944,
+          "end_line": 6980,
+          "text": "        function scanNumberFragment() {\n            var start = pos;\n            var allowSeparator = false;\n            var isPreviousTokenSeparator = false;\n            var result = \"\";\n            while (true) {\n                var ch = text.charCodeAt(pos);\n                if (ch === 95 /* _ */) {\n                    tokenFlags |= 512 /* ContainsSeparator */;\n                    if (allowSeparator) {\n                        allowSeparator = false;\n                        isPreviousTokenSeparator = true;\n                        result += text.substring(start, pos);\n                    }\n                    else if (isPreviousTokenSeparator) {\n                        error(ts.Diagnostics.Multiple_consecutive_numeric_separators_are_not_permitted, pos, 1);\n                    }\n                    else {\n                        error(ts.Diagnostics.Numeric_separators_are_not_allowed_here, pos, 1);\n                    }\n                    pos++;\n                    start = pos;\n                    continue;\n                }\n                if (isDigit(ch)) {\n                    allowSeparator = true;\n                    isPreviousTokenSeparator = false;\n                    pos++;\n                    continue;\n                }\n                break;\n            }\n            if (text.charCodeAt(pos - 1) === 95 /* _ */) {\n                error(ts.Diagnostics.Numeric_separators_are_not_allowed_here, pos - 1, 1);\n            }\n            return result + text.substring(start, pos);\n        }"
+        },
+        {
+          "start_line": 7423,
+          "end_line": 7441,
+          "text": "        function scan() {\n            var _a;\n            startPos = pos;\n            tokenFlags = 0;\n            var asteriskSeen = false;\n            while (true) {\n                tokenPos = pos;\n                if (pos >= end) {\n                    return token = 1 /* EndOfFileToken */;\n                }\n                var ch = text.charCodeAt(pos);\n                // Special handling for shebang\n                if (ch === 35 /* hash */ && pos === 0 && isShebangTrivia(text, pos)) {\n                    pos = scanShebangTrivia(text, pos);\n                    if (skipTrivia) {\n                        continue;\n                    }\n                    else {\n                        return token = 6 /* ShebangTrivia */;"
+        }
+      ]
+    },
+    {
+      "package": "esprima",
+      "version": "4.0.0",
+      "relative_path": "node_modules/esprima/dist/esprima.js",
+      "sha256": "dab9700f91429f4c5beb07d9504ded02c545e2f0372e801ef969ce9bca381286",
+      "sections": [
+        {
+          "start_line": 5770,
+          "end_line": 5830,
+          "text": "\t    Scanner.prototype.scanNumericLiteral = function () {\n\t        var start = this.index;\n\t        var ch = this.source[start];\n\t        assert_1.assert(character_1.Character.isDecimalDigit(ch.charCodeAt(0)) || (ch === '.'), 'Numeric literal must start with a decimal digit or a decimal point');\n\t        var num = '';\n\t        if (ch !== '.') {\n\t            num = this.source[this.index++];\n\t            ch = this.source[this.index];\n\t            // Hex number starts with '0x'.\n\t            // Octal number starts with '0'.\n\t            // Octal number in ES6 starts with '0o'.\n\t            // Binary number in ES6 starts with '0b'.\n\t            if (num === '0') {\n\t                if (ch === 'x' || ch === 'X') {\n\t                    ++this.index;\n\t                    return this.scanHexLiteral(start);\n\t                }\n\t                if (ch === 'b' || ch === 'B') {\n\t                    ++this.index;\n\t                    return this.scanBinaryLiteral(start);\n\t                }\n\t                if (ch === 'o' || ch === 'O') {\n\t                    return this.scanOctalLiteral(ch, start);\n\t                }\n\t                if (ch && character_1.Character.isOctalDigit(ch.charCodeAt(0))) {\n\t                    if (this.isImplicitOctalLiteral()) {\n\t                        return this.scanOctalLiteral(ch, start);\n\t                    }\n\t                }\n\t            }\n\t            while (character_1.Character.isDecimalDigit(this.source.charCodeAt(this.index))) {\n\t                num += this.source[this.index++];\n\t            }\n\t            ch = this.source[this.index];\n\t        }\n\t        if (ch === '.') {\n\t            num += this.source[this.index++];\n\t            while (character_1.Character.isDecimalDigit(this.source.charCodeAt(this.index))) {\n\t                num += this.source[this.index++];\n\t            }\n\t            ch = this.source[this.index];\n\t        }\n\t        if (ch === 'e' || ch === 'E') {\n\t            num += this.source[this.index++];\n\t            ch = this.source[this.index];\n\t            if (ch === '+' || ch === '-') {\n\t                num += this.source[this.index++];\n\t            }\n\t            if (character_1.Character.isDecimalDigit(this.source.charCodeAt(this.index))) {\n\t                while (character_1.Character.isDecimalDigit(this.source.charCodeAt(this.index))) {\n\t                    num += this.source[this.index++];\n\t                }\n\t            }\n\t            else {\n\t                this.throwUnexpectedToken();\n\t            }\n\t        }\n\t        if (character_1.Character.isIdentifierStart(this.source.charCodeAt(this.index))) {\n\t            this.throwUnexpectedToken();\n\t        }\n\t        return {"
+        }
+      ]
+    }
+  ],
+  "bundle_matches": {
+    "acorn.skipSpace": 66135,
+    "acorn.readInt": 66419,
+    "esprima.scanNumericLiteral": 148713,
+    "typescript.scanNumberFragment": 543354
+  },
+  "limitations": [
+    "No per-function dynamic coverage attribution in original region run",
+    "4 retired sites are not re-counted after canonical restoration",
+    "Source structures prove barriers at those locations, not their weighted contribution to the 0.079% observed coverage"
+  ]
+}

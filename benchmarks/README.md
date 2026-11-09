@@ -5,7 +5,7 @@
 - [逐项方法和结果](quickjs-optimization.md)：包括保留与舍弃的候选，以及每项的 17 个子测试。
 - [架构分析](quickjs-architecture-analysis.md)：引擎成本、属性布局身份、所有权值流与对象构造路线。
 - [JIT / Java 优化分析](quickjs-jit-inspired-analysis.md)：跨平台借鉴与已验证原型的边界。
-- [整数区域执行实验](quickjs-int-region-analysis.md)：SSA/DAG 原型通过正确性验证，但 WTB 主解释器分派覆盖过低，按覆盖门槛停止。
+- [整数区域执行实验](quickjs-int-region-analysis.md)：SSA/DAG 原型通过正确性验证，但 WTB 主解释器分派覆盖过低，按覆盖门槛停止；[退役后频率与结构分析](quickjs-region-coverage-analysis.md)进一步排除了三个早退数字解析位点存在大量遗漏机会的假设。
 - [正则根搜索裁剪](quickjs-regexp-analysis.md)：对必经起始锚点排除不可能的后续起点，六对总分中位 +3.62%，Espree +47.41%、Acorn +16.14%；增量对照为共享对象布局版。
 - [架构实验源码快照](experiments/README.md)：重建已保留和已舍弃的主要候选，无需依赖本机构建目录。
 - [属性访问缓存分析](quickjs-site-ic-analysis.md)与[对象构造分析](quickjs-object-construction-analysis.md)：具体实现边界、实测成本及修正验证状态。

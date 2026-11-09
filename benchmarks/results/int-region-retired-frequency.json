@@ -1,0 +1,58 @@
+{
+  "method": "One independent full diagnostic WTB run. Current live function plan identifies only the 3 retired readInt sites. Each canonical entry is counted (including the immediate fallback after retirement) and the full int32 DAG is dry-run before any local commit; canonical execution remains unchanged. No performance score.",
+  "stats": {
+    "scanned_functions": 10671,
+    "plans": 383,
+    "sites": 630,
+    "bytes": 53396,
+    "live_bytes": 53396,
+    "peak_bytes": 53396,
+    "calls": 591057,
+    "hits": 591053,
+    "retired": 4,
+    "type_guard_fail": 1,
+    "write_guard_fail": 0,
+    "arithmetic_fail": 3,
+    "covered_insns": 3872129,
+    "saved_dispatches": 3281076,
+    "dispatches": 4154651584
+  },
+  "retired_sites": [
+    {
+      "site": 0,
+      "executions": 10564,
+      "eligible": 10536,
+      "saved": 63216
+    },
+    {
+      "site": 1,
+      "executions": 2017,
+      "eligible": 2003,
+      "saved": 10015
+    },
+    {
+      "site": 2,
+      "executions": 295,
+      "eligible": 281,
+      "saved": 1405
+    }
+  ],
+  "derived_same_run": {
+    "reference_dispatches": 4157932656,
+    "actual_net_saved": 3281072,
+    "actual_saved_percent": 0.07891113857424631,
+    "additional_eligible_saved": 74636,
+    "additional_saved_percent_points": 0.001795026667695024,
+    "combined_potential_saved_percent": 0.08070616524194132
+  },
+  "validation": "int-region, object-layout and private-bytecode JS correctness fixtures passed",
+  "candidate_source_sha256": "ad7946536367328db291e14e65db6673079bcee3f8bad7165f584768bf68a2e1",
+  "archived_transform_matches_tested_source": true,
+  "decision": "Close current pure numeric region route; hidden post-retirement int32 opportunities are too small to justify backoff or Number DAG implementation. This is a coverage decision, not a measured throughput regression.",
+  "limitations": [
+    "The diagnostic has extra dispatch checks and dry-run work; never score its throughput",
+    "No direct count of CPU cycles saved",
+    "The combined potential assumes every fully eligible retired occurrence executes with existing-region dispatch savings; not a speedup estimate",
+    "Do not divide these counters by another run denominator"
+  ]
+}

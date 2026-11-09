@@ -1,0 +1,367 @@
+{
+  "method": "One separate complete diagnostic WTB run; only first-failure identities are logged before canonical restoration. No paired score and no observation of subsequent retired-site execution.",
+  "sites": [
+    {
+      "name": "copy",
+      "filename": "<input>",
+      "line": 202071,
+      "pc": 162,
+      "end": 169,
+      "insns": 7,
+      "inputs": [
+        {
+          "ref": 0,
+          "kind": 2,
+          "source": 3,
+          "tag": 0,
+          "int": 539432
+        },
+        {
+          "ref": 1,
+          "kind": 2,
+          "source": 2,
+          "tag": 0,
+          "int": 0
+        },
+        {
+          "ref": 2,
+          "kind": 1,
+          "source": 2,
+          "tag": -1,
+          "int": 0
+        },
+        {
+          "ref": 3,
+          "kind": 2,
+          "source": 0,
+          "tag": -1,
+          "int": 0
+        }
+      ],
+      "nodes": [
+        {
+          "ref": 32,
+          "op": 157,
+          "left": 0,
+          "right": 1,
+          "opcode": "sub"
+        },
+        {
+          "ref": 33,
+          "op": 173,
+          "left": 2,
+          "right": 3,
+          "opcode": "strict_eq"
+        }
+      ],
+      "canonical_hex": "dad99dcfcdd7ad",
+      "instructions": [
+        {
+          "pc": 162,
+          "opcode": "get_arg3",
+          "bytes": "da"
+        },
+        {
+          "pc": 163,
+          "opcode": "get_arg2",
+          "bytes": "d9"
+        },
+        {
+          "pc": 164,
+          "opcode": "sub",
+          "bytes": "9d"
+        },
+        {
+          "pc": 165,
+          "opcode": "put_loc0",
+          "bytes": "cf"
+        },
+        {
+          "pc": 166,
+          "opcode": "get_loc2",
+          "bytes": "cd"
+        },
+        {
+          "pc": 167,
+          "opcode": "get_arg0",
+          "bytes": "d7"
+        },
+        {
+          "pc": 168,
+          "opcode": "strict_eq",
+          "bytes": "ad"
+        }
+      ]
+    },
+    {
+      "name": "<null>",
+      "filename": "<input>",
+      "line": 66419,
+      "pc": 153,
+      "end": 162,
+      "insns": 7,
+      "inputs": [
+        {
+          "ref": 0,
+          "kind": 1,
+          "source": 2,
+          "tag": 0,
+          "int": 900719925
+        },
+        {
+          "ref": 1,
+          "kind": 2,
+          "source": 0,
+          "tag": 0,
+          "int": 10
+        },
+        {
+          "ref": 2,
+          "kind": 1,
+          "source": 6,
+          "tag": 0,
+          "int": 4
+        },
+        {
+          "ref": 3,
+          "kind": 1,
+          "source": 3,
+          "tag": 0,
+          "int": 9
+        },
+        {
+          "ref": 4,
+          "kind": 0,
+          "source": 1,
+          "tag": 0,
+          "int": 1
+        }
+      ],
+      "nodes": [
+        {
+          "ref": 32,
+          "op": 153,
+          "left": 0,
+          "right": 1,
+          "opcode": "mul"
+        },
+        {
+          "ref": 33,
+          "op": 156,
+          "left": 32,
+          "right": 2,
+          "opcode": "add"
+        },
+        {
+          "ref": 34,
+          "op": 156,
+          "left": 3,
+          "right": 4,
+          "opcode": "add"
+        }
+      ],
+      "canonical_hex": "cdd799c7069cd19203",
+      "instructions": [
+        {
+          "pc": 153,
+          "opcode": "get_loc2",
+          "bytes": "cd"
+        },
+        {
+          "pc": 154,
+          "opcode": "get_arg0",
+          "bytes": "d7"
+        },
+        {
+          "pc": 155,
+          "opcode": "mul",
+          "bytes": "99"
+        },
+        {
+          "pc": 156,
+          "opcode": "get_loc8",
+          "bytes": "c706"
+        },
+        {
+          "pc": 158,
+          "opcode": "add",
+          "bytes": "9c"
+        },
+        {
+          "pc": 159,
+          "opcode": "put_loc2",
+          "bytes": "d1"
+        },
+        {
+          "pc": 160,
+          "opcode": "inc_loc",
+          "bytes": "9203"
+        }
+      ]
+    },
+    {
+      "name": "readInt",
+      "filename": "<input>",
+      "line": 121996,
+      "pc": 474,
+      "end": 481,
+      "insns": 6,
+      "inputs": [
+        {
+          "ref": 0,
+          "kind": 1,
+          "source": 3,
+          "tag": 0,
+          "int": 900719925
+        },
+        {
+          "ref": 1,
+          "kind": 2,
+          "source": 0,
+          "tag": 0,
+          "int": 10
+        },
+        {
+          "ref": 2,
+          "kind": 1,
+          "source": 7,
+          "tag": 0,
+          "int": 4
+        }
+      ],
+      "nodes": [
+        {
+          "ref": 32,
+          "op": 153,
+          "left": 0,
+          "right": 1,
+          "opcode": "mul"
+        },
+        {
+          "ref": 33,
+          "op": 156,
+          "left": 32,
+          "right": 2,
+          "opcode": "add"
+        }
+      ],
+      "canonical_hex": "ced799c7079cd2",
+      "instructions": [
+        {
+          "pc": 474,
+          "opcode": "get_loc3",
+          "bytes": "ce"
+        },
+        {
+          "pc": 475,
+          "opcode": "get_arg0",
+          "bytes": "d7"
+        },
+        {
+          "pc": 476,
+          "opcode": "mul",
+          "bytes": "99"
+        },
+        {
+          "pc": 477,
+          "opcode": "get_loc8",
+          "bytes": "c707"
+        },
+        {
+          "pc": 479,
+          "opcode": "add",
+          "bytes": "9c"
+        },
+        {
+          "pc": 480,
+          "opcode": "put_loc3",
+          "bytes": "d2"
+        }
+      ]
+    },
+    {
+      "name": "<null>",
+      "filename": "<input>",
+      "line": 175290,
+      "pc": 458,
+      "end": 465,
+      "insns": 6,
+      "inputs": [
+        {
+          "ref": 0,
+          "kind": 1,
+          "source": 3,
+          "tag": 0,
+          "int": 900719925
+        },
+        {
+          "ref": 1,
+          "kind": 2,
+          "source": 0,
+          "tag": 0,
+          "int": 10
+        },
+        {
+          "ref": 2,
+          "kind": 1,
+          "source": 7,
+          "tag": 0,
+          "int": 4
+        }
+      ],
+      "nodes": [
+        {
+          "ref": 32,
+          "op": 153,
+          "left": 0,
+          "right": 1,
+          "opcode": "mul"
+        },
+        {
+          "ref": 33,
+          "op": 156,
+          "left": 32,
+          "right": 2,
+          "opcode": "add"
+        }
+      ],
+      "canonical_hex": "ced799c7079cd2",
+      "instructions": [
+        {
+          "pc": 458,
+          "opcode": "get_loc3",
+          "bytes": "ce"
+        },
+        {
+          "pc": 459,
+          "opcode": "get_arg0",
+          "bytes": "d7"
+        },
+        {
+          "pc": 460,
+          "opcode": "mul",
+          "bytes": "99"
+        },
+        {
+          "pc": 461,
+          "opcode": "get_loc8",
+          "bytes": "c707"
+        },
+        {
+          "pc": 463,
+          "opcode": "add",
+          "bytes": "9c"
+        },
+        {
+          "pc": 464,
+          "opcode": "put_loc3",
+          "bytes": "d2"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Do not merge this run dispatch denominator with the previous region diagnostic run",
+    "Three lexer overflows prove early retirement of accumulation sites, not their later frequency or speedup potential"
+  ]
+}
