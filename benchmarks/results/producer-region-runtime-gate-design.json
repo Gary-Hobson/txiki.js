@@ -1,0 +1,20 @@
+{
+  "status": "Completed six permutations; enabled/canonical +0.40724% (6/6), enabled/body -1.06809% (0/6), canonical/body -1.47024% (0/6). Cost diagnosis only; producer remains rejected.",
+  "gate_transform_sha256": "13fc19d0ccf188a7969733dcd3c10dcef023d9277624f7fc2625262a8362f78e",
+  "input_candidate_sha256": "2fa928c10fefee23d4a7c4e1059d0e72d72b8604cd975593d8c01efb211c467d",
+  "gated_source_sha256": "e4536f2d0375f43383170784212a7b50550f0ae5215952c8babb052ca77846cd",
+  "canonical_environment": {
+    "QJS_PRODUCER_REGION_CANONICAL": "1"
+  },
+  "enabled_environment": {
+    "QJS_PRODUCER_REGION_CANONICAL": null
+  },
+  "score_modes": [
+    "enabled",
+    "canonical",
+    "body"
+  ],
+  "score_orders": "all six permutations, one warmup per mode",
+  "wrapper": null,
+  "note": "Score enabled/canonical using one actual executable hash; body is an external anchor. Preserve partial logs if interrupted."
+}

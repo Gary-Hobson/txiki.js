@@ -43,3 +43,5 @@ python3 benchmarks/experiments/replay.py \
 字符串生命周期、charCodeAt body-only变换及JS/native差分fixture保存为 `string-lifecycle-*`。这些独立脚本以正则裁剪构建副本为受哈希校验的输入，重建已计分源码；不属于上表 `replay.py` 的variant。具体运行命令、诊断与吞吐的区分见[生命周期报告](../quickjs-string-lifecycle-analysis.md)。正式快路保留，两次独立六轮 +0.54% / +0.80%；未增加Map哈希缓存。
 
 `producer-region-transform.py` 的纯 `transform(source)` 接口以body-only quickjs.c为输入，重建调用点与后继区域融合候选；`producer-region-*` JS/native专项覆盖检查点、重入、bytecode和失败回退。六对相对body-only −1.21%、0/6胜，拒绝；[重放指纹](../results/producer-region-replay-evidence.json)和[完整方法](../quickjs-producer-region-analysis.md)记录未完成集成门槛，勿误用为产品代码。
+
+`producer-region-runtime-gate-transform.py` 只给失败候选增加准备阶段的实验开关，用同一binary区分执行快路与框架成本。开启/关闭六对+0.41%，但开启/body−1.07%、关闭/body−1.47%，不是保留优化。输入、环境、等量plan验证及三方六排列见[独立报告](../quickjs-producer-region-runtime-gate-analysis.md)。

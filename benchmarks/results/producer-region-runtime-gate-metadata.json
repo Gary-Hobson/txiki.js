@@ -1,0 +1,31 @@
+{
+  "method": "same real binary; only external process environment differs for enabled/canonical",
+  "rounds": 6,
+  "warmups_per_mode": 1,
+  "wrapper": null,
+  "engine_binaries": {
+    "enabled": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/quickjs-hotpaths/producer-region-runtime-gate/tjs",
+      "sha256": "0ebb347baa319e3d5b28167da4fa9225c9c2ea4b9ae4da23213fe9a663be1635"
+    },
+    "canonical": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/quickjs-hotpaths/producer-region-runtime-gate/tjs",
+      "sha256": "0ebb347baa319e3d5b28167da4fa9225c9c2ea4b9ae4da23213fe9a663be1635"
+    },
+    "body": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/integrated-charcode-body/tjs",
+      "sha256": "3a2bda3b3243225dbb8c25c88245e3b6091af3ca82778be9d811354a11160b6a"
+    }
+  },
+  "environment_overrides": {
+    "enabled": {
+      "QJS_PRODUCER_REGION_CANONICAL": null
+    },
+    "canonical": {
+      "QJS_PRODUCER_REGION_CANONICAL": "1"
+    }
+  },
+  "suite_sha256": "a7a227840538deb2d44dcadbf3da6b12187b29961f2e134db2269b785f7d9931",
+  "candidate_source_sha256": "e4536f2d0375f43383170784212a7b50550f0ae5215952c8babb052ca77846cd",
+  "gate_transform_sha256": "13fc19d0ccf188a7969733dcd3c10dcef023d9277624f7fc2625262a8362f78e"
+}

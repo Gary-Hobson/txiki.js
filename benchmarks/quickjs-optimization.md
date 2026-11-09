@@ -1426,3 +1426,32 @@ Release + ThinLTO，PGO/inspector OFF。相对fa509604，独占预热后首组�
 主代理独立重算18项中位和胜率，并核对原始/保留二进制及suite现存哈希全部一致。源码与配置和全套正确性验证见前节；本次数据仅针对本机Apple M4/macOS，不外推其他平台。
 
 完整[12次原分](results/retained-charcode-pairs.json)、[源码/二进制/套件指纹](results/retained-charcode-pairs-metadata.json)、[逐项统计](results/retained-charcode-pairs-summary.json)。
+
+## 同一二进制区分producer执行收益与框架开销
+
+只在已有plan发布后读取实验环境开关，选择写入private253或保留canonical call_method。两模式使用同一物理二进制，保留相同函数结构、扫描、计划分配及handler布局；固定fixture验证plans/sites/bytes一致，开启实际100次命中，关闭0次入口。body-only作为独立第三方锚点。各模式完整预热一次，六种排列共18次完整WTB，Release + ThinLTO，无PGO/inspector。
+
+enabled/canonical总分中位+0.41%、6/6胜；enabled/body−1.07%、0/6胜；canonical/body−1.47%、0/6胜。enabled复现此前退化，支持所选执行路径在共享框架内有小幅净收益，但不足以抵消整体成本。不得将不同对照的百分比相减作为精确成本分解，也不能单独归因为pointer、扫描、I-cache或spill。当前producer仍拒绝，不加入正式补丁。
+
+| 项目 | 开启/关闭 | 开启/body | 关闭/body |
+|---|---:|---:|---:|
+| acorn | +0.55% | -1.61% | -2.16% |
+| babel | +0.67% | -0.27% | -1.19% |
+| babel-minify | -0.49% | -0.69% | +0.00% |
+| babylon | +1.30% | +0.73% | -0.74% |
+| buble | +0.93% | -1.00% | -1.74% |
+| chai | +0.30% | -1.03% | -1.61% |
+| espree | +1.19% | -0.58% | -2.03% |
+| esprima | -0.45% | -2.64% | -2.21% |
+| jshint | +0.22% | +0.01% | -0.43% |
+| lebab | -0.26% | -0.64% | -0.51% |
+| postcss | +0.49% | -2.38% | -2.62% |
+| prepack | +0.00% | -0.34% | -1.02% |
+| prettier | +0.76% | -0.94% | -1.50% |
+| source-map | -0.76% | -2.10% | -1.35% |
+| terser | +0.55% | -1.12% | -1.12% |
+| typescript | +0.27% | -2.70% | -3.03% |
+| uglify-js | +0.32% | -0.79% | -1.72% |
+| Geometric mean | +0.41% | -1.07% | -1.47% |
+
+主代理独立重算三种配对的18项中位/胜率，检查enabled/canonical为同一实际路径和hash，并验证现存二进制。完整[设计与结论](quickjs-producer-region-runtime-gate-analysis.md)、[18次原分](results/producer-region-runtime-gate.json)、[指纹和环境](results/producer-region-runtime-gate-metadata.json)、[逐项统计](results/producer-region-runtime-gate-summary.json)、[固定fixture](results/producer-region-runtime-gate-diagnostic.json)。
