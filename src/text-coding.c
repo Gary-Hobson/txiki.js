@@ -185,6 +185,29 @@ static inline int tjs_utf8_decoder_process_item(JSContext *ctx,
             return 1;  // finished
             break;
         case TJS_TEXT_CODING_RESULT_CODEPOINT:
+            if (d->code_point <= 0x7f) {
+                // Reuse the decoder's ASCII decision to avoid checking multibyte input twice.
+                size_t limit = end - *ptr;
+                size_t capacity = s->allocated_size - s->size;
+                if (limit > capacity) {
+                    limit = capacity;
+                }
+                size_t copied = 0;
+                while (limit - copied >= sizeof(uint64_t)) {
+                    uint64_t word;
+                    memcpy(&word, *ptr + copied, sizeof(word));
+                    if (word & UINT64_C(0x8080808080808080)) {
+                        break;
+                    }
+                    memcpy(s->buf + s->size + copied, &word, sizeof(word));
+                    copied += sizeof(word);
+                }
+                if (copied > 0) {
+                    *ptr += copied - 1;
+                    s->size += copied;
+                    return 0;
+                }
+            }
             if (!((opts & TJS_TEXT_CODING_OPTION_IGNORE_BOM) == 0 &&
                   d->code_point == 0xFEFF)) {  // do not add BOM, if ignoreBOM is set
                 if (string_buffer_putc(s, d->code_point)) {
