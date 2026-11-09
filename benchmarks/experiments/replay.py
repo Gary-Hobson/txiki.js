@@ -21,6 +21,7 @@ VARIANTS = {
     'object-layout': BASE + ('comparison-branch', 'object-layout'),
     'object-layout-shared': BASE + ('comparison-branch', 'object-layout-shared'),
     'object-string-intrinsic': BASE + ('comparison-branch', 'object-layout-shared', 'string-intrinsic'),
+    'object-int-region': BASE + ('comparison-branch', 'object-layout-shared', 'int-region'),
 }
 
 

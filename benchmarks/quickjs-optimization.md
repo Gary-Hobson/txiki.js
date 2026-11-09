@@ -1191,3 +1191,15 @@ hint+fusion版本相对hint总体胜出5/6轮。
 | Geometric mean | +4.41% | +5.58% | +1.27% |
 
 完整证据：[18次原分](results/retained-object-triad.json)、[二进制和工作负载哈希](results/retained-object-triad-metadata.json)、[三组配对汇总](results/retained-object-triad-summary.json)。
+
+## 整数DAG区域执行：按覆盖门槛停止
+
+对照52becd9e。将至少6条原指令、至少2项计算的纯整数片段转为去重输入、DAG节点和SSA写集；全部类型及溢出检查成功后才提交局部写入，失败恢复入口并永久退役。保持原中断边界及canonical序列化，不改正式补丁。
+
+完整WTB诊断产生383个函数计划、630个区域；591,053次命中、4次退役。同次运行净减少3,281,072次主VM SWITCH，占重建参照4,158,767,366次的0.07890%。每次命中平均覆盖6.55条原指令，计划峰值53,396字节（不含每函数新增指针）。
+
+状态：覆盖过低，本原型停止，不进行六对计分。计数不是时间份额或严格性能上限；DAG内部仍有循环、节点switch、guard和元数据开销，因此不能把主VM分派减少直接称为性能收益，也没有吞吐退化结论。
+
+验证：对照/候选/诊断三项JS专项及native活跃帧序列化、读取执行通过；中断正常回调4次、主动中止2次均一致；两处可选分配的真实失败注入通过；独立生成式差分4320个返回值/异常结果逐字相同。实际inspector ON和全平台构建未测。
+
+详见 [完整设计与裁决](quickjs-int-region-analysis.md)、[原始计数和验证摘要](results/int-region-diagnostics.json)、[可重建原型](experiments/README.md)。

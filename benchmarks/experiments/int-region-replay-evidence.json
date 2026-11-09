@@ -1,0 +1,16 @@
+{
+  "variant": "object-int-region",
+  "replay_matches_tested_source_byte_for_byte": true,
+  "status": "rejected_by_coverage_gate_no_scored_performance_run",
+  "sha256": {
+    "deps/quickjs/quickjs.c": "51b1d3919ffe812d0e01793f85d347bcea48c924c11262c5c5f00df1e4759d74",
+    "build/lto-benchmark/quickjs-hotpaths/object-int-region/quickjs.c": "233e7987e9001d28d6adaa713901031848e23569556b5d90766516dbcba56160",
+    "benchmarks/experiments/int-region-transform.py": "1e9ebe78532b09886d511d86fd37f8b5af621c20587f33dd518e356fb8a71418",
+    "benchmarks/experiments/int-region-correctness.js": "15e636919e7b31f67f7229515339b5df447848cda7f8b85e193656aa5806b94a",
+    "benchmarks/experiments/int-region-native.c": "87be2482c4b093f32b1934b5332bf373d0e6ace75a4cf9f596a7b08b1c0bf7f3",
+    "benchmarks/experiments/int-region-differential-parent.js": "fdb92fd0569fb62d229b2d292d107fcf45fe650342a06e08b28fada9d7cf60f1"
+  },
+  "diagnostics": "../results/int-region-diagnostics.json",
+  "executed_native_fixture_sha256": "0625f195c2bc44ea6adde34bc60a41e5b2917f41473097e3d671e3edf731b3a4",
+  "native_fixture_archive_note": "Archived C fixture was clang-format formatted after successful execution; only formatting changed. The executed native source hash is recorded separately; no post-format rerun was performed during the exclusive regex timing window."
+}
