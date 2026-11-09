@@ -1162,3 +1162,32 @@ hint+fusion版本相对baseline总体胜出6/6轮。
 hint+fusion版本相对hint总体胜出5/6轮。
 
 完整原始数据见 [final-triad.json](results/final-triad.json)。
+
+## 当前保留版本的独立累计确认（52becd9e）
+
+原始QuickJS控制版、ef801eaa分支融合版、52becd9e共享对象布局版，各完整预热一次；随后六轮覆盖三种二进制的全部六种排列。本任务在测量窗口没有同时编译或运行其他性能测试。三者均为Release + ThinLTO，关闭PGO和inspector；已检查对应CMakeCache及compile_commands，QuickJS包含-flto=thin、无-fprofile-*。
+
+结果直接使用同轮配对比值，不相加历史增量。最新对象布局版相对原始控制总分中位+5.58%、6/6胜，17个子项的配对中位均为正；相对分支融合版+1.27%、6/6胜。分数由WTB保留两位小数，百分比不是额外测量精度。
+
+| 指标 | branch / 原始 | object / 原始 | object / branch |
+|---|---:|---:|---:|
+| acorn | +8.62% | +9.31% | +0.63% |
+| babel | +4.81% | +5.23% | +1.65% |
+| babel-minify | +3.64% | +4.58% | +1.51% |
+| babylon | +8.28% | +6.72% | -1.28% |
+| buble | +6.36% | +6.45% | +0.00% |
+| chai | +0.30% | +1.04% | +0.73% |
+| espree | +4.95% | +5.41% | +0.00% |
+| esprima | +6.60% | +17.41% | +9.83% |
+| jshint | +3.73% | +4.62% | +1.31% |
+| lebab | +2.76% | +2.63% | -0.13% |
+| postcss | +4.74% | +5.91% | +0.86% |
+| prepack | +2.87% | +5.88% | +2.78% |
+| prettier | +3.87% | +2.69% | -0.93% |
+| source-map | +2.25% | +3.20% | +0.32% |
+| terser | +1.66% | +3.35% | +1.66% |
+| typescript | +9.31% | +9.63% | +0.54% |
+| uglify-js | +1.29% | +2.26% | +0.80% |
+| Geometric mean | +4.41% | +5.58% | +1.27% |
+
+完整证据：[18次原分](results/retained-object-triad.json)、[二进制和工作负载哈希](results/retained-object-triad-metadata.json)、[三组配对汇总](results/retained-object-triad-summary.json)。
