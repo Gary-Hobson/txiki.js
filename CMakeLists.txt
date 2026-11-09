@@ -243,13 +243,11 @@ add_executable(tjsc EXCLUDE_FROM_ALL
 ### Dependencies
 ###
 
+include(cmake/QuickJSPatches.cmake)
+add_subdirectory("${quickjs_source}" quickjs-build EXCLUDE_FROM_ALL)
 if(BUILD_WITH_INSPECTOR)
-    include(cmake/QuickJSDebugger.cmake)
-    add_subdirectory("${quickjs_source}" quickjs-build EXCLUDE_FROM_ALL)
     target_sources(tjs PRIVATE src/inspector.cpp)
     target_compile_features(tjs PRIVATE cxx_std_17)
-else()
-    add_subdirectory(deps/quickjs EXCLUDE_FROM_ALL)
 endif()
 target_link_libraries(tjs PUBLIC qjs)
 target_link_libraries(tjsc qjs)

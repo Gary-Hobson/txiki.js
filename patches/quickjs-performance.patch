@@ -1,0 +1,160 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -415,6 +415,10 @@
+
+     bool can_block; /* true if Atomics.wait can block */
+     uint32_t dump_flags : 24;
++
++    /* Atom-indexed own-property slot hints; zero means no hint.
++       Entries own no GC references and are validated on every use. */
++    uint32_t own_property_slot_hints[1024];
+
+     /* Shape hash table */
+     int shape_hash_bits;
+@@ -6859,6 +6863,53 @@
+     return NULL;
+ }
+
++/* A slot hint is safe across shape mutation and address reuse because
++   its bounds and atom are checked against the object's current shape.
++   Descriptor flags are deliberately left to the caller's existing checks. */
++static inline JSShapeProperty *find_own_property_hint(JSRuntime *rt,
++                                                      JSProperty **ppr,
++                                                      JSObject *p, JSAtom atom)
++{
++    JSShape *sh = p->shape;
++    JSShapeProperty *prs;
++    uint32_t *hint = &rt->own_property_slot_hints[atom & 1023];
++    uint32_t h = *hint;
++
++    if (h && h <= (uint32_t)sh->prop_count) {
++        prs = &get_shape_prop(sh)[h - 1];
++        if (prs->atom == atom) {
++            *ppr = &p->prop[h - 1];
++            return prs;
++        }
++    }
++
++    prs = find_own_property(ppr, p, atom);
++    if (prs)
++        *hint = (uint32_t)(*ppr - p->prop) + 1;
++    return prs;
++}
++
++/* Borrow the local receiver while executing an adjacent plain own-field
++   load. No allocation or JavaScript reentry occurs on this fused path. */
++static inline JSValue js_load_local_or_field(JSValueConst value,
++                                             uint8_t **ppc)
++{
++    uint8_t *pc = *ppc;
++    JSProperty *pr;
++    JSShapeProperty *prs;
++#ifdef ENABLE_DUMPS
++    return js_dup(value);
++#endif
++    if (*pc == OP_get_field && JS_VALUE_GET_TAG(value) == JS_TAG_OBJECT) {
++        prs = find_own_property(&pr, JS_VALUE_GET_OBJ(value), get_u32(pc + 1));
++        if (prs && !(prs->flags & JS_PROP_TMASK)) {
++            *ppc = pc + 5;
++            return js_dup(pr->u.value);
++        }
++    }
++    return js_dup(value);
++}
++
+ /* Release a counted reference an open var_ref held on the coroutine
+    (async function / generator / async generator) owning the frame it
+    points into. */
+@@ -18899,7 +18950,7 @@
+                 int idx;
+                 idx = get_u16(pc);
+                 pc += 2;
+-                sp[0] = js_dup(var_buf[idx]);
++                sp[0] = js_load_local_or_field(var_buf[idx], &pc);
+                 sp++;
+             }
+             BREAK;
+@@ -18925,7 +18976,7 @@
+                 int idx;
+                 idx = get_u16(pc);
+                 pc += 2;
+-                sp[0] = js_dup(arg_buf[idx]);
++                sp[0] = js_load_local_or_field(arg_buf[idx], &pc);
+                 sp++;
+             }
+             BREAK;
+@@ -18947,7 +18998,7 @@
+             }
+             BREAK;
+
+-        CASE(OP_get_loc8): *sp++ = js_dup(var_buf[*pc++]); BREAK;
++        CASE(OP_get_loc8): *sp++ = js_load_local_or_field(var_buf[*pc++], &pc); BREAK;
+         CASE(OP_put_loc8): set_value(ctx, &var_buf[*pc++], *--sp); BREAK;
+         CASE(OP_set_loc8): set_value(ctx, &var_buf[*pc++], js_dup(sp[-1])); BREAK;
+
+@@ -18959,10 +19010,10 @@
+             *sp++ = js_dup(var_buf[1]);
+             BREAK;
+
+-        CASE(OP_get_loc0): *sp++ = js_dup(var_buf[0]); BREAK;
+-        CASE(OP_get_loc1): *sp++ = js_dup(var_buf[1]); BREAK;
+-        CASE(OP_get_loc2): *sp++ = js_dup(var_buf[2]); BREAK;
+-        CASE(OP_get_loc3): *sp++ = js_dup(var_buf[3]); BREAK;
++        CASE(OP_get_loc0): *sp++ = js_load_local_or_field(var_buf[0], &pc); BREAK;
++        CASE(OP_get_loc1): *sp++ = js_load_local_or_field(var_buf[1], &pc); BREAK;
++        CASE(OP_get_loc2): *sp++ = js_load_local_or_field(var_buf[2], &pc); BREAK;
++        CASE(OP_get_loc3): *sp++ = js_load_local_or_field(var_buf[3], &pc); BREAK;
+         CASE(OP_put_loc0): set_value(ctx, &var_buf[0], *--sp); BREAK;
+         CASE(OP_put_loc1): set_value(ctx, &var_buf[1], *--sp); BREAK;
+         CASE(OP_put_loc2): set_value(ctx, &var_buf[2], *--sp); BREAK;
+@@ -18971,10 +19022,10 @@
+         CASE(OP_set_loc1): set_value(ctx, &var_buf[1], js_dup(sp[-1])); BREAK;
+         CASE(OP_set_loc2): set_value(ctx, &var_buf[2], js_dup(sp[-1])); BREAK;
+         CASE(OP_set_loc3): set_value(ctx, &var_buf[3], js_dup(sp[-1])); BREAK;
+-        CASE(OP_get_arg0): *sp++ = js_dup(arg_buf[0]); BREAK;
+-        CASE(OP_get_arg1): *sp++ = js_dup(arg_buf[1]); BREAK;
+-        CASE(OP_get_arg2): *sp++ = js_dup(arg_buf[2]); BREAK;
+-        CASE(OP_get_arg3): *sp++ = js_dup(arg_buf[3]); BREAK;
++        CASE(OP_get_arg0): *sp++ = js_load_local_or_field(arg_buf[0], &pc); BREAK;
++        CASE(OP_get_arg1): *sp++ = js_load_local_or_field(arg_buf[1], &pc); BREAK;
++        CASE(OP_get_arg2): *sp++ = js_load_local_or_field(arg_buf[2], &pc); BREAK;
++        CASE(OP_get_arg3): *sp++ = js_load_local_or_field(arg_buf[3], &pc); BREAK;
+         CASE(OP_put_arg0): set_value(ctx, &arg_buf[0], *--sp); BREAK;
+         CASE(OP_put_arg1): set_value(ctx, &arg_buf[1], *--sp); BREAK;
+         CASE(OP_put_arg2): set_value(ctx, &arg_buf[2], *--sp); BREAK;
+@@ -19573,8 +19624,8 @@
+                 obj = sp[-1];
+                 if (likely(JS_VALUE_GET_TAG(obj) == JS_TAG_OBJECT)) {
+                     p = JS_VALUE_GET_OBJ(obj);
++                    prs = find_own_property_hint(rt, &pr, p, atom);
+                     for(;;) {
+-                        prs = find_own_property(&pr, p, atom);
+                         if (prs) {
+                             /* found */
+                             if (unlikely(prs->flags & JS_PROP_TMASK))
+@@ -19594,6 +19645,7 @@
+                             val = JS_UNDEFINED;
+                             break;
+                         }
++                        prs = find_own_property(&pr, p, atom);
+                     }
+                 } else {
+                 get_field_slow_path:
+@@ -19621,8 +19673,8 @@
+                 obj = sp[-1];
+                 if (likely(JS_VALUE_GET_TAG(obj) == JS_TAG_OBJECT)) {
+                     p = JS_VALUE_GET_OBJ(obj);
++                    prs = find_own_property_hint(rt, &pr, p, atom);
+                     for(;;) {
+-                        prs = find_own_property(&pr, p, atom);
+                         if (prs) {
+                             /* found */
+                             if (unlikely(prs->flags & JS_PROP_TMASK))
+@@ -19642,6 +19694,7 @@
+                             val = JS_UNDEFINED;
+                             break;
+                         }
++                        prs = find_own_property(&pr, p, atom);
+                     }
+                 } else {
+                 get_field2_slow_path:
