@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "txiki.js: Attach",
+      "type": "node",
+      "request": "attach",
+      "address": "127.0.0.1",
+      "port": 9229,
+      "continueOnAttach": false
+    },
+    {
+      "name": "txiki.js: Launch Current File",
+      "type": "pwa-node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/txiki.js/build/tjs",
+      "runtimeArgs": ["--inspect-brk", "--inspect-port", "9229", "run"],
+      "attachSimplePort": 9229,
+      "program": "${file}",
+      "cwd": "${fileDirname}",
+      "console": "integratedTerminal",
+      "experimentalNetworking": "off",
+      "stopOnEntry": true
+    }
+  ]
+}
