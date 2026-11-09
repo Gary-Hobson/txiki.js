@@ -1015,6 +1015,45 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 
 完整原始数据见 [benchmarks/results/object-layout.json](results/object-layout.json)。
 
+## 字符串内建调用纯值快路
+
+对照52becd9e的共享对象布局；在js_call_c_function原栈检查后识别真实charCodeAt身份，flat string/int index直接返回code unit或NaN，保留中断和调用者清理。双方预热后六对；JS、原生中断/栈限制/跨realm和实际命中验证通过，真实inspector ON未测。调用次数不等于耗时，详细边界见 [intrinsic分析](quickjs-intrinsic-analysis.md)。
+
+状态：舍弃，收益不稳定或退化。
+
+整体配对中位变化-0.28%，胜出0/6对。
+
+| 轮次 | 基线 | 候选 | 变化 |
+|---|---:|---:|---:|
+| 1 | 3.61 | 3.57 | -1.11% |
+| 2 | 3.60 | 3.59 | -0.28% |
+| 3 | 3.60 | 3.60 | +0.00% |
+| 4 | 3.60 | 3.60 | +0.00% |
+| 5 | 3.61 | 3.60 | -0.28% |
+| 6 | 3.61 | 3.60 | -0.28% |
+
+| 子项 | 配对中位变化 |
+|---|---:|
+| acorn | +0.31% |
+| babel | -0.13% |
+| babel-minify | +0.81% |
+| babylon | +0.19% |
+| buble | +0.56% |
+| chai | -1.02% |
+| espree | +0.00% |
+| esprima | +0.45% |
+| jshint | +0.00% |
+| lebab | +0.13% |
+| postcss | +0.48% |
+| prepack | -1.00% |
+| prettier | +0.19% |
+| source-map | -0.46% |
+| terser | +0.00% |
+| typescript | +0.00% |
+| uglify-js | -0.79% |
+
+完整原始数据见 [benchmarks/results/object-string-intrinsic.json](results/object-string-intrinsic.json)。
+
 ## 共享最终形状的对象初始化预规划
 
 对照为ef801eaa；只修正首版重复持有模板，按proto/count/atom顺序/flags完整匹配已有最终shape，沿用它的容量；没有同时调阈值或inline策略。双方预热后六对。完整套件504通过、1跳过、1基线同有TCP失败；新增正式对象回归另行通过，独立CMake OFF/ON/OFF及inspector通过且源码与计分候选一致。ASAN+forcedGC实际优化路径、50强环回收、148次真实普通对象分配失败及恢复通过；其他两类OOM路径在baseline亦崩溃，完整限制及复现见 [对象构造分析](quickjs-object-construction-analysis.md) 和 [压力测试材料](experiments/object-layout-asan-oom-repro.md)。

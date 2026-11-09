@@ -1,0 +1,28 @@
+Running Web Tooling Benchmark v0.5.3…
+-------------------------------------
+         acorn:  1.58 runs/s
+         babel:  3.65 runs/s
+  babel-minify:  4.93 runs/s
+       babylon:  2.65 runs/s
+         buble:  5.15 runs/s
+          chai:  6.67 runs/s
+        espree:  1.16 runs/s
+       esprima:  2.02 runs/s
+        jshint:  4.42 runs/s
+         lebab:  3.82 runs/s
+       postcss:  4.07 runs/s
+       prepack:  2.91 runs/s
+      prettier:  2.67 runs/s
+    source-map:  3.17 runs/s
+        terser: 10.75 runs/s
+    typescript:  5.62 runs/s
+     uglify-js:  3.13 runs/s
+-------------------------------------
+Geometric mean:  3.52 runs/s
+NATIVE_CALL_PROFILE total=0 charCodeAt=0 eligible=0 in_bounds=0 out_bounds=0 charAt=0 codePointAt=0 at=0 substring=0 substr=0 slice=0 indexOf=0 lastIndexOf=0 includes=0 startsWith=0 endsWith=0 other=0
+NATIVE_CALL_PROFILE total=795 charCodeAt=0 eligible=0 in_bounds=0 out_bounds=0 charAt=0 codePointAt=0 at=0 substring=0 substr=0 slice=0 indexOf=0 lastIndexOf=0 includes=0 startsWith=0 endsWith=0 other=795
+NATIVE_CALL_PROFILE total=2028 charCodeAt=275 eligible=275 in_bounds=275 out_bounds=0 charAt=0 codePointAt=0 at=0 substring=0 substr=0 slice=19 indexOf=0 lastIndexOf=0 includes=0 startsWith=4 endsWith=0 other=1730
+NATIVE_CALL_PROFILE total=2037 charCodeAt=275 eligible=275 in_bounds=275 out_bounds=0 charAt=0 codePointAt=0 at=0 substring=0 substr=0 slice=19 indexOf=0 lastIndexOf=0 includes=0 startsWith=4 endsWith=0 other=1739
+NATIVE_CALL_PROFILE total=18981075 charCodeAt=5478461 eligible=4816833 in_bounds=4816763 out_bounds=70 charAt=437 codePointAt=0 at=0 substring=22 substr=4 slice=178425 indexOf=99904 lastIndexOf=0 includes=0 startsWith=6 endsWith=0 other=13223816
+NATIVE_CALL_PROFILE total=62826640 charCodeAt=18182607 eligible=12295127 in_bounds=12294147 out_bounds=980 charAt=1056297 codePointAt=0 at=0 substring=22 substr=146815 slice=4761199 indexOf=886505 lastIndexOf=565 includes=32 startsWith=6 endsWith=0 other=37792592
+NATIVE_CALL_PROFILE total=87131874 charCodeAt=20645674 eligible=13192442 in_bounds=13190142 out_bounds=2300 charAt=2379278 codePointAt=341628 at=0 substring=102614 substr=306289 slice=4840803 indexOf=926142 lastIndexOf=14008 includes=642 startsWith=86 endsWith=0 other=57574710
