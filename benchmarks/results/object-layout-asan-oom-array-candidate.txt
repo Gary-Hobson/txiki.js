@@ -1,0 +1,60 @@
+OOM_POINT 1
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=1 objects=1 initialized=3
+OOM_POINT 2
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=2 objects=1 initialized=3
+OOM_POINT 3
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=2 objects=1 initialized=3
+OOM_POINT 4
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=2 objects=2 initialized=35
+OOM_POINT 5
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=2 objects=2 initialized=35
+OOM_POINT 6
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=2 objects=2 initialized=35
+OOM_POINT 7
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=2 objects=2 initialized=35
+OOM_POINT 8
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=2 objects=2 initialized=35
+OOM_POINT 9
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=2 objects=2 initialized=35
+OOM_POINT 10
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=2 sites=2 fields=35 bytes=360 shapes=2 objects=2 initialized=35
+OOM_POINT 11
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==82498==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000 (pc 0x000181a910a0 bp 0x00016d9b0dd0 sp 0x00016d9b0da0 T0)
+==82498==The signal is caused by a WRITE memory access.
+==82498==Hint: address points to the zero page.
+    #0 0x000181a910a0 in _platform_memset+0xb0 (libsystem_platform.dylib:arm64e+0x30a0)
+    #1 0x00010246ed30 in JS_NewObjectFromShape quickjs.c:6253
+    #2 0x0001024cc95c in js_create_from_ctor quickjs.c:21526
+    #3 0x0001024d20bc in js_array_constructor quickjs.c:43606
+    #4 0x0001024500c8 in js_call_c_function quickjs.c:18035
+    #5 0x0001024b3df4 in JS_CallConstructorInternal quickjs.c:21556
+    #6 0x0001024910f8 in JS_CallInternal quickjs.c:19016
+    #7 0x00010249bef8 in JS_CallInternal quickjs.c:18997
+    #8 0x00010248fe0c in JS_Call quickjs.c:21443
+    #9 0x00010244cb64 in main object-layout-oom-initializer.c:42
+    #10 0x0001816b6b94 in start+0x17b8 (dyld:arm64e+0xfffffffffff3ab94)
+
+==82498==Register values:
+ x[0] = 0x0000000000000000   x[1] = 0x0000000000000000   x[2] = 0x0000000000000008   x[3] = 0x0000000000000000
+ x[4] = 0x0000000000000003   x[5] = 0x0000000000000000   x[6] = 0x0000000000000003   x[7] = 0x0000000000000003
+ x[8] = 0x0000007000020001   x[9] = 0x000000000000000f  x[10] = 0x0000007000020000  x[11] = 0x0000000000000000
+x[12] = 0x0000000000000001  x[13] = 0x0000000000000000  x[14] = 0x0000000000000000  x[15] = 0x0000000000000000
+x[16] = 0x0000000181a90ff0  x[17] = 0x00000001030b8508  x[18] = 0x0000000000000000  x[19] = 0x0000000000000000
+x[20] = 0x00000c2c00003073  x[21] = 0x0000616000018398  x[22] = 0x0000607000048be8  x[23] = 0x0000000000000002
+x[24] = 0x0000608000033aa8  x[25] = 0x0000607000048c08  x[26] = 0x00000c4400003c26  x[27] = 0x00000c0e00009181
+x[28] = 0x0000007000020000     fp = 0x000000016d9b0dd0     lr = 0x000000010304f348     sp = 0x000000016d9b0da0
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV (libsystem_platform.dylib:arm64e+0x30a0) in _platform_memset+0xb0
+==82498==ABORTING

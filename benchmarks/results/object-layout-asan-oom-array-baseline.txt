@@ -1,0 +1,40 @@
+OOM_POINT 1
+OOM_POINT 2
+OOM_POINT 3
+OOM_POINT 4
+OOM_POINT 5
+OOM_POINT 6
+OOM_POINT 7
+OOM_POINT 8
+OOM_POINT 9
+OOM_POINT 10
+OOM_POINT 11
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==82436==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000 (pc 0x000181a910a0 bp 0x00016d9a4dd0 sp 0x00016d9a4da0 T0)
+==82436==The signal is caused by a WRITE memory access.
+==82436==Hint: address points to the zero page.
+    #0 0x000181a910a0 in _platform_memset+0xb0 (libsystem_platform.dylib:arm64e+0x30a0)
+    #1 0x00010247b58c in JS_NewObjectFromShape quickjs.c:6202
+    #2 0x0001024d7910 in js_create_from_ctor quickjs.c:21156
+    #3 0x0001024dd070 in js_array_constructor quickjs.c:43225
+    #4 0x00010245c0c8 in js_call_c_function quickjs.c:17972
+    #5 0x0001024beda8 in JS_CallConstructorInternal quickjs.c:21186
+    #6 0x00010249e350 in JS_CallInternal quickjs.c:18647
+    #7 0x0001024a06d0 in JS_CallInternal quickjs.c:18628
+    #8 0x00010249c3b8 in JS_Call quickjs.c:21073
+    #9 0x000102458b64 in main object-layout-oom-initializer.c:42
+    #10 0x0001816b6b94 in start+0x17b8 (dyld:arm64e+0xfffffffffff3ab94)
+
+==82436==Register values:
+ x[0] = 0x0000000000000000   x[1] = 0x0000000000000000   x[2] = 0x0000000000000008   x[3] = 0x0000000000000000
+ x[4] = 0x0000000000000003   x[5] = 0x0000000000000000   x[6] = 0x0000000000000003   x[7] = 0x0000000000000003
+ x[8] = 0x0000007000020001   x[9] = 0x000000000000000f  x[10] = 0x0000007000020000  x[11] = 0x0000000000000000
+x[12] = 0x0000000000000001  x[13] = 0x0000000000000000  x[14] = 0x0000000000000000  x[15] = 0x0000000000000000
+x[16] = 0x0000000181a90ff0  x[17] = 0x0000000102ccc508  x[18] = 0x0000000000000000  x[19] = 0x0000000000000000
+x[20] = 0x00000c2c00002dd3  x[21] = 0x0000616000016e98  x[22] = 0x0000607000048788  x[23] = 0x0000000000000002
+x[24] = 0x00006080000344a8  x[25] = 0x00006070000487a8  x[26] = 0x00000c4400003c26  x[27] = 0x00000c0e000090f5
+x[28] = 0x0000007000020000     fp = 0x000000016d9a4dd0     lr = 0x0000000102c63348     sp = 0x000000016d9a4da0
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV (libsystem_platform.dylib:arm64e+0x30a0) in _platform_memset+0xb0
+==82436==ABORTING

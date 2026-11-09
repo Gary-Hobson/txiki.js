@@ -1,0 +1,71 @@
+{
+  "flags": [
+    "-std=gnu11",
+    "-O1",
+    "-g",
+    "-DNDEBUG",
+    "-D_GNU_SOURCE",
+    "-DFORCE_GC_AT_MALLOC",
+    "-DQJS_OBJECT_LAYOUT_DIAGNOSTICS",
+    "-funsigned-char",
+    "-fsanitize=address",
+    "-fno-omit-frame-pointer"
+  ],
+  "runtime_environment": {
+    "ASAN_OPTIONS": "halt_on_error=1"
+  },
+  "dependency_sources": [
+    "dtoa.c",
+    "libregexp.c",
+    "libunicode.c"
+  ],
+  "dependency_revision": "7b5f588e0f9b643e2996f291bfc861abeaceddc2",
+  "source_sha256": {
+    "integrated-branch": "21590a7ae6a1e75fd5038674a196a3dab40566b9600ca958b3022955ed04fa00",
+    "object-layout-shared": "4025d0bc28c45b8a68aaccd603b0309cfe53fef70dc37f3e3957f133fdf29d58"
+  },
+  "results": {
+    "native_actual_optimized_path": {
+      "returncode": 0,
+      "plans": 4,
+      "sites": 4,
+      "shapes": 4,
+      "shared_hits": 2,
+      "objects": 17,
+      "initialized_fields": 45,
+      "callbacks": 22
+    },
+    "cycles": {
+      "returncode": 0,
+      "cycles": 50,
+      "plans": 50,
+      "shapes": 50,
+      "objects": 50,
+      "exact_func_shape_object_counts_restored": true
+    },
+    "parser_disabled_compile": {
+      "success": true,
+      "extra_flags": [
+        "-DQJS_DISABLE_PARSER"
+      ]
+    },
+    "closure_oom": {
+      "baseline": "ASAN SEGV via resize_properties -> error creation -> GC",
+      "candidate": "same failure path"
+    },
+    "array_oom": {
+      "baseline": "ASAN SEGV via array constructor -> JS_NewObjectFromShape length property null write",
+      "candidate": "same failure path"
+    },
+    "data_initializer_oom": {
+      "baseline": "ASAN SEGV via JS_CreateProperty -> resize_properties -> error creation -> GC",
+      "candidate": {
+        "returncode": 0,
+        "candidate_indices": 180,
+        "actual_injections": 148,
+        "js_exceptions": 148,
+        "recovery_and_effect_order": true
+      }
+    }
+  }
+}

@@ -19,6 +19,7 @@ VARIANTS = {
     'site-read-ic': BASE + ('site-read-ic',),
     'site-read-ic-packed': BASE + ('site-read-ic-packed',),
     'object-layout': BASE + ('comparison-branch', 'object-layout'),
+    'object-layout-shared': BASE + ('comparison-branch', 'object-layout-shared'),
 }
 
 

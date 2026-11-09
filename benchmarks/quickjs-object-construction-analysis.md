@@ -1,6 +1,6 @@
 # QuickJS 普通对象初始化布局原型
 
-2026-11-10。正式对照为 `ef801eaa` 的属性 hint、局部字段融合和比较条件分支融合，构建 `build/lto-benchmark/integrated-branch/tjs`；Release + ThinLTO，PGO/inspector 关闭。未改动 `deps/quickjs` 子模块或正式性能 patch。首版六对整机增量不稳定，已拒绝保留；唯一修正版（最终 shape 全局共享）验证中。
+2026-11-10。正式对照为 `ef801eaa` 的属性 hint、局部字段融合和比较条件分支融合，构建 `build/lto-benchmark/integrated-branch/tjs`；Release + ThinLTO，PGO/inspector 关闭。未改动 `deps/quickjs` 子模块或正式性能 patch。首版六对整机增量不稳定，已拒绝保留；唯一修正版（最终 shape 全局共享）六对增量中位 **+1.41%**、6/6胜，并通过下述原生生命周期验证；交由主代理进行正式集成，提交和完整构建状态见[主优化记录](quickjs-optimization.md)。
 
 ## 可执行方案及成本依据
 
@@ -23,7 +23,7 @@
 ## 已完成验证
 
 1. Release ThinLTO 原型成功编译，无编译 warning/error。对照与候选均通过 `object-layout-correctness.js`：普通/嵌套字段、1000 次构造及后续改 shape、递归 initializer、副作用及 throw 顺序、枚举与数字 key 顺序、函数名称、重复/computed/spread/method/proto、async/generator 分支回退等。
-2. `object-layout-native.c` 在对照与候选库均通过。initializer 主动调用 C checkpoint 进行 GC、对活跃函数序列化、`JS_SetClassProto` 换默认原型并递归创建；外层对象保持旧原型、内层和后续对象使用新原型。双方 20 次 callback 用例通过。
+2. 初始 `object-layout-native.c` 在对照与候选库均通过，但后续ASAN诊断发现其initializer三元表达式导致目标literal回退，不能用初次通过证明优化路径。随后把条件移至独立 `descend` helper；修正后的实际优化路径验证及计数见下文。
 3. 对照与候选写出的字节码文件 `cmp` 逐字一致，双方均可读取并执行对方字节码。活跃 initializer 期间的序列化亦与首次序列化一致。
 4. 独立诊断构建执行专项：计划 143、sites 301、静态字段 1085、计划总分配 18192 bytes；动态预规划对象 13943，普通 OP_object 1346；预规划字段 55284，普通 define_field 874。这包含 runtime 初始化，**不是 WTB 覆盖率或性能证据**。
 
@@ -31,7 +31,7 @@
 
 ## 待完成及拒绝条件
 
-Terra 已完成首版相对 `integrated-branch` 的完整 WTB 配对和完整套件，首版拒绝保留。WTB 诊断在配对之后单独运行，使用 `object-layout-diagnostic-build.py` 生成 GC 输出统计构建；计数不能当耗时。最终 shape 共享修正版需先通过原生内存和语义检查，再作六对增量；若仍不稳定即结束本候选。
+Terra 已完成首版相对 `integrated-branch` 的完整 WTB 配对和完整套件，首版拒绝保留。WTB 诊断在配对之后单独运行，使用 `object-layout-diagnostic-build.py` 生成 GC 输出统计构建；计数不能当耗时。最终 shape 共享修正版已通过原生内存、语义检查及六对增量（+1.41%、6/6胜），仍需独立完整构建、完整套件及进一步生命周期检查才能正式集成。
 
 原生精确失败注入与内存 fixture 已完成，结果见后续各节。首版每个 site 首次执行新建模板 shape，重复布局的强持成本已确认；仅允许一次有证据的修正。
 
@@ -83,7 +83,7 @@ Terra 已完成首版相对 `integrated-branch` 的完整 WTB 配对和完整套
 
 ## 按子项切片的机制诊断
 
-单独诊断构建在每个 WTB 子项输出之后主动 GC，输出累计计数后取差。**额外 GC 改变后续 heap/shape 驻留，插桩亦改变执行成本；该次分数不参与性能结论。** 普通 `JS_CLASS_OBJECT` 的未使用 opaque 字段只在此诊断中标记原始字段数，正式候选未做此变更。`capacity_model_resizes` 仅把当前 resize 与原始字段数对应的 2→3→4→6→9 容量作反事实比较，未重建对象后续 delete/compact 历史，不能解释为实测 baseline 多/少的次数。
+单独诊断构建在每个 WTB 子项输出之后主动 GC，输出累计计数后取差。**额外 GC 改变后续 heap/shape 驻留，插桩亦改变执行成本；该次分数不参与性能结论。** WTB 的时间校准也可能改变每项迭代次数，因此绝对计数只表示该次运行覆盖；不同诊断run的总分配数若未按迭代或对象数归一，不能作为因果改善证据。固定1000函数原生fixture不受此问题影响。 普通 `JS_CLASS_OBJECT` 的未使用 opaque 字段只在此诊断中标记原始字段数，正式候选未做此变更。`capacity_model_resizes` 仅把当前 resize 与原始字段数对应的 2→3→4→6→9 容量作反事实比较，未重建对象后续 delete/compact 历史，不能解释为实测 baseline 多/少的次数。
 
 | 子项 | 预规划对象 | 2字段对象 | 后续resize | 后续clone | 初始容量反事实resize |
 |---|---:|---:|---:|---:|---:|
@@ -113,4 +113,59 @@ Terra 已完成首版相对 `integrated-branch` 的完整 WTB 配对和完整套
 
 ## 唯一修正版：复用全局最终 shape
 
-基于已经证实的重复模板成本，修正版在每个site首次使用时，以最终 hash、prototype identity、字段数、atom顺序及全部flags严格匹配全局 hashed shape。匹配时强持已有shape；没有匹配才建立首版相同的精确容量shape。**没有同时调整准入字段阈值、cold helper的内联策略或新shape容量策略。** 使用已有shape会自然继承其原始capacity，这属于共享结果；不能将后续收益全部归因于少分配模板。文件为 `object-layout-shared-transform.py` / `object-layout-shared-build.py`，隔离stage为 `stage-object-layout-shared`。目前静态转换已验证，等待独占编译窗口进行原生验证。
+基于已经证实的重复模板成本，修正版在每个site首次使用时，以最终 hash、prototype identity、字段数、atom顺序及全部flags严格匹配全局 hashed shape。匹配时强持已有shape；没有匹配才建立首版相同的精确容量shape。**没有同时调整准入字段阈值、cold helper的内联策略或新shape容量策略。** 使用已有shape会自然继承其原始capacity，这属于共享结果；不能将后续收益全部归因于少分配模板。文件为 `object-layout-shared-transform.py` / `object-layout-shared-build.py`，隔离stage为 `stage-object-layout-shared`。修正版已构建并通过以下原生验证，Terra已完成相对正式版的六对WTB，结果见下节。
+
+修正版固定1000函数fixture确认只建立 **1份新shape、999次全局共享命中**。对象阶段 shapes=108、shapeBytes=34440，与正式对照完全相同；总used仍比对照多104000B计划/bytecode成本。delete/add/freeze后比对照多1份136B模板，释放函数和对象后used/malloc/shapeCount都恢复到正式对照相同数值。该修正已解决合成fixture中的重复模板成本，不能仅据此宣布整机收益。
+
+修正版通过原JS专项、180点运行期OOM恢复，以及nativeGC、活跃initializer序列化、`JS_SetClassProto`递归换默认原型和新增跨realm调用检查；读取对照字节码成功、对照亦读取修正版成功，序列化文件逐字一致。独立诊断构建强制 `targets` 或 `plan` 可选分配返回NULL，专项均通过，诊断显示plans=0、shared_hits=0，确认保持原执行路径且不留下JS exception。
+
+ThinLTO在源码只增加最终shape查找后自然改变了代码布局：修正版仍没有独立 `js_object_layout_new` 符号，`JS_CallInternal` 区间为46248 bytes，低于首版49664及对照47908 bytes。没有显式改变inline策略，但因此即使后续WTB变化也不能完全归因于shape共享，编译器的选择是不可忽略的共同变化。
+
+## 共享修正版整机增量
+
+双方完整预热后六对交错，测试窗口内本代理暂停编译、原生测试和诊断。相对 `integrated-branch` 的总分配对中位 **+1.41%**、均值 **+1.22%**、胜 **6/6**；该结果使修正版进入集成验证，不代表全部平台或工作负载的保证。
+
+| 轮次 | 正式对照 | 共享候选 | 吞吐变化 |
+|---|---:|---:|---:|
+| 1 | 3.54 | 3.59 | +1.41% |
+| 2 | 3.57 | 3.60 | +0.84% |
+| 3 | 3.54 | 3.61 | +1.98% |
+| 4 | 3.55 | 3.56 | +0.28% |
+| 5 | 3.56 | 3.61 | +1.40% |
+| 6 | 3.55 | 3.60 | +1.41% |
+
+| 子项 | 配对中位变化 |
+|---|---:|
+| acorn | +0.96% |
+| babel | +1.07% |
+| babel-minify | +2.02% |
+| babylon | -0.73% |
+| buble | -0.28% |
+| chai | +0.36% |
+| espree | +0.86% |
+| esprima | +9.31% |
+| jshint | +0.00% |
+| lebab | +0.26% |
+| postcss | +0.49% |
+| prepack | +1.38% |
+| prettier | +0.37% |
+| source-map | +1.57% |
+| terser | +2.78% |
+| typescript | +1.72% |
+| uglify-js | +1.12% |
+| Geometric mean | +1.41% |
+
+完整原始数据：[object-layout-shared.json](results/object-layout-shared.json)。首版主要负项 acorn/espree 已转为正，buble为-0.28%；最低子项babylon为-0.73%。修正版保留esprima约9%的收益。变化与消除重复模板和编译器代码重排同时发生，不能把单一机制作为已经隔离证实的耗时来源。下一步只做集成与正确性验证，不继续调阈值或另叠优化以追分。
+
+## 集成前生命周期验证及明确边界
+
+共享候选独立完整套件在移除外层 `TJS_HOME` 后为 **504 OK、1 inspector skip、1既有TCP abort失败**；该TCP行为已在正式对照确认。原型开启时的QuickJS-only ASAN + `FORCE_GC_AT_MALLOC` 定向验证完成；编译使用 `-DNDEBUG` 避免自动开启dumps使原型回退，同时以诊断计数证明实际命中。
+
+- 修正后的native直线literal在C checkpoint中执行GC、活跃function序列化、`JS_SetClassProto`递归换置及跨realm调用。22 callbacks通过；**plans4/sites4/shapes4、shared_hits2、objects17、直接字段45**。与正式对照双向读取新字节码并执行成功，输出逐字一致。
+- 50次建立 `shape → prototype → function → bytecode → shape` 强环，再解除外部原型引用；每轮GC后的function/shape/object计数都精确回到初始值。诊断 **plans50/shapes50/objects50**，ASAN无报告。
+- 候选追加 `-DQJS_DISABLE_PARSER` 编译成功；这是编译检查，不等同于该配置完整运行测试。
+- 定向数据initializer OOM测试先安装closure，再对32字段target（每字段返回2字段普通对象和长字符串）执行失败注入。探测180个位置，**148次实际注入全部变为JS异常并成功恢复副作用顺序、后续构造与GC**；另32位置超出该次实际分配数，不能算作成功注入。成功控制迭代诊断plans3/sites3、objects34、直接字段99，证明同时覆盖target和nested优化路径。
+
+**没有宣称全部ASAN/OOM/GC-stress组合通过。** 两个原始故障注入在相同自定义allocator和flags下，正式对照与候选均触发相同既有失败路径：其一是closure创建时 `resize_properties → OOM error creation → JS_RunGC` 写0x8；其二是Array initializer构造失败时 `JS_NewObjectFromShape` 写NULL length属性。定向数据fixture的对照也被其逐字段 `JS_CreateProperty → resize_properties → OOM error creation → GC` 路径阻断；候选该fixture通过。比较依据是相同失败路径，不是把不同引擎第N个分配当作同一事件。未修改引擎绕过这些旧问题，也未继续扩大范围扫描其他子系统。
+
+复现C源码、flags及边界说明见 [ASAN/OOM复核](experiments/object-layout-asan-oom-repro.md)，准确源码hash与结果见 [验证元数据](results/object-layout-sanitizer-validation.json)。两类baseline/candidate完整trace及正向native、cycles、data注入日志已持久化至 `benchmarks/results/object-layout-asan-*`；归档C副本按仓库格式化，字符串内容保持一致，trace行号仍对应build中的原fixture。

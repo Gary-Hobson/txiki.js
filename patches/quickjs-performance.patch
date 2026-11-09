@@ -1,17 +1,96 @@
 --- a/quickjs.c
 +++ b/quickjs.c
-@@ -415,6 +415,10 @@
-
+@@ -416,6 +416,14 @@
      bool can_block; /* true if Atomics.wait can block */
      uint32_t dump_flags : 24;
-+
+
 +    /* Atom-indexed own-property slot hints; zero means no hint.
 +       Entries own no GC references and are validated on every use. */
 +    uint32_t own_property_slot_hints[1024];
-
++
++#ifdef QJS_OBJECT_LAYOUT_DIAGNOSTICS
++    struct { uint64_t plans, sites, fields, bytes, shapes, objects, initialized, shared_shapes; } object_layout_stats;
++#endif
++
      /* Shape hash table */
      int shape_hash_bits;
-@@ -6859,6 +6863,53 @@
+     int shape_hash_size;
+@@ -854,6 +862,37 @@
+     JS_FUNC_ASYNC_GENERATOR = (JS_FUNC_GENERATOR | JS_FUNC_ASYNC),
+ } JSFunctionKindEnum;
+
++
++typedef struct JSObjectLayoutSite {
++    uint32_t pc;
++    uint32_t first_field;
++    uint32_t count;
++    JSShape *shape;
++} JSObjectLayoutSite;
++
++typedef struct JSObjectLayoutField {
++    uint32_t pc;
++    JSAtom atom; /* owned by the canonical bytecode, not the plan */
++} JSObjectLayoutField;
++
++typedef struct JSObjectLayoutPlan {
++    size_t bytes;
++    uint32_t site_count;
++    uint32_t field_count;
++    JSObjectLayoutSite sites[];
++} JSObjectLayoutPlan;
++
++static JSObjectLayoutField *js_object_layout_fields(JSObjectLayoutPlan *p)
++{
++    return (JSObjectLayoutField *)(p->sites + p->site_count);
++}
++
++#ifdef QJS_OBJECT_LAYOUT_DIAGNOSTICS
++#define OBJECT_LAYOUT_STAT(rt, key, n) ((rt)->object_layout_stats.key += (n))
++#else
++#define OBJECT_LAYOUT_STAT(rt, key, n) ((void)0)
++#endif
++
+ typedef struct JSFunctionBytecode {
+     JSGCObjectHeader header; /* must come first */
+     uint8_t is_strict_mode : 1;
+@@ -871,6 +910,7 @@
+     /* XXX: 5 bits available */
+     uint8_t *byte_code_buf; /* (self pointer) */
+     int byte_code_len;
++    JSObjectLayoutPlan *object_layout;
+     JSAtom func_name;
+     JSVarDef *vardefs; /* arguments + local variables (arg_count + var_count) (self pointer) */
+     JSClosureVar *closure_var; /* list of variables in the closure (self pointer) */
+@@ -1264,6 +1304,13 @@
+ #undef FMT
+     OP_TEMP_END,
+ } OPCodeEnum;
++
++#define OP_object_layout 254
++#define OP_init_object_field 255
++_Static_assert(OP_COUNT <= OP_object_layout, "private object opcodes must be unused");
++#ifndef JS_DEBUG_TRACE_DEBUGGER_STMT
++_Static_assert(OP_COUNT <= 253, "default dispatch range must be nonempty");
++#endif
+
+ static int JS_InitAtoms(JSRuntime *rt);
+ static JSAtom __JS_NewAtomInit(JSRuntime *rt, const char *str, int len,
+@@ -2639,6 +2686,14 @@
+
+ void JS_FreeRuntime(JSRuntime *rt)
+ {
++#ifdef QJS_OBJECT_LAYOUT_DIAGNOSTICS
++    fprintf(stderr, "OBJECT_LAYOUT_SHARED hits=%llu\n", (unsigned long long)rt->object_layout_stats.shared_shapes);
++    fprintf(stderr, "OBJECT_LAYOUT plans=%llu sites=%llu fields=%llu bytes=%llu shapes=%llu objects=%llu initialized=%llu\n",
++        (unsigned long long)rt->object_layout_stats.plans, (unsigned long long)rt->object_layout_stats.sites,
++        (unsigned long long)rt->object_layout_stats.fields, (unsigned long long)rt->object_layout_stats.bytes,
++        (unsigned long long)rt->object_layout_stats.shapes, (unsigned long long)rt->object_layout_stats.objects,
++        (unsigned long long)rt->object_layout_stats.initialized);
++#endif
+     struct list_head *el, *el1;
+     bool leak = false;
+     int i;
+@@ -6859,6 +6914,53 @@
      return NULL;
  }
 
@@ -65,10 +144,321 @@
  /* Release a counted reference an open var_ref held on the coroutine
     (async function / generator / async generator) owning the frame it
     points into. */
-@@ -18050,6 +18101,29 @@
-     return can_store_error_stack(exc) || can_add_backtrace(exc);
- }
+@@ -7314,6 +7416,14 @@
+             for(i = 0; i < b->cpool_count; i++) {
+                 JS_MarkValue(rt, b->cpool[i], mark_func);
+             }
++            if (b->object_layout) {
++                uint32_t j;
++                for (j = 0; j < b->object_layout->site_count; j++) {
++                    JSShape *sh = b->object_layout->sites[j].shape;
++                    if (sh)
++                        mark_func(rt, &sh->header);
++                }
++            }
+             if (b->realm)
+                 mark_func(rt, &b->realm->header);
+         }
+@@ -7560,6 +7670,10 @@
+         memory_used_count++;
+         hp->js_func_pc2line_count += 1;
+         hp->js_func_pc2line_size += b->pc2line_len;
++    }
++    if (b->object_layout) {
++        memory_used_count++;
++        js_func_size += b->object_layout->bytes;
+     }
+     hp->js_func_size += js_func_size;
+     hp->js_func_count += 1;
+@@ -18045,9 +18159,312 @@
+ static void print_func_name(JSFunctionBytecode *b);
+ #endif
 
++
++/* Metadata is also available with the parser disabled. */
++static const struct { uint8_t size, pop, push, fmt; } js_object_layout_ops[OP_COUNT] = {
++#define DEF(id, size, n_pop, n_push, f) { size, n_pop, n_push, OP_FMT_ ## f },
++#define def(id, size, n_pop, n_push, f)
++#include "quickjs-opcode.h"
++#undef def
++#undef DEF
++};
++
++static bool js_object_layout_flow(int op)
++{
++    int fmt = js_object_layout_ops[op].fmt;
++    return fmt == OP_FMT_label || fmt == OP_FMT_label8 ||
++           fmt == OP_FMT_label16 || fmt == OP_FMT_label_u16 ||
++           fmt == OP_FMT_atom_label_u8 || fmt == OP_FMT_atom_label_u16;
++}
++
++/* The target is stack[base]. No opcode may read it until the final consumer,
++   except define_field, which is known not to expose a new ordinary object. */
++static int js_object_layout_scan(const uint8_t *code, int len,
++                                const uint8_t *targets, int start,
++                                JSObjectLayoutField *fields)
++{
++    JSAtom atoms[64];
++    int pos, op, pop, fmt, i, count = 0, depth = 1;
++    for (pos = start + 1; pos < len; pos += js_object_layout_ops[op].size) {
++        op = code[pos];
++        if (targets[pos] || js_object_layout_flow(op))
++            return 0;
++        /* These have control flow or nonlocal stack effects beyond pop/push. */
++        switch (op) {
++        case OP_nip_catch: case OP_ret: case OP_initial_yield:
++        case OP_yield: case OP_yield_star: case OP_async_yield_star: case OP_await:
++        case OP_for_in_start: case OP_for_of_start: case OP_for_await_of_start:
++        case OP_for_in_next: case OP_for_of_next: case OP_iterator_get_value_done:
++        case OP_iterator_close: case OP_iterator_next: case OP_iterator_call:
++        case OP_copy_data_properties:
++            return 0;
++        default: break;
++        }
++        pop = js_object_layout_ops[op].pop;
++        fmt = js_object_layout_ops[op].fmt;
++        if (fmt == OP_FMT_npop || fmt == OP_FMT_npop_u16)
++            pop += get_u16(code + pos + 1);
++        else if (fmt == OP_FMT_npopx)
++            pop += op - OP_call0;
++        if (op == OP_define_field && depth == 2) {
++            JSAtom atom = get_u32(code + pos + 1);
++            if (atom == JS_ATOM___proto__ || count == countof(atoms))
++                return 0;
++            for (i = 0; i < count; i++)
++                if (atoms[i] == atom)
++                    return 0;
++            atoms[count] = atom;
++            if (fields) {
++                fields[count].pc = pos;
++                fields[count].atom = atom;
++            }
++            count++;
++        } else if (pop >= depth) {
++            switch (op) {
++            /* A different construction operation would invalidate the recipe. */
++            case OP_set_proto: case OP_set_home_object: case OP_define_method:
++            case OP_define_method_computed: case OP_define_array_el:
++            case OP_define_private_field: case OP_append:
++            case OP_dup: case OP_dup1: case OP_dup2: case OP_dup3:
++            case OP_insert2: case OP_insert3: case OP_insert4:
++            case OP_perm3: case OP_perm4: case OP_perm5:
++            case OP_swap: case OP_swap2: case OP_rot3l: case OP_rot3r:
++            case OP_rot4l: case OP_rot5l:
++                return 0;
++            default:
++                return count >= 2 ? count : 0;
++            }
++        }
++        /* Terminal instructions may not leave the target stranded. */
++        switch (op) {
++        case OP_tail_call: case OP_tail_call_method: case OP_return:
++        case OP_return_undef: case OP_return_async: case OP_throw:
++        case OP_throw_error:
++            return 0;
++        default: break;
++        }
++        depth += js_object_layout_ops[op].push - pop;
++    }
++    return 0;
++}
++
++/* Reconstruct canonical bytes for serialization and atom destruction. */
++static void js_object_layout_restore(JSObjectLayoutPlan *plan, uint8_t *code)
++{
++    JSObjectLayoutField *fields = js_object_layout_fields(plan);
++    uint32_t i;
++    for (i = 0; i < plan->site_count; i++)
++        code[plan->sites[i].pc] = OP_object;
++    for (i = 0; i < plan->field_count; i++) {
++        code[fields[i].pc] = OP_define_field;
++        put_u32(code + fields[i].pc + 1, fields[i].atom);
++    }
++}
++
++static void js_object_layout_prepare(JSRuntime *rt, JSFunctionBytecode *b)
++{
++    JSObjectLayoutPlan *plan;
++    JSObjectLayoutField *fields;
++    JSObjectLayoutField scanned[64];
++    uint8_t *code = b->byte_code_buf, *targets;
++    uint32_t sites = 0, fields_count = 0, si = 0, fi = 0;
++    int pos, op, size, fmt, offset, count;
++    int64_t target;
++    bool has_object = false;
++    size_t bytes;
++#if defined(ENABLE_DUMPS) || defined(JS_DEBUG_TRACE_DEBUGGER_STMT) || \
++    defined(QJS_DISABLE_OBJECT_LAYOUT)
++    return;
++#endif
++    if (b->byte_code_len <= 0 || b->byte_code_len > UINT16_MAX)
++        return;
++    for (pos = 0; pos < b->byte_code_len; pos += size) {
++        op = code[pos];
++        if (op >= OP_COUNT || !(size = js_object_layout_ops[op].size) ||
++            pos + size > b->byte_code_len)
++            return;
++        has_object |= op == OP_object;
++    }
++    if (!has_object)
++        return;
++    targets = js_mallocz_rt(rt, b->byte_code_len);
++    if (!targets)
++        return;
++    for (pos = 0; pos < b->byte_code_len; pos += js_object_layout_ops[op].size) {
++        op = code[pos];
++        if (!js_object_layout_flow(op))
++            continue;
++        fmt = js_object_layout_ops[op].fmt;
++        offset = fmt == OP_FMT_atom_label_u8 || fmt == OP_FMT_atom_label_u16 ? 5 : 1;
++        target = pos + offset;
++        if (fmt == OP_FMT_label8)
++            target += (int8_t)code[pos + offset];
++        else if (fmt == OP_FMT_label16)
++            target += (int16_t)get_u16(code + pos + offset);
++        else
++            target += (int32_t)get_u32(code + pos + offset);
++        if (target < 0 || target >= b->byte_code_len)
++            goto done;
++        targets[target] = 1;
++    }
++    for (pos = 0; pos < b->byte_code_len; pos += js_object_layout_ops[op].size) {
++        op = code[pos];
++        if (op == OP_object && (count = js_object_layout_scan(code, b->byte_code_len,
++                                                             targets, pos, NULL))) {
++            sites++;
++            fields_count += count;
++        }
++    }
++    if (!sites)
++        goto done;
++    bytes = sizeof(*plan) + sites * sizeof(plan->sites[0]) +
++            fields_count * sizeof(*fields);
++    plan = js_mallocz_rt(rt, bytes);
++    if (!plan)
++        goto done;
++    plan->bytes = bytes;
++    plan->site_count = sites;
++    plan->field_count = fields_count;
++    fields = js_object_layout_fields(plan);
++    for (pos = 0; pos < b->byte_code_len; pos += js_object_layout_ops[op].size) {
++        op = code[pos];
++        if (op != OP_object)
++            continue;
++        count = js_object_layout_scan(code, b->byte_code_len, targets, pos, scanned);
++        if (count) {
++            memcpy(fields + fi, scanned, count * sizeof(*fields));
++            plan->sites[si].pc = pos;
++            plan->sites[si].first_field = fi;
++            plan->sites[si++].count = count;
++            fi += count;
++        }
++    }
++    b->object_layout = plan;
++    for (si = 0; si < sites; si++) {
++        JSObjectLayoutSite *site = &plan->sites[si];
++        code[site->pc] = OP_object_layout;
++        for (fi = 0; fi < site->count; fi++) {
++            uint32_t field_pc = fields[site->first_field + fi].pc;
++            put_u32(code + field_pc + 1, fi);
++            code[field_pc] = OP_init_object_field;
++        }
++    }
++    OBJECT_LAYOUT_STAT(rt, plans, 1);
++    OBJECT_LAYOUT_STAT(rt, sites, sites);
++    OBJECT_LAYOUT_STAT(rt, fields, fields_count);
++    OBJECT_LAYOUT_STAT(rt, bytes, bytes);
++ done:
++    js_free_rt(rt, targets);
++}
++
++static JSValue js_object_layout_new(JSContext *ctx, JSFunctionBytecode *b, uint32_t pc)
++{
++    JSObjectLayoutPlan *plan = b->object_layout;
++    JSObjectLayoutField *fields = js_object_layout_fields(plan);
++    JSObjectLayoutSite *site;
++    JSObject *proto = object_or_null(ctx->class_proto[JS_CLASS_OBJECT]);
++    JSShape *sh;
++    JSValue obj;
++    uint32_t lo = 0, hi = plan->site_count, mid, i, hash_size, hash;
++    while (lo < hi) {
++        mid = (lo + hi) / 2;
++        if (plan->sites[mid].pc < pc)
++            lo = mid + 1;
++        else
++            hi = mid;
++    }
++    assert(lo < plan->site_count && plan->sites[lo].pc == pc);
++    site = &plan->sites[lo];
++    sh = site->shape;
++    if (!sh || sh->proto != proto) {
++        if (sh) {
++            site->shape = NULL;
++            js_free_shape(ctx->rt, sh);
++        }
++
++        hash = shape_initial_hash(proto);
++        for (i = 0; i < site->count; i++) {
++            JSAtom atom = fields[site->first_field + i].atom;
++            hash = shape_hash(shape_hash(hash, atom), JS_PROP_C_W_E);
++        }
++        for (sh = ctx->rt->shape_hash[get_shape_hash(hash, ctx->rt->shape_hash_bits)];
++             sh; sh = sh->shape_hash_next) {
++            JSShapeProperty *props;
++            if (sh->hash != hash || sh->proto != proto ||
++                sh->prop_count != site->count || sh->deleted_prop_count)
++                continue;
++            props = get_shape_prop(sh);
++            for (i = 0; i < site->count; i++) {
++                if (props[i].atom != fields[site->first_field + i].atom ||
++                    props[i].flags != JS_PROP_C_W_E)
++                    break;
++            }
++            if (i == site->count) {
++                site->shape = js_dup_shape(sh);
++                OBJECT_LAYOUT_STAT(ctx->rt, shared_shapes, 1);
++                goto have_shape;
++            }
++        }
++        hash_size = JS_PROP_INITIAL_HASH_SIZE;
++        while (hash_size < site->count)
++            hash_size *= 2;
++        if (2 * (ctx->rt->shape_hash_count + 1) > ctx->rt->shape_hash_size)
++            resize_shape_hash(ctx->rt, ctx->rt->shape_hash_bits + 1);
++        sh = js_new_shape_nohash(ctx, proto, hash_size, site->count);
++        if (!sh)
++            return JS_EXCEPTION;
++        for (i = 0; i < site->count; i++) {
++            JSAtom atom = fields[site->first_field + i].atom;
++            /* Exact capacity: this cannot allocate or fail. */
++            int ret = add_shape_property(ctx, &sh, NULL, atom, JS_PROP_C_W_E);
++            assert(ret == 0);
++            (void)ret;
++        }
++        sh->hash = hash;
++        sh->is_hashed = true;
++        js_shape_hash_link(ctx->rt, sh);
++        site->shape = sh;
++        OBJECT_LAYOUT_STAT(ctx->rt, shapes, 1);
++    }
++ have_shape:
++    obj = JS_NewObjectFromShape(ctx, js_dup_shape(sh), JS_CLASS_OBJECT, NULL);
++    if (!JS_IsException(obj)) {
++        JSObject *p = JS_VALUE_GET_OBJ(obj);
++        /* No allocation/callback occurs between object publication and here. */
++        for (i = 0; i < site->count; i++)
++            p->prop[i].u.value = JS_UNDEFINED;
++        OBJECT_LAYOUT_STAT(ctx->rt, objects, 1);
++        OBJECT_LAYOUT_STAT(ctx->rt, initialized, site->count);
++    }
++    return obj;
++}
++
+ static bool needs_backtrace(JSValue exc)
+ {
+     return can_store_error_stack(exc) || can_add_backtrace(exc);
++}
++
 +/* Comparisons produce canonical booleans. Consume the adjacent branch
 +   without another dispatch; preserve its interrupt poll at the caller. */
 +static inline bool js_take_comparison_branch(bool value, uint8_t **ppc)
@@ -90,12 +480,52 @@
 +    }
 +    return false;
 +#endif
-+}
-+
+ }
+
  /* argv[] is modified if (flags & JS_CALL_FLAG_COPY_ARGV) = 0. */
- static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
-                                JSValueConst this_obj, JSValueConst new_target,
-@@ -18899,7 +18973,7 @@
+@@ -18083,7 +18500,11 @@
+ #define DEF(id, size, n_pop, n_push, f) && case_OP_ ## id,
+ #define def(id, size, n_pop, n_push, f)
+ #include "quickjs-opcode.h"
+-        [ OP_COUNT ... 255 ] = &&case_default
++#if !defined(JS_DEBUG_TRACE_DEBUGGER_STMT)
++        [ OP_COUNT ... 253 ] = &&case_default,
++#endif
++        [ OP_object_layout ] = &&case_OP_object_layout,
++        [ OP_init_object_field ] = &&case_OP_init_object_field
+     };
+ #define SWITCH(pc)      DUMP_BYTECODE_OR_DONT(pc) __extension__ ({ goto *dispatch_table[opcode = *pc++]; });
+ #define CASE(op)        case_ ## op
+@@ -18316,6 +18737,28 @@
+             BREAK;
+         CASE(OP_push_true):
+             *sp++ = JS_TRUE;
++            BREAK;
++
++        CASE(OP_object_layout):
++            if (unlikely(!b->object_layout))
++                goto object_layout_invalid_opcode;
++            *sp++ = js_object_layout_new(ctx, b, pc - b->byte_code_buf - 1);
++            if (unlikely(JS_IsException(sp[-1])))
++                goto exception;
++            BREAK;
++        CASE(OP_init_object_field):
++            {
++                JSObject *p;
++                uint32_t slot = get_u32(pc);
++                if (unlikely(!b->object_layout))
++                    goto object_layout_invalid_opcode;
++                p = JS_VALUE_GET_OBJ(sp[-2]);
++                pc += 4;
++                assert(slot < p->shape->prop_count);
++                assert(JS_IsUndefined(p->prop[slot].u.value));
++                p->prop[slot].u.value = sp[-1];
++                sp--;
++            }
+             BREAK;
+         CASE(OP_object):
+             *sp++ = JS_NewObject(ctx);
+@@ -18899,7 +19342,7 @@
                  int idx;
                  idx = get_u16(pc);
                  pc += 2;
@@ -104,7 +534,7 @@
                  sp++;
              }
              BREAK;
-@@ -18925,7 +18999,7 @@
+@@ -18925,7 +19368,7 @@
                  int idx;
                  idx = get_u16(pc);
                  pc += 2;
@@ -113,7 +543,7 @@
                  sp++;
              }
              BREAK;
-@@ -18947,7 +19021,7 @@
+@@ -18947,7 +19390,7 @@
              }
              BREAK;
 
@@ -122,7 +552,7 @@
          CASE(OP_put_loc8): set_value(ctx, &var_buf[*pc++], *--sp); BREAK;
          CASE(OP_set_loc8): set_value(ctx, &var_buf[*pc++], js_dup(sp[-1])); BREAK;
 
-@@ -18959,10 +19033,10 @@
+@@ -18959,10 +19402,10 @@
              *sp++ = js_dup(var_buf[1]);
              BREAK;
 
@@ -137,7 +567,7 @@
          CASE(OP_put_loc0): set_value(ctx, &var_buf[0], *--sp); BREAK;
          CASE(OP_put_loc1): set_value(ctx, &var_buf[1], *--sp); BREAK;
          CASE(OP_put_loc2): set_value(ctx, &var_buf[2], *--sp); BREAK;
-@@ -18971,10 +19045,10 @@
+@@ -18971,10 +19414,10 @@
          CASE(OP_set_loc1): set_value(ctx, &var_buf[1], js_dup(sp[-1])); BREAK;
          CASE(OP_set_loc2): set_value(ctx, &var_buf[2], js_dup(sp[-1])); BREAK;
          CASE(OP_set_loc3): set_value(ctx, &var_buf[3], js_dup(sp[-1])); BREAK;
@@ -152,7 +582,7 @@
          CASE(OP_put_arg0): set_value(ctx, &arg_buf[0], *--sp); BREAK;
          CASE(OP_put_arg1): set_value(ctx, &arg_buf[1], *--sp); BREAK;
          CASE(OP_put_arg2): set_value(ctx, &arg_buf[2], *--sp); BREAK;
-@@ -19573,8 +19647,8 @@
+@@ -19573,8 +20016,8 @@
                  obj = sp[-1];
                  if (likely(JS_VALUE_GET_TAG(obj) == JS_TAG_OBJECT)) {
                      p = JS_VALUE_GET_OBJ(obj);
@@ -162,7 +592,7 @@
                          if (prs) {
                              /* found */
                              if (unlikely(prs->flags & JS_PROP_TMASK))
-@@ -19594,6 +19668,7 @@
+@@ -19594,6 +20037,7 @@
                              val = JS_UNDEFINED;
                              break;
                          }
@@ -170,7 +600,7 @@
                      }
                  } else {
                  get_field_slow_path:
-@@ -19621,8 +19696,8 @@
+@@ -19621,8 +20065,8 @@
                  obj = sp[-1];
                  if (likely(JS_VALUE_GET_TAG(obj) == JS_TAG_OBJECT)) {
                      p = JS_VALUE_GET_OBJ(obj);
@@ -180,7 +610,7 @@
                          if (prs) {
                              /* found */
                              if (unlikely(prs->flags & JS_PROP_TMASK))
-@@ -19642,6 +19717,7 @@
+@@ -19642,6 +20086,7 @@
                              val = JS_UNDEFINED;
                              break;
                          }
@@ -188,7 +618,7 @@
                      }
                  } else {
                  get_field2_slow_path:
-@@ -20652,6 +20728,11 @@
+@@ -20652,6 +21097,11 @@
                      sp--;                                               \
                  }                                                       \
                  }                                                       \
@@ -200,3 +630,50 @@
              BREAK
 
              OP_CMP(OP_lt, <, js_relational_slow(ctx, sp, opcode));
+@@ -20929,6 +21379,7 @@
+             BREAK;
+         CASE(OP_invalid):
+         DEFAULT:
++        object_layout_invalid_opcode:
+             JS_ThrowInternalError(ctx, "invalid opcode: pc=%u opcode=0x%02x",
+                                   (int)(pc - b->byte_code_buf - 1), opcode);
+             goto exception;
+@@ -37213,6 +37664,7 @@
+         list_del(&fd->link);
+     }
+
++    js_object_layout_prepare(ctx->rt, b);
+     js_free(ctx, fd);
+     return JS_MKPTR(JS_TAG_FUNCTION_BYTECODE, b);
+  fail:
+@@ -37225,6 +37677,13 @@
+ static void free_function_bytecode(JSRuntime *rt, JSFunctionBytecode *b)
+ {
+     int i;
++    if (b->object_layout) {
++        js_object_layout_restore(b->object_layout, b->byte_code_buf);
++        for (i = 0; i < b->object_layout->site_count; i++)
++            js_free_shape_null(rt, b->object_layout->sites[i].shape);
++        js_free_rt(rt, b->object_layout);
++        b->object_layout = NULL;
++    }
+
+     if (b->byte_code_buf)
+         free_bytecode_atoms(rt, b->byte_code_buf, b->byte_code_len, true);
+@@ -38753,6 +39212,8 @@
+     if (!bc_buf)
+         return -1;
+     memcpy(bc_buf, b->byte_code_buf, bc_len);
++    if (b->object_layout)
++        js_object_layout_restore(b->object_layout, bc_buf);
+
+     pos = 0;
+     while (pos < bc_len) {
+@@ -39997,6 +40458,7 @@
+
+  nodebug:
+     b->realm = JS_DupContext(ctx);
++    js_object_layout_prepare(ctx->rt, b);
+     return obj;
+
+  fail:

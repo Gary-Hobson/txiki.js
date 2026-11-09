@@ -1,0 +1,3 @@
+50 shape-prototype-function-bytecode cycles collected exactly
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=50 sites=50 fields=150 bytes=3200 shapes=50 objects=50 initialized=150

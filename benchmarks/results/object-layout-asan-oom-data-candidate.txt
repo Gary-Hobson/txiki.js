@@ -1,0 +1,541 @@
+Data-initializer OOM injection passed: points=180 injected=148 exceptions=148
+OOM_POINT 1
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=1 objects=1 initialized=3
+OOM_POINT 2
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=2 objects=1 initialized=3
+OOM_POINT 3
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=2 objects=1 initialized=3
+OOM_POINT 4
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=2 objects=2 initialized=35
+OOM_POINT 5
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=2 objects=2 initialized=35
+OOM_POINT 6
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=2 objects=2 initialized=35
+OOM_POINT 7
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=2 objects=2 initialized=35
+OOM_POINT 8
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=2 objects=2 initialized=35
+OOM_POINT 9
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=2 initialized=35
+OOM_POINT 10
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=2 initialized=35
+OOM_POINT 11
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=3 initialized=37
+OOM_POINT 12
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=3 initialized=37
+OOM_POINT 13
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=3 initialized=37
+OOM_POINT 14
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=3 initialized=37
+OOM_POINT 15
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=3 initialized=37
+OOM_POINT 16
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=3 initialized=37
+OOM_POINT 17
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=3 initialized=37
+OOM_POINT 18
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=3 initialized=37
+OOM_POINT 19
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=4 initialized=39
+OOM_POINT 20
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=4 initialized=39
+OOM_POINT 21
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=4 initialized=39
+OOM_POINT 22
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=4 initialized=39
+OOM_POINT 23
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=4 initialized=39
+OOM_POINT 24
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=5 initialized=41
+OOM_POINT 25
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=5 initialized=41
+OOM_POINT 26
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=5 initialized=41
+OOM_POINT 27
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=5 initialized=41
+OOM_POINT 28
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=5 initialized=41
+OOM_POINT 29
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=6 initialized=43
+OOM_POINT 30
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=6 initialized=43
+OOM_POINT 31
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=6 initialized=43
+OOM_POINT 32
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=6 initialized=43
+OOM_POINT 33
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=6 initialized=43
+OOM_POINT 34
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=7 initialized=45
+OOM_POINT 35
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=7 initialized=45
+OOM_POINT 36
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=7 initialized=45
+OOM_POINT 37
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=7 initialized=45
+OOM_POINT 38
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=8 initialized=47
+OOM_POINT 39
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=8 initialized=47
+OOM_POINT 40
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=8 initialized=47
+OOM_POINT 41
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=8 initialized=47
+OOM_POINT 42
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=8 initialized=47
+OOM_POINT 43
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=9 initialized=49
+OOM_POINT 44
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=9 initialized=49
+OOM_POINT 45
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=9 initialized=49
+OOM_POINT 46
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=9 initialized=49
+OOM_POINT 47
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=10 initialized=51
+OOM_POINT 48
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=10 initialized=51
+OOM_POINT 49
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=10 initialized=51
+OOM_POINT 50
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=10 initialized=51
+OOM_POINT 51
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=11 initialized=53
+OOM_POINT 52
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=11 initialized=53
+OOM_POINT 53
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=11 initialized=53
+OOM_POINT 54
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=11 initialized=53
+OOM_POINT 55
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=11 initialized=53
+OOM_POINT 56
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=12 initialized=55
+OOM_POINT 57
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=12 initialized=55
+OOM_POINT 58
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=12 initialized=55
+OOM_POINT 59
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=12 initialized=55
+OOM_POINT 60
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=13 initialized=57
+OOM_POINT 61
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=13 initialized=57
+OOM_POINT 62
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=13 initialized=57
+OOM_POINT 63
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=13 initialized=57
+OOM_POINT 64
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=14 initialized=59
+OOM_POINT 65
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=14 initialized=59
+OOM_POINT 66
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=14 initialized=59
+OOM_POINT 67
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=14 initialized=59
+OOM_POINT 68
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=15 initialized=61
+OOM_POINT 69
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=15 initialized=61
+OOM_POINT 70
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=15 initialized=61
+OOM_POINT 71
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=15 initialized=61
+OOM_POINT 72
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=15 initialized=61
+OOM_POINT 73
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=16 initialized=63
+OOM_POINT 74
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=16 initialized=63
+OOM_POINT 75
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=16 initialized=63
+OOM_POINT 76
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=16 initialized=63
+OOM_POINT 77
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=17 initialized=65
+OOM_POINT 78
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=17 initialized=65
+OOM_POINT 79
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=17 initialized=65
+OOM_POINT 80
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=17 initialized=65
+OOM_POINT 81
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=18 initialized=67
+OOM_POINT 82
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=18 initialized=67
+OOM_POINT 83
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=18 initialized=67
+OOM_POINT 84
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=18 initialized=67
+OOM_POINT 85
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=19 initialized=69
+OOM_POINT 86
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=19 initialized=69
+OOM_POINT 87
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=19 initialized=69
+OOM_POINT 88
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=19 initialized=69
+OOM_POINT 89
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=20 initialized=71
+OOM_POINT 90
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=20 initialized=71
+OOM_POINT 91
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=20 initialized=71
+OOM_POINT 92
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=20 initialized=71
+OOM_POINT 93
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=21 initialized=73
+OOM_POINT 94
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=21 initialized=73
+OOM_POINT 95
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=21 initialized=73
+OOM_POINT 96
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=21 initialized=73
+OOM_POINT 97
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=21 initialized=73
+OOM_POINT 98
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=22 initialized=75
+OOM_POINT 99
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=22 initialized=75
+OOM_POINT 100
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=22 initialized=75
+OOM_POINT 101
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=22 initialized=75
+OOM_POINT 102
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=23 initialized=77
+OOM_POINT 103
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=23 initialized=77
+OOM_POINT 104
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=23 initialized=77
+OOM_POINT 105
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=23 initialized=77
+OOM_POINT 106
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=24 initialized=79
+OOM_POINT 107
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=24 initialized=79
+OOM_POINT 108
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=24 initialized=79
+OOM_POINT 109
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=24 initialized=79
+OOM_POINT 110
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=25 initialized=81
+OOM_POINT 111
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=25 initialized=81
+OOM_POINT 112
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=25 initialized=81
+OOM_POINT 113
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=25 initialized=81
+OOM_POINT 114
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=26 initialized=83
+OOM_POINT 115
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=26 initialized=83
+OOM_POINT 116
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=26 initialized=83
+OOM_POINT 117
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=26 initialized=83
+OOM_POINT 118
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=27 initialized=85
+OOM_POINT 119
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=27 initialized=85
+OOM_POINT 120
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=27 initialized=85
+OOM_POINT 121
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=27 initialized=85
+OOM_POINT 122
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=28 initialized=87
+OOM_POINT 123
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=28 initialized=87
+OOM_POINT 124
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=28 initialized=87
+OOM_POINT 125
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=28 initialized=87
+OOM_POINT 126
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=29 initialized=89
+OOM_POINT 127
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=29 initialized=89
+OOM_POINT 128
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=29 initialized=89
+OOM_POINT 129
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=29 initialized=89
+OOM_POINT 130
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=30 initialized=91
+OOM_POINT 131
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=30 initialized=91
+OOM_POINT 132
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=30 initialized=91
+OOM_POINT 133
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=30 initialized=91
+OOM_POINT 134
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=30 initialized=91
+OOM_POINT 135
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=31 initialized=93
+OOM_POINT 136
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=31 initialized=93
+OOM_POINT 137
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=31 initialized=93
+OOM_POINT 138
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=31 initialized=93
+OOM_POINT 139
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=32 initialized=95
+OOM_POINT 140
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=32 initialized=95
+OOM_POINT 141
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=32 initialized=95
+OOM_POINT 142
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=32 initialized=95
+OOM_POINT 143
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=33 initialized=97
+OOM_POINT 144
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=33 initialized=97
+OOM_POINT 145
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=33 initialized=97
+OOM_POINT 146
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=33 initialized=97
+OOM_POINT 147
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 148
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 149
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 150
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 151
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 152
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 153
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 154
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 155
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 156
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 157
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 158
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 159
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 160
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 161
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 162
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 163
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 164
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 165
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 166
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 167
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 168
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 169
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 170
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 171
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 172
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 173
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 174
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 175
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 176
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 177
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 178
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 179
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99
+OOM_POINT 180
+OBJECT_LAYOUT_SHARED hits=0
+OBJECT_LAYOUT plans=3 sites=3 fields=37 bytes=416 shapes=3 objects=34 initialized=99

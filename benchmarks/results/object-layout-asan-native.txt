@@ -1,0 +1,3 @@
+object native GC/prototype/active serialization passed (22 callbacks)
+OBJECT_LAYOUT_SHARED hits=2
+OBJECT_LAYOUT plans=4 sites=4 fields=10 bytes=240 shapes=4 objects=17 initialized=45

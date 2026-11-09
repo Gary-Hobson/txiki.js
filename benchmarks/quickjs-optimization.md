@@ -1015,6 +1015,45 @@ Apple M4，macOS 15.6.1，Apple clang 17，arm64。Release + ThinLTO，关闭PGO
 
 完整原始数据见 [benchmarks/results/object-layout.json](results/object-layout.json)。
 
+## 共享最终形状的对象初始化预规划
+
+对照为ef801eaa；只修正首版重复持有模板，按proto/count/atom顺序/flags完整匹配已有最终shape，沿用它的容量；没有同时调阈值或inline策略。双方预热后六对。完整套件504通过、1跳过、1基线同有TCP失败；新增正式对象回归另行通过，独立CMake OFF/ON/OFF及inspector通过且源码与计分候选一致。ASAN+forcedGC实际优化路径、50强环回收、148次真实普通对象分配失败及恢复通过；其他两类OOM路径在baseline亦崩溃，完整限制及复现见 [对象构造分析](quickjs-object-construction-analysis.md) 和 [压力测试材料](experiments/object-layout-asan-oom-repro.md)。
+
+状态：已集成至正式补丁；+1.41%为相对ef801eaa的增量，不能与历史分数直接相加。
+
+整体配对中位变化+1.41%，胜出6/6对。
+
+| 轮次 | 基线 | 候选 | 变化 |
+|---|---:|---:|---:|
+| 1 | 3.54 | 3.59 | +1.41% |
+| 2 | 3.57 | 3.60 | +0.84% |
+| 3 | 3.54 | 3.61 | +1.98% |
+| 4 | 3.55 | 3.56 | +0.28% |
+| 5 | 3.56 | 3.61 | +1.40% |
+| 6 | 3.55 | 3.60 | +1.41% |
+
+| 子项 | 配对中位变化 |
+|---|---:|
+| acorn | +0.96% |
+| babel | +1.07% |
+| babel-minify | +2.02% |
+| babylon | -0.73% |
+| buble | -0.28% |
+| chai | +0.36% |
+| espree | +0.86% |
+| esprima | +9.31% |
+| jshint | +0.00% |
+| lebab | +0.26% |
+| postcss | +0.49% |
+| prepack | +1.38% |
+| prettier | +0.37% |
+| source-map | +1.57% |
+| terser | +2.78% |
+| typescript | +1.72% |
+| uglify-js | +1.12% |
+
+完整原始数据见 [benchmarks/results/object-layout-shared.json](results/object-layout-shared.json)。
+
 ## 比较与条件分支融合
 
 对照为已提交属性缓存加融合组合；八种比较直接消费紧邻短或长条件分支，保留异常路径及interrupt poll。双方预热后六对；可能与其他候选构建或测试并行。正式test-comparison-branch.js在对照及候选均通过且强制ESLint通过（独立运行，不计入下述套件数）；原生interrupt回调次数及异常堆栈与对照一致。完整套件503通过、1跳过、1失败：TCP中止测试在原始基线亦失败。独立完整CMake构建OFF源码与候选逐字一致，3项回归通过；ON构建及inspector/branch回归通过，重设OFF后重建通过；编译含ThinLTO且无PGO。

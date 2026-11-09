@@ -1,0 +1,59 @@
+OOM_POINT 1
+OOM_POINT 2
+OOM_POINT 3
+OOM_POINT 4
+OOM_POINT 5
+OOM_POINT 6
+OOM_POINT 7
+OOM_POINT 8
+OOM_POINT 9
+OOM_POINT 10
+OOM_POINT 11
+OOM_POINT 12
+OOM_POINT 13
+OOM_POINT 14
+OOM_POINT 15
+OOM_POINT 16
+OOM_POINT 17
+OOM_POINT 18
+OOM_POINT 19
+OOM_POINT 20
+OOM_POINT 21
+OOM_POINT 22
+OOM_POINT 23
+OOM_POINT 24
+OOM_POINT 25
+OOM_POINT 26
+OOM_POINT 27
+OOM_POINT 28
+OOM_POINT 29
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==83055==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000008 (pc 0x000104b6bf34 bp 0x00016b29d4c0 sp 0x00016b29d3e0 T0)
+==83055==The signal is caused by a WRITE memory access.
+==83055==Hint: address points to the zero page.
+    #0 0x000104b6bf34 in JS_RunGC quickjs.c:7543
+    #1 0x000104b82f5c in JS_NewObjectFromShape quickjs.c:6148
+    #2 0x000104bfb4cc in JS_MakeError2 quickjs.c:8468
+    #3 0x000104b8d9c8 in JS_ThrowInternalError quickjs.c:8564
+    #4 0x000104bf85f0 in resize_properties quickjs.c:5909
+    #5 0x000104bf79b4 in add_shape_property quickjs.c:6016
+    #6 0x000104bf6a7c in add_property quickjs.c:10252
+    #7 0x000104b9e7a4 in JS_CreateProperty quickjs.c:11180
+    #8 0x000104bac090 in JS_CallInternal quickjs.c:19832
+    #9 0x000104ba43b8 in JS_Call quickjs.c:21073
+    #10 0x000104b60b64 in main object-layout-oom-data.c:42
+    #11 0x0001816b6b94 in start+0x17b8 (dyld:arm64e+0xfffffffffff3ab94)
+
+==83055==Register values:
+ x[0] = 0x0000000000000000   x[1] = 0x0000000000000000   x[2] = 0x0000000000000000   x[3] = 0x0000616000040e98
+ x[4] = 0x000060800008b100   x[5] = 0x0000000000000001   x[6] = 0x000000016aaa4000   x[7] = 0x0000000000000001
+ x[8] = 0x0000000000000008   x[9] = 0x0000000000000000  x[10] = 0x0000000000000000  x[11] = 0x00000c2c000081d1
+x[12] = 0x00000c2c000081d2  x[13] = 0x0000000000000000  x[14] = 0x0000000000000000  x[15] = 0x000010700001ffff
+x[16] = 0x0000000181a90ff0  x[17] = 0x0000000105634508  x[18] = 0x0000000000000000  x[19] = 0x0000007000020000
+x[20] = 0x000060800008ada8  x[21] = 0x00006070000c15b8  x[22] = 0x0000606000060ec8  x[23] = 0x0000000000000003
+x[24] = 0x00000c160000f06b  x[25] = 0x000060b00007839c  x[26] = 0x0000622000057580  x[27] = 0x00006070000c14f8
+x[28] = 0x00006220000575a0     fp = 0x000000016b29d4c0     lr = 0x0000000104b6c8b8     sp = 0x000000016b29d3e0
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV quickjs.c:7543 in JS_RunGC
+==83055==ABORTING
