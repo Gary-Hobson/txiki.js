@@ -1395,3 +1395,34 @@ Release + ThinLTO，PGO/inspector OFF。相对fa509604，独占预热后首组�
 | Geometric mean | -1.21% |
 
 完整[设计、检查点与限制](quickjs-producer-region-analysis.md)、[原分](results/producer-region.json)、[源码/二进制指纹](results/producer-region-metadata.json)、[诊断](results/producer-region-diagnostics.json)、[重放证据](results/producer-region-replay-evidence.json)。归档保留失败候选供复核；当前数据不能单独归因于I-cache、分支预测或函数结构增大。
+
+## 最新保留版本相对原始引擎的直接累计确认
+
+当前保留代码ba423c89（属性槽提示、单字段融合、比较分支融合、共享对象布局、正则根搜索裁剪、charCodeAt内建函数快路），直接对比最初未加这些优化的控制二进制。两者Release + ThinLTO、关闭PGO/inspector，固定同一WTB bundle，各完整预热一次，然后独占六对交替。这里没有把历史增量相加。
+
+总分配对中位+10.00%，6/6胜；17项配对中位均正。chai仅3/6胜，中位+0.37%，不能解读为每项每轮都提高。
+
+| 项目 | 配对中位变化 | 胜出轮数 |
+|---|---:|---:|
+| acorn | +27.40% | 6/6 |
+| babel | +6.22% | 6/6 |
+| babel-minify | +6.44% | 6/6 |
+| babylon | +7.09% | 6/6 |
+| buble | +9.15% | 6/6 |
+| chai | +0.37% | 3/6 |
+| espree | +54.95% | 6/6 |
+| esprima | +18.30% | 6/6 |
+| jshint | +4.32% | 6/6 |
+| lebab | +2.90% | 6/6 |
+| postcss | +7.01% | 6/6 |
+| prepack | +4.79% | 6/6 |
+| prettier | +2.89% | 6/6 |
+| source-map | +7.81% | 6/6 |
+| terser | +3.91% | 6/6 |
+| typescript | +12.67% | 6/6 |
+| uglify-js | +2.42% | 5/6 |
+| Geometric mean | +10.00% | 6/6 |
+
+主代理独立重算18项中位和胜率，并核对原始/保留二进制及suite现存哈希全部一致。源码与配置和全套正确性验证见前节；本次数据仅针对本机Apple M4/macOS，不外推其他平台。
+
+完整[12次原分](results/retained-charcode-pairs.json)、[源码/二进制/套件指纹](results/retained-charcode-pairs-metadata.json)、[逐项统计](results/retained-charcode-pairs-summary.json)。

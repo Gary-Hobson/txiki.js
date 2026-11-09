@@ -1,8 +1,8 @@
 # QuickJS 性能实验
 
-正则裁剪阶段 `fa509604` 的独立六轮累计确认：相对原始控制版总分中位 **+9.25%**，6/6 胜，17 项中位为16项提升、1项持平。Espree **+54.30%**、Acorn **+25.34%**、Esprima **+17.15%**、TypeScript **+10.83%**。配置为 Release + ThinLTO、无 PGO/inspector。完整三方结果见 [逐项记录](quickjs-optimization.md)；这些结果不是历史增量的相加。
+当前保留代码 `ba423c89` 的独立六轮直接累计确认：相对原始控制版总分中位 **+10.00%**，6/6 胜，17 项配对中位均为正。Espree **+54.95%**、Acorn **+27.40%**、Esprima **+18.30%**、TypeScript **+12.67%**。chai 中位 +0.37%，3/6 胜，不能解读为每项每轮都提高。配置为 Release + ThinLTO、无 PGO/inspector。完整结果见 [逐项记录](quickjs-optimization.md) 和 [最新直接复测](results/retained-charcode-pairs-summary.json)；这些结果不是历史增量的相加。
 
-最新再保留 `charCodeAt` 函数内部的纯值快路：相对上述阶段，两次独立六轮分别 **+0.54% / +0.80%**，均6/6胜。尚未对最新版本重测原始基线累计收益，不能将增量直接相加。
+最近保留 `charCodeAt` 函数内部的纯值快路：相对正则裁剪阶段，两次独立六轮分别 **+0.54% / +0.80%**，均6/6胜。连续字段和调用点区域融合未通过性能门槛，保留失败证据供复核。
 
 - [逐项方法和结果](quickjs-optimization.md)：包括保留与舍弃的候选，以及每项的 17 个子测试。
 - [架构分析](quickjs-architecture-analysis.md)：引擎成本、属性布局身份、所有权值流与对象构造路线。
