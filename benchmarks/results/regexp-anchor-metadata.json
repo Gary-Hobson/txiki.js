@@ -1,0 +1,23 @@
+{
+  "started_utc": "2026-11-09T20:13:07.886442+00:00",
+  "platform": "macOS-15.6.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "suite": {
+    "path": "/private/tmp/txiki-webtooling-src.Xpz6vi/dist/cli.js",
+    "sha256": "a7a227840538deb2d44dcadbf3da6b12187b29961f2e134db2269b785f7d9931"
+  },
+  "binaries": {
+    "object": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/integrated-object-layout/tjs",
+      "sha256": "1264cfedad9df6ed1e8615d754fbd1e2c398eaddc872b3ad940258a0bc654e94"
+    },
+    "anchor": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/regexp-analysis/regexp-anchor/tjs",
+      "sha256": "a3275033c0b9063bdd088ef0099c50b86451e6937b66ba4b36e365c5223a4be6"
+    }
+  },
+  "rounds": 6,
+  "warmups_per_binary": 1,
+  "script": "globalThis.eval(new TextDecoder().decode(await tjs.readFile(tjs.env.WEB_TOOLING_BUNDLE))); tjs.exit(0);",
+  "note": "Build flags must be verified separately; these are existing binaries."
+}

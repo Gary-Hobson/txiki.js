@@ -6,7 +6,7 @@ set(quickjs_patches "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-performance.pat
 if(BUILD_WITH_INSPECTOR)
     list(APPEND quickjs_patches "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-debugger.patch")
 endif()
-set(quickjs_patched_files quickjs.c quickjs.h quickjs-opcode.h)
+set(quickjs_patched_files quickjs.c quickjs.h quickjs-opcode.h libregexp.c)
 
 set(quickjs_fingerprint "")
 foreach(patch IN LISTS quickjs_patches)
@@ -16,7 +16,8 @@ foreach(patch IN LISTS quickjs_patches)
 endforeach()
 file(COPY "${quickjs_original}/" DESTINATION "${quickjs_source}"
      PATTERN ".git" EXCLUDE PATTERN "test262" EXCLUDE
-     PATTERN "quickjs.c" EXCLUDE PATTERN "quickjs.h" EXCLUDE PATTERN "quickjs-opcode.h" EXCLUDE)
+     PATTERN "quickjs.c" EXCLUDE PATTERN "quickjs.h" EXCLUDE PATTERN "quickjs-opcode.h" EXCLUDE
+     PATTERN "libregexp.c" EXCLUDE)
 foreach(source IN LISTS quickjs_patched_files)
     set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${quickjs_original}/${source}")
     file(SHA256 "${quickjs_original}/${source}" source_fingerprint)

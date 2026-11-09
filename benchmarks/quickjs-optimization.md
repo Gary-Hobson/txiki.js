@@ -1163,7 +1163,7 @@ hint+fusion版本相对hint总体胜出5/6轮。
 
 完整原始数据见 [final-triad.json](results/final-triad.json)。
 
-## 当前保留版本的独立累计确认（52becd9e）
+## 共享对象布局阶段的独立累计确认（52becd9e）
 
 原始QuickJS控制版、ef801eaa分支融合版、52becd9e共享对象布局版，各完整预热一次；随后六轮覆盖三种二进制的全部六种排列。本任务在测量窗口没有同时编译或运行其他性能测试。三者均为Release + ThinLTO，关闭PGO和inspector；已检查对应CMakeCache及compile_commands，QuickJS包含-flto=thin、无-fprofile-*。
 
@@ -1203,3 +1203,38 @@ hint+fusion版本相对hint总体胜出5/6轮。
 验证：对照/候选/诊断三项JS专项及native活跃帧序列化、读取执行通过；中断正常回调4次、主动中止2次均一致；两处可选分配的真实失败注入通过；独立生成式差分4320个返回值/异常结果逐字相同。实际inspector ON和全平台构建未测。
 
 详见 [完整设计与裁决](quickjs-int-region-analysis.md)、[原始计数和验证摘要](results/int-region-diagnostics.json)、[可重建原型](experiments/README.md)。
+
+## 正则必经起始锚点：裁掉不可能的根搜索
+
+对照52becd9e的共享对象布局版，Release + ThinLTO，无PGO/inspector。仅替换libregexp.c，识别固定非sticky根搜索前导和必经的非多行^；保留第一次根回溯帧、捕获恢复及Unicode起点归一化，只拒绝不可能匹配的后续起点。不改变编译字节码或序列化格式。
+
+完整WTB诊断中183,672,821次根起点尝试有172,418,818次对应必经起始锚点；这是执行计数而非耗时。候选由结构性重复工作驱动，并未混入另一个字面首字符扫描原型。
+
+双方各完整预热后六对AB/BA交替，本任务其余构建和性能测试暂停。配对总分中位+3.62%，胜6/6。收益是相对52becd9e的增量，不能与历史百分数相加。
+
+| 子项 | 配对中位变化 | 胜出轮次 |
+|---|---:|---:|
+| acorn | +16.14% | 6/6 |
+| babel | +0.00% | 2/6 |
+| babel-minify | +0.60% | 4/6 |
+| babylon | -0.18% | 2/6 |
+| buble | +2.63% | 6/6 |
+| chai | -0.36% | 1/6 |
+| espree | +47.41% | 6/6 |
+| esprima | -0.45% | 1/6 |
+| jshint | -0.65% | 2/6 |
+| lebab | +0.38% | 3/6 |
+| postcss | +1.70% | 6/6 |
+| prepack | -1.01% | 1/6 |
+| prettier | +0.19% | 3/6 |
+| source-map | +2.80% | 6/6 |
+| terser | +1.09% | 5/6 |
+| typescript | +0.27% | 3/6 |
+| uglify-js | -0.31% | 2/6 |
+| Geometric mean | +3.62% | 6/6 |
+
+决定：已通过正式构建流程验证并保留。Espree与Acorn大幅改善，最大子项回退约1%，符合本次大项增益允许小项轻微退化的标准。
+
+验证：ASAN+UBSAN下2,423,512个矩阵差分case返回值与全部capture指针一致，包括失败及Unicode起点；未准入的长扫描/回溯中断次数一致。锚定快速失败消除了工作，明确不保持原无意义扫描的timeout回调次数。正式Release ThinLTO OFF→ON→OFF构建、五项回归和ON inspector通过；OFF完整套件506通过、1跳过、1原始基线同有的TCP失败。再次configure未覆盖libregexp补丁，正式源码与计分候选逐字一致。详见 [集成验证](results/regexp-anchor-integration.json)。
+
+详见 [机制、边界与验证](quickjs-regexp-analysis.md)、[12次原分](results/regexp-anchor.json)、[测量元数据](results/regexp-anchor-metadata.json)、[源码与二进制哈希](results/regexp-anchor-evidence.json)。

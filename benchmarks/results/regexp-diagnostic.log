@@ -1,0 +1,67 @@
+Running Web Tooling Benchmark v0.5.3…
+-------------------------------------
+         acorn:  1.52 runs/s
+         babel:  3.70 runs/s
+  babel-minify:  4.88 runs/s
+       babylon:  2.68 runs/s
+         buble:  5.18 runs/s
+          chai:  6.80 runs/s
+        espree:  1.07 runs/s
+       esprima:  2.19 runs/s
+        jshint:  4.52 runs/s
+         lebab:  3.89 runs/s
+       postcss:  3.92 runs/s
+       prepack:  2.89 runs/s
+      prettier:  2.56 runs/s
+    source-map:  3.14 runs/s
+        terser: 10.99 runs/s
+    typescript:  5.46 runs/s
+     uglify-js:  3.08 runs/s
+-------------------------------------
+Geometric mean:  3.50 runs/s
+REGEXP calls=4656754
+REGEXP invalid ops=0 heads=0 rejects=0
+REGEXP char ops=67866445 heads=4470970 rejects=4381811
+REGEXP char_i ops=183333 heads=38051 rejects=0
+REGEXP char32 ops=0 heads=0 rejects=0
+REGEXP char32_i ops=0 heads=0 rejects=0
+REGEXP dot ops=534314 heads=83209 rejects=0
+REGEXP any ops=183032751 heads=0 rejects=0
+REGEXP space ops=169456 heads=32988 rejects=0
+REGEXP not_space ops=20036 heads=17974 rejects=0
+REGEXP line_start ops=172510596 heads=172418818 rejects=0
+REGEXP line_start_m ops=454632 heads=454632 rejects=0
+REGEXP line_end ops=427377 heads=0 rejects=0
+REGEXP line_end_m ops=0 heads=0 rejects=0
+REGEXP goto ops=184585910 heads=0 rejects=0
+REGEXP split_goto_first ops=185820397 heads=0 rejects=0
+REGEXP split_next_first ops=58596667 heads=4923644 rejects=0
+REGEXP match ops=689727 heads=0 rejects=0
+REGEXP lookahead_match ops=8 heads=0 rejects=0
+REGEXP negative_lookahead_match ops=2 heads=0 rejects=0
+REGEXP save_start ops=187806302 heads=0 rejects=0
+REGEXP save_end ops=2448411 heads=0 rejects=0
+REGEXP save_reset ops=264151 heads=478 rejects=0
+REGEXP loop ops=306 heads=0 rejects=0
+REGEXP loop_split_goto_first ops=51494 heads=0 rejects=0
+REGEXP loop_split_next_first ops=0 heads=0 rejects=0
+REGEXP loop_check_adv_split_goto_first ops=296 heads=0 rejects=0
+REGEXP loop_check_adv_split_next_first ops=0 heads=0 rejects=0
+REGEXP set_i32 ops=18777 heads=3252 rejects=0
+REGEXP word_boundary ops=143104 heads=73668 rejects=0
+REGEXP word_boundary_i ops=0 heads=0 rejects=0
+REGEXP not_word_boundary ops=0 heads=0 rejects=0
+REGEXP not_word_boundary_i ops=0 heads=0 rejects=0
+REGEXP back_reference ops=0 heads=0 rejects=0
+REGEXP back_reference_i ops=0 heads=0 rejects=0
+REGEXP backward_back_reference ops=0 heads=0 rejects=0
+REGEXP backward_back_reference_i ops=0 heads=0 rejects=0
+REGEXP range ops=7790425 heads=1154513 rejects=0
+REGEXP range_i ops=21173 heads=624 rejects=0
+REGEXP range32 ops=0 heads=0 rejects=0
+REGEXP range32_i ops=0 heads=0 rejects=0
+REGEXP lookahead ops=131 heads=0 rejects=0
+REGEXP negative_lookahead ops=616 heads=0 rejects=0
+REGEXP set_char_pos ops=19506 heads=0 rejects=0
+REGEXP check_advance ops=14362 heads=0 rejects=0
+REGEXP prev ops=0 heads=0 rejects=0

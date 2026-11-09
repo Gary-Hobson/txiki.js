@@ -1,0 +1,40 @@
+{
+  "build": "Release ThinLTO inspector OFF; PGO disabled",
+  "quickjs_sha256": "4025d0bc28c45b8a68aaccd603b0309cfe53fef70dc37f3e3957f133fdf29d58",
+  "libregexp_sha256": "24ea589d535ab3a58627b64ba795647aa62eb94f60ee9bcd2eaf9d496c8d8dde",
+  "candidate_libregexp_sha256": "24ea589d535ab3a58627b64ba795647aa62eb94f60ee9bcd2eaf9d496c8d8dde",
+  "repeat_config_preserved_candidate": true,
+  "off_on_off_build": "passed",
+  "off_on_off_five_regression_tests": "passed",
+  "inspector_on_test": "passed",
+  "full_suite": {
+    "pass": 506,
+    "skip": 1,
+    "fail": 1,
+    "failed": "test-tcp-connect-abort.js, also fails on baseline",
+    "skipped": "test-inspector.js on OFF build"
+  },
+  "native_evidence": "2,423,512 ASAN+UBSAN differential cases and timeout callbacks by regexp architecture agent",
+  "js_evidence": "anchor, match/search, lastIndex, Unicode offset and replacement callbacks",
+  "regression_test_files": [
+    "tests/test-property-cache.js",
+    "tests/test-load-field-fusion.js",
+    "tests/test-comparison-branch.js",
+    "tests/test-object-layout.js",
+    "tests/test-regexp-anchor.js"
+  ],
+  "regression_command": "build/lto-benchmark/integrated-regexp-anchor/tjs run <test-file>, each OFF/ON/OFF",
+  "inspector_command": "build/lto-benchmark/integrated-regexp-anchor/tjs run tests/test-inspector.js (ON)",
+  "suite_command": "env -u TJS_HOME build/lto-benchmark/integrated-regexp-anchor/tjs test tests",
+  "logs_directory": "build/lto-benchmark/regexp-analysis/",
+  "compile_commands_validation": {
+    "path": "build/lto-benchmark/integrated-regexp-anchor/compile_commands.json",
+    "checked_files": [
+      "quickjs.c",
+      "libregexp.c"
+    ],
+    "thin_lto": true,
+    "fprofile_flags_present": false
+  },
+  "eslint": "pnpm exec eslint --no-ignore tests/test-regexp-anchor.js passed"
+}

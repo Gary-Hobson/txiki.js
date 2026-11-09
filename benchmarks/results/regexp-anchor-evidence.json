@@ -1,0 +1,17 @@
+{
+  "build/lto-benchmark/integrated-object-layout/quickjs-patched/libregexp.c": "af13e996abb1767fe0cdfda123c45b811d53688d403a2ac47142e97bf79f1fae",
+  "build/lto-benchmark/regexp-analysis/regexp-anchor/libregexp.c": "24ea589d535ab3a58627b64ba795647aa62eb94f60ee9bcd2eaf9d496c8d8dde",
+  "build/lto-benchmark/regexp-analysis/regexp-anchor/tjs": "a3275033c0b9063bdd088ef0099c50b86451e6937b66ba4b36e365c5223a4be6",
+  "build/lto-benchmark/integrated-object-layout/tjs": "1264cfedad9df6ed1e8615d754fbd1e2c398eaddc872b3ad940258a0bc654e94",
+  "build/lto-benchmark/regexp-analysis/regexp-anchor-transform.py": "84b910147a210693eab811cd1371577053866e4d120248e142ada8c70d4c200e",
+  "build/lto-benchmark/regexp-analysis/regexp-correctness.c": "6051bc9c4c821196a3c02ec1c2565552575021c7cfd7f83314e47989c1f37d70",
+  "benchmarks/experiments/regexp-anchor-transform.py": "95a63752c32f08fd09cf2fdef9c3429c4330d0475883f100ec8c02b79a2f9c1c",
+  "benchmarks/experiments/regexp-correctness.c": "b4b851415a4d16737269c26c86642f7b14e0114b8b87869e827ae969d6f0fb9e",
+  "benchmarks/experiments/regexp-test-build.py": "58da9df44694f8679564c9dbc07830eb0ad7c0fe8610f648a80b3a171303e02e",
+  "benchmarks/experiments/regexp-build.py": "e912b92b126fb9a5ed7ed43dd1901c267676cd51d85911c330b915175061635f",
+  "benchmarks/experiments/regexp-diagnostic.patch": "0c96014a20ea326fa73d8a4296c5c4cc5e88d4a39f9a81687fb855b2f9ddb268",
+  "tests/test-regexp-anchor.js": "bfd241e4bd6cb8288984c1d6e71bb509add87e89fa21dd5bbeeae36274750459",
+  "diagnostic_patch_before_context_cleanup_sha256": "5ff158252b7d8ccc12b9ced539295c1aecfc001920a826c1fa78e60efafe7c90",
+  "diagnostic_source_sha256": "5bdaf51dd496d76ef0cf66628d84aa9cc2a121d93f1dad56ae29c6bf398fa863",
+  "regression_before_eslint_format_sha256": "b8673b6ef4fbf99dc20f0fbcf1c72686c8cbc11f2730062e4565e83fc10cbb4e"
+}

@@ -1,0 +1,57 @@
+--- a/libregexp.c
++++ b/libregexp.c
+@@ -2781,5 +2781,19 @@
+ } StackElem;
+
++static unsigned long long regexp_ops[256], regexp_heads[256], regexp_rejects[256], regexp_calls;
++static const char *regexp_names[] = {
++#define DEF(name, size) #name,
++#include "libregexp-opcode.h"
++#undef DEF
++};
++static void regexp_report(void) {
++    fprintf(stderr, "REGEXP calls=%llu\n", regexp_calls);
++    for (unsigned i = 0; i < sizeof(regexp_names)/sizeof(regexp_names[0]); i++)
++        fprintf(stderr, "REGEXP %s ops=%llu heads=%llu rejects=%llu\n", regexp_names[i], regexp_ops[i], regexp_heads[i], regexp_rejects[i]);
++}
++
+ typedef struct {
++    const uint8_t *regexp_root;
++    const uint8_t *regexp_head;
+     const uint8_t *cbuf;
+     const uint8_t *cbuf_end;
+@@ -2897,4 +2911,15 @@
+     for(;;) {
+         opcode = *pc++;
++        regexp_ops[opcode]++;
++        if (pc - 1 == s->regexp_root) {
++            unsigned head = *s->regexp_head;
++            regexp_heads[head]++;
++            if (head == REOP_char || head == REOP_char32) {
++                uint32_t expected = head == REOP_char ? get_u16(s->regexp_head+1) : get_u32(s->regexp_head+1);
++                uint32_t actual = UINT32_MAX;
++                if (cptr < cbuf_end) PEEK_CHAR(actual, cptr, cbuf_end, cbuf_type);
++                if (actual != expected) regexp_rejects[head]++;
++            }
++        }
+ #ifdef DUMP_EXEC
+         printf("%5ld %5ld %5ld %5ld %s\n",
+@@ -3392,4 +3417,18 @@
+     const uint8_t *cptr;
+
++    if (!regexp_calls++) atexit(regexp_report);
++    s->regexp_root = s->regexp_head = NULL;
++    if (get_u32(bc_buf + RE_HEADER_BYTECODE_LEN) >= 14 &&
++        bc_buf[RE_HEADER_LEN] == REOP_split_goto_first &&
++        get_u32(bc_buf + RE_HEADER_LEN + 1) == 6 &&
++        bc_buf[RE_HEADER_LEN + 5] == REOP_any &&
++        bc_buf[RE_HEADER_LEN + 6] == REOP_goto &&
++        (int32_t)get_u32(bc_buf + RE_HEADER_LEN + 7) == -11) {
++        const uint8_t *head = bc_buf + RE_HEADER_LEN + 11;
++        const uint8_t *end = bc_buf + RE_HEADER_LEN + get_u32(bc_buf + RE_HEADER_BYTECODE_LEN);
++        while (head + 2 < end && *head == REOP_save_start) head += 2;
++        s->regexp_root = bc_buf + RE_HEADER_LEN;
++        s->regexp_head = head;
++    }
+     re_flags = lre_get_flags(bc_buf);
+     s->is_unicode = (re_flags & (LRE_FLAG_UNICODE | LRE_FLAG_UNICODE_SETS)) != 0;

@@ -30,7 +30,7 @@ python3 benchmarks/experiments/replay.py \
 
 数值是历史实验的配对中位数，基线不同，不能相加。方法、17 项分数、并发与测量限制见 [实验记录](../quickjs-optimization.md)。此目录是归档时的审查快照：site IC 在首轮测试后补了非 inspector 模式的 opcode 数量静态断言，不能将该快照的源码哈希宣称为首轮计分源码哈希。测试时关闭 PGO、inspector 和诊断计数；这些原型不代表已完成跨平台验证。
 
-归档验证：前五个 variant、紧凑 IC 和共享对象布局修正版的输出与本机保存的已测速候选源码逐字相同；首版 site IC 和 object-layout 的差异仅为首测后补充的非 inspector 私有 opcode 区间静态断言。`retained-ef801eaa --format patch` 与 ef801eaa 当时的正式补丁逐字相同，`object-layout-shared --format patch` 与本次共享对象布局的正式补丁逐字相同。独立临时目录验证了应用结果和拒绝覆盖已有输出。这些是源码重建检查，没有用重建工具重新生成历史性能分数。
+归档验证：前五个 variant、紧凑 IC 和共享对象布局修正版的输出与本机保存的已测速候选源码逐字相同；首版 site IC 和 object-layout 的差异仅为首测后补充的非 inspector 私有 opcode 区间静态断言。`retained-ef801eaa --format patch` 与 ef801eaa 当时的正式补丁逐字相同，`object-layout-shared --format patch` 与52becd9e时共享对象布局的正式补丁逐字相同（不包含之后新增的libregexp.c补丁）。独立临时目录验证了应用结果和拒绝覆盖已有输出。这些是源码重建检查，没有用重建工具重新生成历史性能分数。
 
 字符串 intrinsic 也验证了重建源码与计分候选逐字一致，专项 JS/C fixture 一并归档。`native-call-profile-transform.py` 是独立频率诊断；该插桩版本的吞吐分数不能用于优化评价。原生 fixture 的归档副本经过 C 格式化，程序字符串保持不变。
 

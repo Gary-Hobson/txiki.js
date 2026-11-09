@@ -677,3 +677,47 @@
      return obj;
 
   fail:
+--- a/libregexp.c
++++ b/libregexp.c
+@@ -2781,6 +2781,7 @@
+ } StackElem;
+
+ typedef struct {
++    const uint8_t *search_anchor_pc;
+     const uint8_t *cbuf;
+     const uint8_t *cbuf_end;
+     /* 0 = 8 bit chars, 1 = 16 bit chars, 2 = 16 bit chars, UTF-16 */
+@@ -3005,6 +3006,10 @@
+             {
+                 const uint8_t *pc1;
+
++                /* Keep the initial root frame so failure still restores all
++                   captures. After that, ^ proves no later start can match. */
++                if (pc - 1 == s->search_anchor_pc && cptr != s->cbuf)
++                    goto no_match;
+                 val = get_u32(pc);
+                 pc += 4;
+                 if (opcode == REOP_split_next_first) {
+@@ -3391,6 +3396,22 @@
+     int re_flags, i, ret;
+     const uint8_t *cptr;
+
++    s->search_anchor_pc = NULL;
++    /* Recognize the existing unanchored search prelude. Only unconditional
++       capture starts may precede the mandatory non-multiline anchor. */
++    if (get_u32(bc_buf + RE_HEADER_BYTECODE_LEN) >= 14 &&
++        bc_buf[RE_HEADER_LEN] == REOP_split_goto_first &&
++        get_u32(bc_buf + RE_HEADER_LEN + 1) == 6 &&
++        bc_buf[RE_HEADER_LEN + 5] == REOP_any &&
++        bc_buf[RE_HEADER_LEN + 6] == REOP_goto &&
++        (int32_t)get_u32(bc_buf + RE_HEADER_LEN + 7) == -11) {
++        const uint8_t *head = bc_buf + RE_HEADER_LEN + 11;
++        const uint8_t *end = bc_buf + RE_HEADER_LEN + get_u32(bc_buf + RE_HEADER_BYTECODE_LEN);
++        while (end - head >= 3 && *head == REOP_save_start)
++            head += 2;
++        if (head < end && *head == REOP_line_start)
++            s->search_anchor_pc = bc_buf + RE_HEADER_LEN;
++    }
+     re_flags = lre_get_flags(bc_buf);
+     s->is_unicode = (re_flags & (LRE_FLAG_UNICODE | LRE_FLAG_UNICODE_SETS)) != 0;
+     s->capture_count = bc_buf[RE_HEADER_CAPTURE_COUNT];
