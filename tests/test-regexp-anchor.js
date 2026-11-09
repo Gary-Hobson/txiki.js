@@ -80,6 +80,12 @@ const bytecode = globalThis.tjs.engine.compile(new TextEncoder().encode(
     '/^foo/.test("xfoo"), /^foo|bar/.exec("xbar").index];'
 ), 'regexp-anchor-roundtrip');
 
-await globalThis.tjs.engine.evalBytecode(bytecode);
+const serialized = globalThis.tjs.engine.serialize(bytecode);
+const serializedAgain = globalThis.tjs.engine.serialize(bytecode);
+
+assert.eq(Array.from(serialized), Array.from(serializedAgain), 'serialized bytes are stable');
+const restored = globalThis.tjs.engine.deserialize(serialized);
+
+await globalThis.tjs.engine.evalBytecode(restored);
 assert.eq(globalThis.__regexpAnchorRoundtrip, [ 'foo', false, 1 ], 'compiled regexp bytecode retains semantics');
 delete globalThis.__regexpAnchorRoundtrip;

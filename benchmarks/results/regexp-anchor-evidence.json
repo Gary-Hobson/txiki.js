@@ -10,7 +10,7 @@
   "benchmarks/experiments/regexp-test-build.py": "58da9df44694f8679564c9dbc07830eb0ad7c0fe8610f648a80b3a171303e02e",
   "benchmarks/experiments/regexp-build.py": "e912b92b126fb9a5ed7ed43dd1901c267676cd51d85911c330b915175061635f",
   "benchmarks/experiments/regexp-diagnostic.patch": "0c96014a20ea326fa73d8a4296c5c4cc5e88d4a39f9a81687fb855b2f9ddb268",
-  "tests/test-regexp-anchor.js": "bfd241e4bd6cb8288984c1d6e71bb509add87e89fa21dd5bbeeae36274750459",
+  "tests/test-regexp-anchor.js": "8f470128d7d4b32963583d428d0d8ce734e08b880c92369b0aa50baf65e8ad62",
   "diagnostic_patch_before_context_cleanup_sha256": "5ff158252b7d8ccc12b9ced539295c1aecfc001920a826c1fa78e60efafe7c90",
   "diagnostic_source_sha256": "5bdaf51dd496d76ef0cf66628d84aa9cc2a121d93f1dad56ae29c6bf398fa863",
   "regression_before_eslint_format_sha256": "b8673b6ef4fbf99dc20f0fbcf1c72686c8cbc11f2730062e4565e83fc10cbb4e"

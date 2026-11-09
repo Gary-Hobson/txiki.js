@@ -1,0 +1,332 @@
+{
+  "object_vs_original": {
+    "acorn": {
+      "median_paired_percent": 8.56164383561645,
+      "mean_paired_percent": 8.458510470792014,
+      "wins": 6,
+      "rounds": 6
+    },
+    "babel": {
+      "median_paired_percent": 4.815864022662897,
+      "mean_paired_percent": 4.403500461404005,
+      "wins": 6,
+      "rounds": 6
+    },
+    "babel-minify": {
+      "median_paired_percent": 4.811186428833492,
+      "mean_paired_percent": 5.181986562873468,
+      "wins": 6,
+      "rounds": 6
+    },
+    "babylon": {
+      "median_paired_percent": 7.509881422924924,
+      "mean_paired_percent": 7.5104804093164335,
+      "wins": 6,
+      "rounds": 6
+    },
+    "buble": {
+      "median_paired_percent": 6.958250497017882,
+      "mean_paired_percent": 6.655390429699033,
+      "wins": 6,
+      "rounds": 6
+    },
+    "chai": {
+      "median_paired_percent": 0.7326105624731682,
+      "mean_paired_percent": 0.7144922324342199,
+      "wins": 4,
+      "rounds": 6
+    },
+    "espree": {
+      "median_paired_percent": 5.4299754299754195,
+      "mean_paired_percent": 5.734370734370719,
+      "wins": 6,
+      "rounds": 6
+    },
+    "esprima": {
+      "median_paired_percent": 17.67752715121138,
+      "mean_paired_percent": 17.69440346334711,
+      "wins": 6,
+      "rounds": 6
+    },
+    "jshint": {
+      "median_paired_percent": 4.279366110017657,
+      "mean_paired_percent": 4.3965694821104275,
+      "wins": 6,
+      "rounds": 6
+    },
+    "lebab": {
+      "median_paired_percent": 3.2857202061086555,
+      "mean_paired_percent": 3.475414835662268,
+      "wins": 6,
+      "rounds": 6
+    },
+    "postcss": {
+      "median_paired_percent": 4.707085880037298,
+      "mean_paired_percent": 4.798199350364725,
+      "wins": 6,
+      "rounds": 6
+    },
+    "prepack": {
+      "median_paired_percent": 5.704262945168925,
+      "mean_paired_percent": 5.657982378646276,
+      "wins": 6,
+      "rounds": 6
+    },
+    "prettier": {
+      "median_paired_percent": 3.48837209302324,
+      "mean_paired_percent": 3.4187976629837045,
+      "wins": 6,
+      "rounds": 6
+    },
+    "source-map": {
+      "median_paired_percent": 5.330521568463686,
+      "mean_paired_percent": 5.352021777418266,
+      "wins": 6,
+      "rounds": 6
+    },
+    "terser": {
+      "median_paired_percent": 3.403863845446198,
+      "mean_paired_percent": 3.9404453454081945,
+      "wins": 6,
+      "rounds": 6
+    },
+    "typescript": {
+      "median_paired_percent": 10.460591697882414,
+      "mean_paired_percent": 10.716834228296698,
+      "wins": 6,
+      "rounds": 6
+    },
+    "uglify-js": {
+      "median_paired_percent": 1.9323721605642552,
+      "mean_paired_percent": 2.1010005103978733,
+      "wins": 6,
+      "rounds": 6
+    },
+    "Geometric mean": {
+      "median_paired_percent": 5.873727790236327,
+      "mean_paired_percent": 5.7711187577361525,
+      "wins": 6,
+      "rounds": 6
+    }
+  },
+  "anchor_vs_original": {
+    "acorn": {
+      "median_paired_percent": 25.34246575342467,
+      "mean_paired_percent": 25.48653755314125,
+      "wins": 6,
+      "rounds": 6
+    },
+    "babel": {
+      "median_paired_percent": 6.515580736543902,
+      "mean_paired_percent": 6.433955856874954,
+      "wins": 6,
+      "rounds": 6
+    },
+    "babel-minify": {
+      "median_paired_percent": 5.660402236208284,
+      "mean_paired_percent": 5.563011475461044,
+      "wins": 6,
+      "rounds": 6
+    },
+    "babylon": {
+      "median_paired_percent": 6.53428696906958,
+      "mean_paired_percent": 6.720738465004132,
+      "wins": 6,
+      "rounds": 6
+    },
+    "buble": {
+      "median_paired_percent": 8.118811881188126,
+      "mean_paired_percent": 8.243895045568177,
+      "wins": 6,
+      "rounds": 6
+    },
+    "chai": {
+      "median_paired_percent": 0.0,
+      "mean_paired_percent": 0.12419274714356628,
+      "wins": 1,
+      "rounds": 6
+    },
+    "espree": {
+      "median_paired_percent": 54.29975429975428,
+      "mean_paired_percent": 54.15096915096913,
+      "wins": 6,
+      "rounds": 6
+    },
+    "esprima": {
+      "median_paired_percent": 17.14981899192426,
+      "mean_paired_percent": 17.343995331117398,
+      "wins": 6,
+      "rounds": 6
+    },
+    "jshint": {
+      "median_paired_percent": 3.3784469289613095,
+      "mean_paired_percent": 3.007813834207177,
+      "wins": 6,
+      "rounds": 6
+    },
+    "lebab": {
+      "median_paired_percent": 2.892013980024588,
+      "mean_paired_percent": 3.1672160761822408,
+      "wins": 6,
+      "rounds": 6
+    },
+    "postcss": {
+      "median_paired_percent": 6.362011809800061,
+      "mean_paired_percent": 6.369613614591722,
+      "wins": 6,
+      "rounds": 6
+    },
+    "prepack": {
+      "median_paired_percent": 4.2820102188667715,
+      "mean_paired_percent": 4.784386380915121,
+      "wins": 6,
+      "rounds": 6
+    },
+    "prettier": {
+      "median_paired_percent": 2.9009906916883654,
+      "mean_paired_percent": 2.967096281049767,
+      "wins": 6,
+      "rounds": 6
+    },
+    "source-map": {
+      "median_paired_percent": 7.804898684377514,
+      "mean_paired_percent": 6.9787643122447305,
+      "wins": 6,
+      "rounds": 6
+    },
+    "terser": {
+      "median_paired_percent": 3.3126024583076785,
+      "mean_paired_percent": 2.466420525436954,
+      "wins": 5,
+      "rounds": 6
+    },
+    "typescript": {
+      "median_paired_percent": 10.829050066628586,
+      "mean_paired_percent": 9.51397139481146,
+      "wins": 6,
+      "rounds": 6
+    },
+    "uglify-js": {
+      "median_paired_percent": 2.264348554671136,
+      "mean_paired_percent": 2.4261933453148052,
+      "wins": 6,
+      "rounds": 6
+    },
+    "Geometric mean": {
+      "median_paired_percent": 9.251336898395724,
+      "mean_paired_percent": 9.096564197183396,
+      "wins": 6,
+      "rounds": 6
+    }
+  },
+  "anchor_vs_object": {
+    "acorn": {
+      "median_paired_percent": 15.723892405063289,
+      "mean_paired_percent": 15.706465404078788,
+      "wins": 6,
+      "rounds": 6
+    },
+    "babel": {
+      "median_paired_percent": 1.621621621621605,
+      "mean_paired_percent": 1.9904897952577123,
+      "wins": 5,
+      "rounds": 6
+    },
+    "babel-minify": {
+      "median_paired_percent": 0.30000000000000027,
+      "mean_paired_percent": 0.393417167186542,
+      "wins": 3,
+      "rounds": 6
+    },
+    "babylon": {
+      "median_paired_percent": -0.7352941176470562,
+      "mean_paired_percent": -0.7341702174293881,
+      "wins": 1,
+      "rounds": 6
+    },
+    "buble": {
+      "median_paired_percent": 1.2081784386617112,
+      "mean_paired_percent": 1.4950897930671836,
+      "wins": 6,
+      "rounds": 6
+    },
+    "chai": {
+      "median_paired_percent": -0.7272823442293519,
+      "mean_paired_percent": -0.5830600514827755,
+      "wins": 0,
+      "rounds": 6
+    },
+    "espree": {
+      "median_paired_percent": 45.72649572649573,
+      "mean_paired_percent": 45.79757510061426,
+      "wins": 6,
+      "rounds": 6
+    },
+    "esprima": {
+      "median_paired_percent": -0.2242152466367664,
+      "mean_paired_percent": -0.29727938220090827,
+      "wins": 2,
+      "rounds": 6
+    },
+    "jshint": {
+      "median_paired_percent": -1.2903225806451646,
+      "mean_paired_percent": -1.3271019279874452,
+      "wins": 0,
+      "rounds": 6
+    },
+    "lebab": {
+      "median_paired_percent": -0.25510204081632404,
+      "mean_paired_percent": -0.2965399357712617,
+      "wins": 0,
+      "rounds": 6
+    },
+    "postcss": {
+      "median_paired_percent": 1.6949152542373058,
+      "mean_paired_percent": 1.498454693990044,
+      "wins": 6,
+      "rounds": 6
+    },
+    "prepack": {
+      "median_paired_percent": -1.0146587265231322,
+      "mean_paired_percent": -0.8335391344939103,
+      "wins": 2,
+      "rounds": 6
+    },
+    "prettier": {
+      "median_paired_percent": -0.7449022055763643,
+      "mean_paired_percent": -0.4339256809178793,
+      "wins": 1,
+      "rounds": 6
+    },
+    "source-map": {
+      "median_paired_percent": 1.9971684756960872,
+      "mean_paired_percent": 1.5423599483676442,
+      "wins": 5,
+      "rounds": 6
+    },
+    "terser": {
+      "median_paired_percent": -1.1565836298932486,
+      "mean_paired_percent": -1.4312952647577943,
+      "wins": 1,
+      "rounds": 6
+    },
+    "typescript": {
+      "median_paired_percent": -0.001402218621471274,
+      "mean_paired_percent": -1.0837160823346497,
+      "wins": 3,
+      "rounds": 6
+    },
+    "uglify-js": {
+      "median_paired_percent": 0.1592229918000121,
+      "mean_paired_percent": 0.32016107647229913,
+      "wins": 3,
+      "rounds": 6
+    },
+    "Geometric mean": {
+      "median_paired_percent": 3.18559556786705,
+      "mean_paired_percent": 3.1437878321534884,
+      "wins": 6,
+      "rounds": 6
+    }
+  }
+}

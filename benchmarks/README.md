@@ -1,6 +1,6 @@
 # QuickJS 性能实验
 
-共享对象布局版本 `52becd9e` 的独立六轮确认：相对原始控制版总分中位 **+5.58%**，6/6 胜，17 项配对中位均为正；esprima **+17.41%**、TypeScript **+9.63%**。配置为 Release + ThinLTO、无 PGO/inspector。完整三方结果及限制见 [累计确认](quickjs-optimization.md)。这不是对历史增量的相加。
+当前保留版本 `fa509604` 的独立六轮累计确认：相对原始控制版总分中位 **+9.25%**，6/6 胜，17 项中位为16项提升、1项持平。Espree **+54.30%**、Acorn **+25.34%**、Esprima **+17.15%**、TypeScript **+10.83%**。配置为 Release + ThinLTO、无 PGO/inspector。完整三方结果见 [逐项记录](quickjs-optimization.md)；这些结果不是历史增量的相加。
 
 - [逐项方法和结果](quickjs-optimization.md)：包括保留与舍弃的候选，以及每项的 17 个子测试。
 - [架构分析](quickjs-architecture-analysis.md)：引擎成本、属性布局身份、所有权值流与对象构造路线。

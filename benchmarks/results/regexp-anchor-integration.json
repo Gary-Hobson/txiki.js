@@ -36,5 +36,7 @@
     "thin_lto": true,
     "fprofile_flags_present": false
   },
-  "eslint": "pnpm exec eslint --no-ignore tests/test-regexp-anchor.js passed"
+  "eslint": "pnpm exec eslint --no-ignore tests/test-regexp-anchor.js passed",
+  "serialized_regression": "compile, serialize twice with byte equality, deserialize and execute: baseline and integrated anchor passed",
+  "test_regexp_anchor_sha256": "8f470128d7d4b32963583d428d0d8ce734e08b880c92369b0aa50baf65e8ad62"
 }

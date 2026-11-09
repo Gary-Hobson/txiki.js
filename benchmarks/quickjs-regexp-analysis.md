@@ -95,3 +95,9 @@ Terra 在主代理安排的 CPU 独占窗口完成 1 次/二进制预热和 **AB
 ## 正式集成验证
 
 独立构建目录 `build/lto-benchmark/integrated-regexp-anchor` 的Release + ThinLTO、无PGO、inspector OFF→ON→OFF构建完成。quickjs.c仍与52becd9e一致；libregexp.c与计分候选逐字一致，第二次configure后也未被普通复制覆盖。五项专项回归在三次配置均通过，ON inspector测试通过。OFF完整套件506项通过、1项inspector跳过、1项原始基线亦失败的TCP中止测试；详见 [集成验证记录](results/regexp-anchor-integration.json)。
+
+## 独立三方累计复测
+
+正式集成版fa509604、共享对象布局版52becd9e及原始控制版各预热后，六轮覆盖全部运行顺序。正式版相对原始总分配对中位 **+9.25%**、6/6胜，17项中位16项为正、chai为零；相对共享对象版增量 **+3.19%**、6/6胜，最大子项回退jshint约1.29%。这一轮相对原始的Espree +54.30%、Acorn +25.34%、Esprima +17.15%、TypeScript +10.83%。详见 [原始分数](results/retained-regexp-triad.json) 与 [配对统计](results/retained-regexp-triad-summary.json)。主代理独立重算统计并检查三份二进制/suite指纹。
+
+正式回归进一步完成compile→serialize两次字节稳定→deserialize→execute，强制ESLint及共享对象对照/正式版本均通过；这是对已有完整套件之后新增断言的定向验证，未将其计作重跑整个套件。

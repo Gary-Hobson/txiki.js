@@ -1238,3 +1238,32 @@ hint+fusion版本相对hint总体胜出5/6轮。
 验证：ASAN+UBSAN下2,423,512个矩阵差分case返回值与全部capture指针一致，包括失败及Unicode起点；未准入的长扫描/回溯中断次数一致。锚定快速失败消除了工作，明确不保持原无意义扫描的timeout回调次数。正式Release ThinLTO OFF→ON→OFF构建、五项回归和ON inspector通过；OFF完整套件506通过、1跳过、1原始基线同有的TCP失败。再次configure未覆盖libregexp补丁，正式源码与计分候选逐字一致。详见 [集成验证](results/regexp-anchor-integration.json)。
 
 详见 [机制、边界与验证](quickjs-regexp-analysis.md)、[12次原分](results/regexp-anchor.json)、[测量元数据](results/regexp-anchor-metadata.json)、[源码与二进制哈希](results/regexp-anchor-evidence.json)。
+
+## 正则裁剪阶段的独立累计确认（fa509604）
+
+原始QuickJS控制版、52becd9e共享对象布局版、fa509604正则裁剪正式集成版，各完整预热一次，六轮覆盖三种二进制的全部六种排列。测量窗口内本任务未并发构建或运行其他性能测试。三者均Release + ThinLTO、无PGO/inspector；正式集成源码与已测试候选一致。
+
+最新版本相对原始控制的配对总分中位+9.25%，6/6胜；17个子项16项中位提升、chai持平，没有子项中位下降。相对共享对象布局版的独立复测增量+3.19%，6/6胜；其最大子项回退jshint约1.29%，Espree提升45.73%。这是本次直接配对结果，不是历史百分比相加；WTB只输出两位小数分数，百分比的小数位不代表额外测量精度。
+
+| 指标 | object / 原始 | anchor / 原始 | anchor / object |
+|---|---:|---:|---:|
+| acorn | +8.56% | +25.34% | +15.72% |
+| babel | +4.82% | +6.52% | +1.62% |
+| babel-minify | +4.81% | +5.66% | +0.30% |
+| babylon | +7.51% | +6.53% | -0.74% |
+| buble | +6.96% | +8.12% | +1.21% |
+| chai | +0.73% | +0.00% | -0.73% |
+| espree | +5.43% | +54.30% | +45.73% |
+| esprima | +17.68% | +17.15% | -0.22% |
+| jshint | +4.28% | +3.38% | -1.29% |
+| lebab | +3.29% | +2.89% | -0.26% |
+| postcss | +4.71% | +6.36% | +1.69% |
+| prepack | +5.70% | +4.28% | -1.01% |
+| prettier | +3.49% | +2.90% | -0.74% |
+| source-map | +5.33% | +7.80% | +2.00% |
+| terser | +3.40% | +3.31% | -1.16% |
+| typescript | +10.46% | +10.83% | -0.00% |
+| uglify-js | +1.93% | +2.26% | +0.16% |
+| Geometric mean | +5.87% | +9.25% | +3.19% |
+
+完整证据：[18次原分](results/retained-regexp-triad.json)、[二进制与工作负载指纹](results/retained-regexp-triad-metadata.json)、[全部配对统计](results/retained-regexp-triad-summary.json)。主代理另行重算17项中位及胜率，并核对现存三份二进制与suite哈希全部一致。
