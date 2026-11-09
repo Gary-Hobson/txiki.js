@@ -1,0 +1,38 @@
+{
+  "recorded_utc": "2026-11-09T21:00:37.508073+00:00",
+  "test_file": "tests/test-string-charcode-at.js",
+  "test_sha256": "153c367739ba450440e140a6b56b923d15c83d40f5493bda3a61ebd27dc6cb04",
+  "lint": {
+    "command": "node node_modules/eslint/bin/eslint.js --no-ignore tests/test-string-charcode-at.js",
+    "after_auto_fix": true,
+    "exit_code": 0
+  },
+  "javascript_runs": [
+    {
+      "binary": "build/lto-benchmark/integrated-regexp-anchor/tjs",
+      "binary_sha256": "4b72cddcecddc52e49614d6cf486fe001214a717d662a9064eb2faa831c47894",
+      "command": "build/lto-benchmark/integrated-regexp-anchor/tjs run tests/test-string-charcode-at.js",
+      "exit_code": 0
+    },
+    {
+      "binary": "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-charcode/tjs",
+      "binary_sha256": "016d487ebb2e636e66464f1b35a43889e6ceebaff1f8f6e22a98f66db1ac49c0",
+      "command": "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-charcode/tjs run tests/test-string-charcode-at.js",
+      "exit_code": 0
+    }
+  ],
+  "native": {
+    "cases": 102052,
+    "normal_interrupt_callbacks": 15,
+    "abort_interrupt_callbacks": 2,
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "force_gc_at_malloc": true,
+    "exit_code": 0,
+    "formatted_fixture": "benchmarks/experiments/string-lifecycle-charcode-native.c",
+    "formatted_log": "benchmarks/results/string-lifecycle-charcode-native-formatted.log"
+  },
+  "note": "Validation is for the unchanged timed body-only candidate; formal integration is verified separately."
+}

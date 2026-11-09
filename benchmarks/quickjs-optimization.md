@@ -1331,3 +1331,36 @@ hint+fusion版本相对hint总体胜出5/6轮。
 | Geometric mean | -9.79% |
 
 方法、生命周期及限制见[完整分析](quickjs-field-chain-analysis.md)；[三方原始分数](results/body-outline-triad.json)、[指纹](results/body-outline-triad-metadata.json)、[配对统计](results/body-outline-triad-summary.json)。
+
+## 字符串生命周期诊断与 charCodeAt 内建函数快路：保留
+
+按真实字符串生命周期统计：Map重复哈希虽然占76.98%，但同轮可避免输入只有3.34MB；9.41M次rope重复flatten已复用现有缓存，不是重新复制。暂不增加Map哈希缓存，也不把高命中率当作吞吐收益。
+
+在实际js_string_charCodeAt函数内部，对整数索引及flat/cached-rope借用现有字符串视图，绕过重复转换与引用计数；原native调用持有receiver，快路不分配、不调用JS、不触发GC。越界返回NaN，其他输入回原语义。保留native调用框架、poll、栈检查与realm，不向所有C调用增加身份检查。
+
+Release + ThinLTO，PGO/inspector OFF。相对fa509604，独占预热后首组六对中位+0.54%且6/6胜；另一次三方六排列独立复测+0.80%且6/6胜，最差子项babel-minify约−0.69%。两组单独报告，不与此前累计+9.25%相加。
+
+| 项目 | 独立复测配对中位变化 |
+|---|---:|
+| acorn | +1.09% |
+| babel | +0.80% |
+| babel-minify | -0.69% |
+| babylon | +0.55% |
+| buble | +0.55% |
+| chai | +0.30% |
+| espree | +1.17% |
+| esprima | +1.81% |
+| jshint | +1.31% |
+| lebab | -0.25% |
+| postcss | +0.95% |
+| prepack | +0.86% |
+| prettier | +0.19% |
+| source-map | +0.00% |
+| terser | +1.17% |
+| typescript | +1.23% |
+| uglify-js | +0.32% |
+| Geometric mean | +0.80% |
+
+正式集成OFF→ON→OFF构建和六项优化回归通过，ON模式inspector通过；重复configure保持计分源码一致。全套507通过、1个inspector跳过、1个既有baseline同样失败的test-tcp-connect-abort.js。JS专项4940例，native差分102052例含ASAN/UBSAN/强制GC；正常poll=15与中断poll=2和对照一致。尚未运行其他平台验证。
+
+完整[字符串生命周期分析](quickjs-string-lifecycle-analysis.md)、[首轮原分](results/string-lifecycle-charcode.json)、[独立复测](results/body-outline-triad.json)、[专项验证](results/string-lifecycle-charcode-validation.json)、[正式集成](results/string-lifecycle-charcode-integration.json)。

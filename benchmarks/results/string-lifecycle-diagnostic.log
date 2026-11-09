@@ -1,0 +1,83 @@
+Running Web Tooling Benchmark v0.5.3…
+-------------------------------------
+         acorn:  1.84 runs/s
+         babel:  3.68 runs/s
+  babel-minify:  5.05 runs/s
+       babylon:  2.68 runs/s
+         buble:  5.43 runs/s
+          chai:  6.90 runs/s
+        espree:  1.69 runs/s
+       esprima:  2.19 runs/s
+        jshint:  4.52 runs/s
+         lebab:  3.80 runs/s
+       postcss:  2.07 runs/s
+       prepack:  1.60 runs/s
+      prettier:  2.56 runs/s
+    source-map:  3.21 runs/s
+        terser: 10.64 runs/s
+    typescript:  5.43 runs/s
+     uglify-js:  2.95 runs/s
+-------------------------------------
+Geometric mean:  3.39 runs/s
+STRING_LIFECYCLE layout size=24 cache_offset=12 weak_offset=16 slice_size=16
+STRING_LIFECYCLE map kind=0 wide=0 atom=0 calls=427491 repeat=312061 units=3844451 bytes=3844451 repeat_bytes=2714314
+STRING_LIFECYCLE hash seed=0 kind=0 wide=0 atom=0 calls=427491 repeat=312061 units=3844451 bytes=3844451 repeat_bytes=2714314
+STRING_LIFECYCLE hash seed=1 kind=0 wide=0 atom=0 calls=3147240 repeat=716682 units=31094311 bytes=31094311 repeat_bytes=4846175
+STRING_LIFECYCLE hash seed=2 kind=0 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=0 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=0 wide=0 atom=1 calls=80333 repeat=78425 units=632511 bytes=632511 repeat_bytes=616468
+STRING_LIFECYCLE hash seed=0 kind=0 wide=0 atom=1 calls=80333 repeat=78425 units=632511 bytes=632511 repeat_bytes=616468
+STRING_LIFECYCLE hash seed=1 kind=0 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=0 wide=0 atom=1 calls=285 repeat=6 units=4529 bytes=4529 repeat_bytes=201
+STRING_LIFECYCLE hash seed=3 kind=0 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=0 wide=1 atom=0 calls=3152 repeat=2888 units=3152 bytes=6304 repeat_bytes=5776
+STRING_LIFECYCLE hash seed=0 kind=0 wide=1 atom=0 calls=3152 repeat=2888 units=3152 bytes=6304 repeat_bytes=5776
+STRING_LIFECYCLE hash seed=1 kind=0 wide=1 atom=0 calls=4109 repeat=20 units=444337 bytes=888674 repeat_bytes=40
+STRING_LIFECYCLE hash seed=2 kind=0 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=0 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=0 wide=1 atom=1 calls=4 repeat=2 units=4 bytes=8 repeat_bytes=4
+STRING_LIFECYCLE hash seed=0 kind=0 wide=1 atom=1 calls=4 repeat=2 units=4 bytes=8 repeat_bytes=4
+STRING_LIFECYCLE hash seed=1 kind=0 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=0 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=0 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=1 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=0 kind=1 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=1 kind=1 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=1 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=1 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=1 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=0 kind=1 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=1 kind=1 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=1 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=1 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=1 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=0 kind=1 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=1 kind=1 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=1 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=1 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=1 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=0 kind=1 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=1 kind=1 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=1 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=1 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=2 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=0 kind=2 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=1 kind=2 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=2 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=2 wide=0 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=2 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=0 kind=2 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=1 kind=2 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=2 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=2 wide=0 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=2 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=0 kind=2 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=1 kind=2 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=2 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=2 wide=1 atom=0 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE map kind=2 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=0 kind=2 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=1 kind=2 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=2 kind=2 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE hash seed=3 kind=2 wide=1 atom=1 calls=0 repeat=0 units=0 bytes=0 repeat_bytes=0
+STRING_LIFECYCLE rope_map=0 rope_units=0 flatten_new=358 flatten_new_units=8548384 flatten_reuse=9408939 flatten_reuse_units=1813698498835 append=231774 append_seen=0

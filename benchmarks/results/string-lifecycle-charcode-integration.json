@@ -1,0 +1,37 @@
+{
+  "build": "Release ThinLTO inspector OFF; PGO disabled",
+  "quickjs_sha256": "11eca481e7473212d99fbd3ec03a7241a7ad68ba64d7249f3ec2c5582dc5fff9",
+  "libregexp_sha256": "24ea589d535ab3a58627b64ba795647aa62eb94f60ee9bcd2eaf9d496c8d8dde",
+  "scored_quickjs_sha256": "11eca481e7473212d99fbd3ec03a7241a7ad68ba64d7249f3ec2c5582dc5fff9",
+  "scored_libregexp_sha256": "24ea589d535ab3a58627b64ba795647aa62eb94f60ee9bcd2eaf9d496c8d8dde",
+  "repeat_configure_preserved_sources": true,
+  "off_on_off_build": "passed",
+  "off_on_off_regression_tests": [
+    "test-property-cache.js",
+    "test-load-field-fusion.js",
+    "test-comparison-branch.js",
+    "test-object-layout.js",
+    "test-regexp-anchor.js",
+    "test-string-charcode-at.js"
+  ],
+  "regression_command": "build/lto-benchmark/integrated-charcode-body/tjs run tests/<test>",
+  "inspector_on": "tests/test-inspector.js passed",
+  "suite_command": "env -u TJS_HOME build/lto-benchmark/integrated-charcode-body/tjs test tests",
+  "suite": {
+    "pass": 507,
+    "skip": 1,
+    "fail": 1,
+    "failure": "test-tcp-connect-abort.js; also fails baseline",
+    "skipped_test": "test-inspector.js (inspector OFF)"
+  },
+  "compile_commands": {
+    "path": "build/lto-benchmark/integrated-charcode-body/compile_commands.json",
+    "files": [
+      "quickjs.c",
+      "libregexp.c"
+    ],
+    "thin_lto": true,
+    "fprofile_present": false
+  },
+  "logs_directory": "build/lto-benchmark/string-lifecycle-analysis/"
+}

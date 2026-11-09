@@ -1,16 +1,19 @@
 # QuickJS 性能实验
 
-当前保留版本 `fa509604` 的独立六轮累计确认：相对原始控制版总分中位 **+9.25%**，6/6 胜，17 项中位为16项提升、1项持平。Espree **+54.30%**、Acorn **+25.34%**、Esprima **+17.15%**、TypeScript **+10.83%**。配置为 Release + ThinLTO、无 PGO/inspector。完整三方结果见 [逐项记录](quickjs-optimization.md)；这些结果不是历史增量的相加。
+正则裁剪阶段 `fa509604` 的独立六轮累计确认：相对原始控制版总分中位 **+9.25%**，6/6 胜，17 项中位为16项提升、1项持平。Espree **+54.30%**、Acorn **+25.34%**、Esprima **+17.15%**、TypeScript **+10.83%**。配置为 Release + ThinLTO、无 PGO/inspector。完整三方结果见 [逐项记录](quickjs-optimization.md)；这些结果不是历史增量的相加。
+
+最新再保留 `charCodeAt` 函数内部的纯值快路：相对上述阶段，两次独立六轮分别 **+0.54% / +0.80%**，均6/6胜。尚未对最新版本重测原始基线累计收益，不能将增量直接相加。
 
 - [逐项方法和结果](quickjs-optimization.md)：包括保留与舍弃的候选，以及每项的 17 个子测试。
 - [架构分析](quickjs-architecture-analysis.md)：引擎成本、属性布局身份、所有权值流与对象构造路线。
 - [JIT / Java 优化分析](quickjs-jit-inspired-analysis.md)：跨平台借鉴与已验证原型的边界。
 - [整数区域执行实验](quickjs-int-region-analysis.md)：SSA/DAG 原型通过正确性验证，但 WTB 主解释器分派覆盖过低，按覆盖门槛停止；[退役后频率与结构分析](quickjs-region-coverage-analysis.md)进一步排除了三个早退数字解析位点存在大量遗漏机会的假设。
 - [正则根搜索裁剪](quickjs-regexp-analysis.md)：对必经起始锚点排除不可能的后续起点，六对总分中位 +3.62%，Espree +47.41%、Acorn +16.14%；增量对照为共享对象布局版。
-- [连续字段借用](quickjs-field-chain-analysis.md)：分派次数减少仍导致六对 −3.23%；记录代码布局证据与针对性的后续试验。
+- [连续字段借用](quickjs-field-chain-analysis.md)：循环与独立helper版本分别 −3.23% / −9.79%，均拒绝；分派次数减少并不保证吞吐提高。
 - [内建调用后继诊断](quickjs-producer-site-analysis.md)：按同一个调用点统计真实内建身份与后续指令，明确调用、清理和分支的可重入边界。
 - [架构实验源码快照](experiments/README.md)：重建已保留和已舍弃的主要候选，无需依赖本机构建目录。
 - [属性访问缓存分析](quickjs-site-ic-analysis.md)与[对象构造分析](quickjs-object-construction-analysis.md)：具体实现边界、实测成本及修正验证状态。
+- [字符串生命周期与内建函数快路](quickjs-string-lifecycle-analysis.md)：实测重复哈希与rope缓存，保留函数内部的charCodeAt优化及两次独立六轮结果。
 - [字符串内建调用分析](quickjs-intrinsic-analysis.md)：调用框架、身份验证及未通过性能门槛的原型。
 - `results/`：原始分数、采样和内存数据。分数是吞吐量，越高越好。
 

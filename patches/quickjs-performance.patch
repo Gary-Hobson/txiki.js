@@ -677,6 +677,34 @@
      return obj;
 
   fail:
+@@ -47195,6 +47657,27 @@
+     JSValue val, ret;
+     JSString *p;
+     int idx, c;
++
++    if (argc > 0 && JS_VALUE_GET_TAG(argv[0]) == JS_TAG_INT) {
++        p = NULL;
++        if (JS_VALUE_GET_TAG(this_val) == JS_TAG_STRING) {
++            p = JS_VALUE_GET_STRING(this_val);
++        } else if (JS_VALUE_GET_TAG(this_val) == JS_TAG_STRING_ROPE) {
++            JSStringRope *r = JS_VALUE_GET_STRING_ROPE(this_val);
++            if (JS_VALUE_GET_TAG(r->left) == JS_TAG_STRING &&
++                JS_VALUE_GET_TAG(r->right) == JS_TAG_STRING &&
++                JS_VALUE_GET_STRING(r->right)->len == 0)
++                p = JS_VALUE_GET_STRING(r->left);
++        }
++        if (p) {
++            /* The native call owns this_val; the cached rope owns its flat
++               child. No allocation or coercion can invalidate this view. */
++            idx = JS_VALUE_GET_INT(argv[0]);
++            if ((uint32_t)idx >= p->len)
++                return JS_NAN;
++            return js_int32(string_get(p, idx));
++        }
++    }
+
+     val = JS_ToStringCheckObject(ctx, this_val);
+     if (JS_IsException(val))
 --- a/libregexp.c
 +++ b/libregexp.c
 @@ -2781,6 +2781,7 @@

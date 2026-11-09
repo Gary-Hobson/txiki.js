@@ -39,3 +39,5 @@ python3 benchmarks/experiments/replay.py \
 `field-chain`重建连续自有字段借用循环：六对相对fa509604中位−3.23%，拒绝。此variant仅生成quickjs.c，计分链接的libregexp.c来自已保留的正则裁剪版本，参见[完整记录](../quickjs-field-chain-analysis.md)。
 
 `field-chain-outline`将续读循环移到独立helper，三方六轮相对fa509604中位−9.79%，拒绝；源代码重建与测试候选逐字一致。
+
+字符串生命周期、charCodeAt body-only变换及JS/native差分fixture保存为 `string-lifecycle-*`。这些独立脚本以正则裁剪构建副本为受哈希校验的输入，重建已计分源码；不属于上表 `replay.py` 的variant。具体运行命令、诊断与吞吐的区分见[生命周期报告](../quickjs-string-lifecycle-analysis.md)。正式快路保留，两次独立六轮 +0.54% / +0.80%；未增加Map哈希缓存。

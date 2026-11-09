@@ -1,0 +1,21 @@
+{
+  "build/lto-benchmark/integrated-regexp-anchor/tjs": "4b72cddcecddc52e49614d6cf486fe001214a717d662a9064eb2faa831c47894",
+  "build/lto-benchmark/integrated-regexp-anchor/quickjs-patched/quickjs.c": "4025d0bc28c45b8a68aaccd603b0309cfe53fef70dc37f3e3957f133fdf29d58",
+  "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-diagnostic/quickjs.c": "349ae7d1713c537b5e32aba00e876f54f363b12f1ad24e4c8c075246ff4b9e79",
+  "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-diagnostic/tjs": "d3037e1006bc75514a76cadb47511e08e09c8bbd38590bb1329327bcb2deb61d",
+  "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-charcode/quickjs.c": "11eca481e7473212d99fbd3ec03a7241a7ad68ba64d7249f3ec2c5582dc5fff9",
+  "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-charcode/tjs": "016d487ebb2e636e66464f1b35a43889e6ceebaff1f8f6e22a98f66db1ac49c0",
+  "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-charcode-native.c": "a2244c3f529b94d9879f300da2d8caa7e85ba4b7a22de4f1991e23bad251af87",
+  "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-charcode-correctness.js": "c1b3a6482953f5f27e96e1e2a163a51129dd5a0dd207dc4c69fa23930761b756",
+  "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-charcode-diagnostic/quickjs.c": "7724935e732e75a0730a16cd1a324f110e7769163ee047dff5b0d767364000fa",
+  "build/lto-benchmark/string-lifecycle-analysis/string-lifecycle-layout.c": "4fd5232c4adbed9e1b4466141c70ef418d3ab86cd6e4a43662c9090d96052b45",
+  "benchmarks/experiments/string-lifecycle-layout.c": "9eee5345630a0c8eb2504faae22a28f9ccbdce475ea7aee5f5e8ef618551b829",
+  "benchmarks/experiments/string-lifecycle-charcode-native.c": "99e9acfd6fa4f42a955f3bb7166fa3ce70a36d98741c208a37a116d7e2cc21aa",
+  "benchmarks/experiments/string-lifecycle-native-build.py": "ef2a1d52baf21618c07a81b441b189048901bc077ecbb36afc60d11d97745612",
+  "tests/test-string-charcode-at.js": "153c367739ba450440e140a6b56b923d15c83d40f5493bda3a61ebd27dc6cb04",
+  "benchmarks/experiments/string-lifecycle-charcode-transform.py": "5755316adb68e7e5dbae28402998eff1ec8297151fdbe1625136e870e7997304",
+  "benchmarks/experiments/string-lifecycle-diagnostic-transform.py": "afd4f01b45e1406cf59fedae59e276b704b5019f66235c34e2b12f2562567785",
+  "benchmarks/experiments/string-lifecycle-build.py": "c37b593fdcc42d14539f34ef9b9951b9a1ca1c940d3bd49cfa06247e2e1540d6",
+  "benchmarks/experiments/string-lifecycle-charcode-correctness.js": "c1b3a6482953f5f27e96e1e2a163a51129dd5a0dd207dc4c69fa23930761b756",
+  "benchmarks/experiments/string-lifecycle-charcode-diagnostic.py": "896fd973c81e7c44faa29c412065adfe41bfe020b72f7a78ec1c69f21dc1920e"
+}
