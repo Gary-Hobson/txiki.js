@@ -1,0 +1,57 @@
+{
+  "started_utc": "2026-11-10T02:38:23.718943+00:00",
+  "platform": "macOS-15.6.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "suite": {
+    "path": "/private/tmp/txiki-webtooling-src.Xpz6vi/dist/cli.js",
+    "sha256": "a7a227840538deb2d44dcadbf3da6b12187b29961f2e134db2269b785f7d9931"
+  },
+  "binaries": {
+    "old_pgo": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/pgo/use/tjs",
+      "sha256": "f0beba079dc5f90c2f609043fd823fc1357bc4c4a0906647d7de0d749e2fe3ee"
+    },
+    "new_pgo": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/pgo-retained/final/tjs",
+      "sha256": "cc284d80be47b5ab609b8ee0854bbb3bb714d6a38f6b1ca797b409bce37fe77a"
+    },
+    "current_lto": {
+      "path": "/Volumes/zhitai/workspace/lite-engine/txiki.js/build/lto-benchmark/integrated-charcode-body/tjs",
+      "sha256": "3a2bda3b3243225dbb8c25c88245e3b6091af3ca82778be9d811354a11160b6a"
+    }
+  },
+  "rounds": 6,
+  "warmups_per_binary": 1,
+  "script": "globalThis.eval(new TextDecoder().decode(await tjs.readFile(tjs.env.WEB_TOOLING_BUNDLE))); tjs.exit(0);",
+  "note": "Build flags must be verified separately; these are existing binaries.",
+  "source_and_profiles_sha256": {
+    "build/lto-benchmark/pgo-retained/tjs.profdata": "9171e33d49de0d69250696cb233efc8c4f07068e956a17a86fa5457f1933430b",
+    "build/lto-benchmark/pgo/tjs.profdata": "eab93efe6ee8262e2dd5a785dbfce269777c102f1cb695769e084d89bcf8d5ce",
+    "build/lto-benchmark/pgo-retained/generate/quickjs-patched/quickjs.c": "11eca481e7473212d99fbd3ec03a7241a7ad68ba64d7249f3ec2c5582dc5fff9",
+    "build/lto-benchmark/pgo-retained/generate/quickjs-patched/libregexp.c": "24ea589d535ab3a58627b64ba795647aa62eb94f60ee9bcd2eaf9d496c8d8dde"
+  },
+  "build": "Release ThinLTO, inspector OFF; same generate source path used for training and profile-use rebuild",
+  "training": {
+    "rounds": 3,
+    "bundle": "same WTB bundle",
+    "raw_profiles": [
+      "build/lto-benchmark/pgo-retained/profiles/train-1.profraw",
+      "build/lto-benchmark/pgo-retained/profiles/train-2.profraw",
+      "build/lto-benchmark/pgo-retained/profiles/train-3.profraw"
+    ],
+    "log": "build/lto-benchmark/pgo-retained/training.log",
+    "profile_info": "build/lto-benchmark/pgo-retained/profdata-info.log"
+  },
+  "profile_validation": {
+    "different_path_use": "invalid trial build, not scored; missing warnings quickjs 1081, libregexp 38",
+    "same_path_use": "scored build; missing warnings quickjs 104, libregexp 0; JS_CallInternal and js_string_charCodeAt no longer reported missing; not all functions necessarily trained",
+    "logs": [
+      "build/lto-benchmark/pgo-retained/quickjs.c.llvm-profile-check.log",
+      "build/lto-benchmark/pgo-retained/libregexp.c.llvm-profile-check.log",
+      "build/lto-benchmark/pgo-retained/quickjs.c.same-path-check.log",
+      "build/lto-benchmark/pgo-retained/libregexp.c.same-path-check.log"
+    ],
+    "six_regressions": "passed"
+  },
+  "historical_source": "build/lto-benchmark/pgo/results/summary.json; historical source snapshot not established"
+}
