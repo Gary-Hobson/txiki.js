@@ -1,0 +1,29 @@
+{
+  "status": "build and mode validation passed; paused at 59% remaining quota before performance measurement",
+  "quota_before_implementation_used_percent": 40,
+  "input_source_sha256": "e4536f2d0375f43383170784212a7b50550f0ae5215952c8babb052ca77846cd",
+  "candidate_source_sha256": "92134de0bf67d868a4999aecf0ab033c57acd905c661800e53038457af64bd8e",
+  "transform_sha256": "81376ca47d42920b3f7ac290cca87927c023592928f3ebaf32d81ac66991328b",
+  "modes": {
+    "prepared": {
+      "QJS_PRODUCER_REGION_CANONICAL": "1",
+      "QJS_PRODUCER_PREPARE_SKIP": null
+    },
+    "skipped": {
+      "QJS_PRODUCER_REGION_CANONICAL": "1",
+      "QJS_PRODUCER_PREPARE_SKIP": "1"
+    }
+  },
+  "stages": [
+    "build",
+    "diagnose: same binary, both private entries zero; prepared real plan; skipped no scan/plan",
+    "score: body/prepared/skipped six permutations; score and process wall time separately"
+  ],
+  "quota_stop": "usedPercent >= 41: stop immediately and preserve partial logs",
+  "performance_measured": false,
+  "existing_artifact_sha256": {
+    "build/lto-benchmark/quickjs-hotpaths/producer-prepare-cost/tjs": "b9396c422dac44a25982893be3bb7ba629d2f90f444c39d5157fc42056a01c5d",
+    "build/lto-benchmark/quickjs-hotpaths/producer-prepare-cost-diagnostic/tjs": "0c219570d2ff5f2788a1117516a7216bd5d5cd5e4d9ed62c7d6c956179e44d23"
+  },
+  "validation_evidence": "producer-prepare-cost-diagnostic.json and producer-prepare-cost-validation-logs.json"
+}
