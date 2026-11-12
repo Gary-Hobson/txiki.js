@@ -1,0 +1,87 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -339,10 +339,21 @@
+     const JSClassExoticMethods *exotic;
+ } JSClass;
+ 
++#ifdef QJS_JIT_ARM64
++enum {
++    QJS_JIT_CONCAT_INT_MIN = -16,
++    QJS_JIT_CONCAT_INT_COUNT = 64,
++};
++#endif
++
+ struct JSRuntime {
+     JSMallocFunctions mf;
+     JSMallocState malloc_state;
+     JSArenaState arena_state;
++#ifdef QJS_JIT_ARM64
++    JSString *jit_concat_ints[QJS_JIT_CONCAT_INT_COUNT];
++    unsigned jit_concat_int_hits;
++#endif
+     const char *rt_info;
+ #ifdef QJS_JIT_ARM64
+     struct QJSJitData *jit_data;
+@@ -2829,6 +2840,14 @@
+     int i;
+ 
+     rt->in_free = true;
++#ifdef QJS_JIT_ARM64
++    for (unsigned slot = 0; slot < QJS_JIT_CONCAT_INT_COUNT; slot++) {
++        if (rt->jit_concat_ints[slot])
++            js_free_string(rt, rt->jit_concat_ints[slot]);
++    }
++    if (rt->jit_stats)
++        fprintf(stderr, "QuickJS string JIT: concat_int_hits=%u\n", rt->jit_concat_int_hits);
++#endif
+     JS_FreeValueRT(rt, rt->current_exception);
+ 
+     list_for_each_safe(el, el1, &rt->job_list) {
+@@ -6060,7 +6079,24 @@
+     JS_FreeValue(ctx, op1);
+     JS_FreeValue(ctx, op2);
+     return ret;
++}
++
++#ifdef QJS_JIT_ARM64
++static JSValue qjs_jit_concat_int(JSContext *ctx, JSValue value, unsigned slot)
++{
++    JSRuntime *rt = ctx->rt;
++    JSString *cached = rt->jit_concat_ints[slot];
++    if (cached) {
++        rt->jit_concat_int_hits++;
++        return js_dup(JS_MKPTR(JS_TAG_STRING, cached));
++    }
++
++    JSValue string = JS_ToStringFree(ctx, value);
++    if (!JS_IsException(string) && !rt->jit_concat_ints[slot])
++        rt->jit_concat_ints[slot] = JS_VALUE_GET_STRING(js_dup(string));
++    return string;
+ }
++#endif
+ 
+ /* op1 and op2 are converted to strings. For convenience, op1 or op2 =
+    JS_EXCEPTION are accepted and return JS_EXCEPTION.  */
+@@ -6076,7 +6112,21 @@
+         }
+     }
+     if (unlikely(!tag_is_string(JS_VALUE_GET_TAG(op2)))) {
+-        op2 = JS_ToStringFree(ctx, op2);
++#ifdef QJS_JIT_ARM64
++        /* A nonempty prefix keeps the cached operand internal to concatenation. */
++        if (ctx->rt->jit_enabled && !ctx->rt->jit_shadow && !ctx->rt->in_free &&
++            JS_VALUE_GET_TAG(op2) == JS_TAG_INT && JS_VALUE_GET_TAG(op1) == JS_TAG_STRING &&
++            JS_VALUE_GET_STRING(op1)->len != 0) {
++            unsigned slot = (unsigned)JS_VALUE_GET_INT(op2) - QJS_JIT_CONCAT_INT_MIN;
++            if (slot < QJS_JIT_CONCAT_INT_COUNT)
++                op2 = qjs_jit_concat_int(ctx, op2, slot);
++            else
++                op2 = JS_ToStringFree(ctx, op2);
++        } else
++#endif
++        {
++            op2 = JS_ToStringFree(ctx, op2);
++        }
+         if (JS_IsException(op2)) {
+             JS_FreeValue(ctx, op1);
+             return JS_EXCEPTION;

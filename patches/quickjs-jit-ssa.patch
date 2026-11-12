@@ -1,0 +1,19 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -430,4 +430,6 @@
+     uint64_t jit_cache_tick, jit_cache_epoch, jit_cache_compile_ns;
+     unsigned jit_cache_attempts, jit_cache_deferrals, jit_cache_evictions, jit_cache_reinstalls;
++    unsigned jit_ssa_phis, jit_ssa_stores_elided, jit_ssa_zero_folded;
++    unsigned jit_ssa_f64_phis, jit_ssa_f64_stores_elided;
+ #endif
+     // for smuggling the parent promise from js_promise_then
+@@ -3040,4 +3042,9 @@
+         fprintf(stderr, "QuickJS JIT cache: cache_deferrals=%u cache_evictions=%u cache_reinstalls=%u\n",
+                 rt->jit_cache_deferrals, rt->jit_cache_evictions, rt->jit_cache_reinstalls);
++    if (rt->jit_stats)
++        fprintf(stderr, "QuickJS JIT SSA: ssa_phis=%u ssa_stores_elided=%u ssa_zero_folded=%u "
++                "ssa_f64_phis=%u ssa_f64_stores_elided=%u\n",
++                rt->jit_ssa_phis, rt->jit_ssa_stores_elided, rt->jit_ssa_zero_folded,
++                rt->jit_ssa_f64_phis, rt->jit_ssa_f64_stores_elided);
+ #endif
+     {

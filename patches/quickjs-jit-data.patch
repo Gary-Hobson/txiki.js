@@ -1,0 +1,84 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -344,6 +344,10 @@
+     JSMallocState malloc_state;
+     JSArenaState arena_state;
+     const char *rt_info;
++#ifdef QJS_JIT_ARM64
++    struct QJSJitData *jit_data;
++    bool jit_data_disabled;
++#endif
+ 
+     int atom_hash_size; /* power of two */
+     int atom_count;
+@@ -952,6 +956,11 @@
+     uint8_t *byte_code_buf; /* (self pointer) */
+     int byte_code_len;
+     JSObjectLayoutPlan *object_layout;
++#ifdef QJS_JIT_ARM64
++    struct {
++        uint8_t kind, calls, view_arg, bound_arg, value_arg, endian_arg;
++    } jit_data;
++#endif
+     JSAtom func_name;
+     JSVarDef *vardefs; /* arguments + local variables (arg_count + var_count) (self pointer) */
+     JSClosureVar *closure_var; /* list of variables in the closure (self pointer) */
+@@ -2461,6 +2470,10 @@
+     ms.malloc_count++;
+     ms.malloc_size += rt->mf.js_malloc_usable_size(rt) + MALLOC_OVERHEAD;
+     rt->malloc_state = ms;
++#ifdef QJS_JIT_ARM64
++    const char *jit_data = getenv("TJS_QUICKJS_JIT_DATA");
++    rt->jit_data_disabled = jit_data && strcmp(jit_data, "0") == 0;
++#endif
+     js_arena_init(rt);
+     rt->malloc_gc_threshold = 256 * 1024;
+ 
+@@ -2767,8 +2780,15 @@
+         rt->rt_info = s;
+ }
+ 
++#ifdef QJS_JIT_ARM64
++static void qjs_jit_data_free(JSRuntime *rt);
++#endif
++
+ void JS_FreeRuntime(JSRuntime *rt)
+ {
++#ifdef QJS_JIT_ARM64
++    qjs_jit_data_free(rt);
++#endif
+ #ifdef QJS_OBJECT_LAYOUT_DIAGNOSTICS
+     fprintf(stderr, "OBJECT_LAYOUT_SHARED hits=%llu\n", (unsigned long long)rt->object_layout_stats.shared_shapes);
+     fprintf(stderr, "OBJECT_LAYOUT plans=%llu sites=%llu fields=%llu bytes=%llu shapes=%llu objects=%llu initialized=%llu\n",
+@@ -18976,6 +18996,11 @@
+ #define QJS_JIT_PROPERTY_LOOKUP(pc, object, atom, property) find_own_property_hint(rt, property, object, atom)
+ #endif
+ 
++#ifdef QJS_JIT_ARM64
++static bool qjs_jit_data_call(JSRuntime *rt, JSFunctionBytecode *b,
++                              const JSValue *args, JSValue *result);
++#endif
++
+ /* argv[] is modified if (flags & JS_CALL_FLAG_COPY_ARGV) = 0. */
+ static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
+                                JSValueConst this_obj, JSValueConst new_target,
+@@ -19112,6 +19137,8 @@
+         && !check_dump_flag(rt, JS_DUMP_BYTECODE_STEP)
+ #endif
+         && !js_check_stack_overflow(rt, alloca_size + sizeof(*jit_exit))) {
++        if (qjs_jit_data_call(rt, b, argv, &ret_val))
++            return ret_val;
+         jit_exit = alloca(sizeof(*jit_exit));
+         jit_exit->pc = UINT32_MAX;
+         if (qjs_jit_call(rt, b, argv, &ret_val, jit_exit))
+@@ -61175,6 +61202,10 @@
+     return js_int32(p->u.array.count);
+ }
+ 
++#ifdef QJS_JIT_ARM64
++#include "qjs-jit-data.h"
++#endif
++
+ static JSValue js_typed_array_get_buffer(JSContext *ctx, JSValueConst this_val)
+ {
+     JSObject *p;

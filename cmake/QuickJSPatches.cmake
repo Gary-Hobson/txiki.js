@@ -6,6 +6,35 @@ set(quickjs_patches "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-performance.pat
 if(BUILD_WITH_INSPECTOR)
     list(APPEND quickjs_patches "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-debugger.patch")
 endif()
+if(BUILD_WITH_QUICKJS_JIT)
+    list(APPEND quickjs_patches
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-feedback.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-f64.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-cache.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-data.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-boxed.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-calls.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-escape.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-ssa.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-shadow.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-constructor.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-write-ic.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-coro.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-literal.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-element-feedback.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-string.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-types.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-delegate.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-rc.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-boxed-cache.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-convert.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-native-field.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-regexp-import.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-class.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-apply-eval.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/quickjs-jit-decls.patch")
+endif()
 set(quickjs_patched_files quickjs.c quickjs.h quickjs-opcode.h libregexp.c)
 
 set(quickjs_fingerprint "")

@@ -1,0 +1,22 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -20854,6 +20854,19 @@
+                 pc += 4;
+ 
+                 obj = sp[-2];
++#ifdef QJS_JIT_ARM64
++                if (unlikely(rt->jit_feedback_enabled)) {
++                    sf->cur_pc = pc;
++                    ret = qjs_jit_feedback_put_property(ctx, b, pc - 5, obj, atom, sp[-1], false);
++                    if (ret == QJS_JIT_PROPERTY_WRITE_MISS)
++                        goto put_field_slow_path;
++                    JS_FreeValue(ctx, obj);
++                    sp -= 2;
++                    if (unlikely(ret < 0))
++                        goto exception;
++                    BREAK;
++                }
++#endif
+                 if (likely(JS_VALUE_GET_TAG(obj) == JS_TAG_OBJECT)) {
+                     p = JS_VALUE_GET_OBJ(obj);
+                     prs = find_own_property(&pr, p, atom);

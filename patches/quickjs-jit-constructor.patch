@@ -1,0 +1,45 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -396,6 +396,7 @@
+     bool jit_stats;
+     bool jit_shadow;
+     unsigned jit_shadow_checks;
++    unsigned jit_constructor_hits, jit_constructor_optimized_hits;
+     size_t jit_code_bytes;
+     unsigned jit_baseline_compiles;
+     unsigned jit_baseline_hits;
+@@ -3039,6 +3040,10 @@
+ #ifdef QJS_JIT_ARM64
+     if (rt->jit_stats && rt->jit_shadow)
+         fprintf(stderr, "QuickJS JIT shadow: shadow_checks=%u\n", rt->jit_shadow_checks);
++    if (rt->jit_stats)
++        fprintf(stderr, "QuickJS constructor JIT: constructor_hits=%u "
++                "constructor_optimized_hits=%u\n", rt->jit_constructor_hits,
++                rt->jit_constructor_optimized_hits);
+     assert(!rt->jit_cache_oldest && !rt->jit_cache_newest);
+     assert(!rt->jit_cache_scalar_bytes && !rt->jit_code_bytes);
+     if (rt->jit_stats)
+@@ -22257,4 +22262,10 @@
+ 
++#ifdef QJS_JIT_ARM64
++static bool qjs_jit_constructor_body(JSContext *ctx, JSFunctionBytecode *target,
++                                     int argc, const JSValue *argv, JSValue *result,
++                                     bool copy_argv);
++#endif
++
+ /* argv[] is modified if (flags & JS_CALL_FLAG_COPY_ARGV) = 0. */
+ static JSValue JS_CallConstructorInternal(JSContext *ctx,
+                                           JSValueConst func_obj,
+@@ -22294,5 +22305,11 @@
+         if (JS_IsException(obj))
+             return JS_EXCEPTION;
+-        ret = JS_CallInternal(ctx, func_obj, obj, new_target, argc, argv, flags);
++#ifdef QJS_JIT_ARM64
++        /* The receiver and its prototype were resolved before the guard.
++           A scalar side exit can reuse this receiver in the ordinary call. */
++        if (likely(!ctx->rt->jit_enabled) ||
++            !qjs_jit_constructor_body(ctx, b, argc, argv, &ret, flags & JS_CALL_FLAG_COPY_ARGV))
++#endif
++            ret = JS_CallInternal(ctx, func_obj, obj, new_target, argc, argv, flags);
+         if (JS_VALUE_GET_TAG(ret) == JS_TAG_OBJECT ||
+             JS_IsException(ret)) {

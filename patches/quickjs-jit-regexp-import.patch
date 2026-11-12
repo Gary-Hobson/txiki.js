@@ -1,0 +1,14 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -446,3 +446,4 @@
+     unsigned jit_boxed_escape_literals, jit_boxed_escape_layouts;
++    unsigned jit_boxed_regexps, jit_boxed_dynamic_imports;
+ #endif
+ 
+@@ -3117,3 +3118,6 @@
+                 rt->jit_f64_compiles, rt->jit_f64_hits, rt->jit_f64_promotions);
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed regexp/import: boxed_regexps=%u boxed_dynamic_imports=%u\n",
++                rt->jit_boxed_regexps, rt->jit_boxed_dynamic_imports);
+ #endif
+     js_arena_free_all(rt);

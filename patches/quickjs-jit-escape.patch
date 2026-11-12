@@ -1,0 +1,20 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -419,6 +419,7 @@
+     unsigned jit_boxed_compiles, jit_boxed_entries, jit_boxed_returns;
+     unsigned jit_boxed_resumes, jit_boxed_exceptions, jit_boxed_fuel_exits;
+     unsigned jit_boxed_fields, jit_boxed_elements, jit_boxed_calls, jit_boxed_rc_pairs_elided;
++    unsigned jit_boxed_escape_literals, jit_boxed_escape_layouts;
+ #endif
+ 
+     JSPromiseHook *promise_hook;
+@@ -3004,6 +3005,9 @@
+                 rt->jit_boxed_resumes, rt->jit_boxed_exceptions, rt->jit_boxed_fuel_exits,
+                 rt->jit_boxed_fields, rt->jit_boxed_elements, rt->jit_boxed_calls,
+                 rt->jit_boxed_rc_pairs_elided);
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed escape: boxed_escape_literals=%u boxed_escape_layouts=%u\n",
++                rt->jit_boxed_escape_literals, rt->jit_boxed_escape_layouts);
+ #endif
+     leak &= check_dump_flag(rt, JS_ABORT_ON_LEAKS);
+ 

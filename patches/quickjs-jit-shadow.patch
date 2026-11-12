@@ -1,0 +1,86 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -394,6 +394,8 @@
+     bool jit_enabled;
+     bool jit_optimize;
+     bool jit_stats;
++    bool jit_shadow;
++    unsigned jit_shadow_checks;
+     size_t jit_code_bytes;
+     unsigned jit_baseline_compiles;
+     unsigned jit_baseline_hits;
+@@ -2469,6 +2471,8 @@
+     }
+     const char *jit_stats = getenv("TJS_QUICKJS_JIT_STATS");
+     rt->jit_stats = rt->jit_enabled && jit_stats && strcmp(jit_stats, "1") == 0;
++    const char *jit_shadow = getenv("TJS_QUICKJS_JIT_SHADOW");
++    rt->jit_shadow = rt->jit_enabled && jit_shadow && strcmp(jit_shadow, "1") == 0;
+ #endif
+     if (!rt->mf.js_malloc_usable_size) {
+         /* use dummy function if none provided */
+@@ -3033,6 +3037,8 @@
+     js_arena_free_all(rt);
+ 
+ #ifdef QJS_JIT_ARM64
++    if (rt->jit_stats && rt->jit_shadow)
++        fprintf(stderr, "QuickJS JIT shadow: shadow_checks=%u\n", rt->jit_shadow_checks);
+     assert(!rt->jit_cache_oldest && !rt->jit_cache_newest);
+     assert(!rt->jit_cache_scalar_bytes && !rt->jit_code_bytes);
+     if (rt->jit_stats)
+@@ -18739,6 +18745,7 @@
+ #ifdef QJS_JIT_ARM64
+     bool jit_osr_allowed = false, jit_osr_attempted = false;
+     QJSJitExit *jit_exit = NULL;
++    JSValue jit_shadow_result = JS_UNDEFINED;
+ #endif
+ 
+ #ifdef ENABLE_DUMPS // JS_DUMP_BYTECODE_STEP
+@@ -18857,13 +18864,18 @@
+         && !check_dump_flag(rt, JS_DUMP_BYTECODE_STEP)
+ #endif
+         && !js_check_stack_overflow(rt, alloca_size + sizeof(*jit_exit))) {
+-        if (qjs_jit_data_call(rt, b, argv, &ret_val))
++        if (!rt->jit_shadow && qjs_jit_data_call(rt, b, argv, &ret_val))
+             return ret_val;
+         jit_exit = alloca(sizeof(*jit_exit));
+         jit_exit->pc = UINT32_MAX;
+-        if (qjs_jit_call(rt, b, argv, &ret_val, jit_exit))
+-            return ret_val;
+-        jit_osr_allowed = !b->jit_rejected;
++        if (qjs_jit_call(rt, b, argv, &ret_val, jit_exit)) {
++            if (!rt->jit_shadow)
++                return ret_val;
++            /* Scalar code owns no references and cannot execute guest code.
++               Run the interpreter with the original arguments for comparison. */
++            jit_shadow_result = ret_val;
++        }
++        jit_osr_allowed = !rt->jit_shadow && !b->jit_rejected;
+     }
+ #endif
+ 
+@@ -18915,7 +18927,7 @@
+     if (jit_exit && jit_exit->pc != UINT32_MAX) {
+         jit_osr_attempted = true;
+         qjs_jit_resume(ctx, b, jit_exit, var_buf, stack_buf, &pc, &sp);
+-    } else if (unlikely(rt->jit_enabled && rt->jit_boxed_enabled) &&
++    } else if (unlikely(rt->jit_enabled && rt->jit_boxed_enabled) && !rt->jit_shadow &&
+                !rt->interrupt_handler && !(flags & JS_CALL_FLAG_CONSTRUCTOR) &&
+                !QJS_JIT_TRACE_ACTIVE()
+ #ifdef ENABLE_DUMPS
+@@ -21790,6 +21802,16 @@
+         }
+     }
+     rt->current_stack_frame = sf->prev_frame;
++#ifdef QJS_JIT_ARM64
++    if (unlikely(!JS_IsUndefined(jit_shadow_result))) {
++        if (JS_IsException(ret_val) || !js_same_value(ctx, jit_shadow_result, ret_val)) {
++            fprintf(stderr, "QuickJS JIT shadow mismatch (bytecode size %d)\n",
++                    b->byte_code_len);
++            abort();
++        }
++        rt->jit_shadow_checks++;
++    }
++#endif
+     return ret_val;
+ #undef QJS_JIT_BRANCH_ORIGIN
+ #undef QJS_JIT_TRY_OSR

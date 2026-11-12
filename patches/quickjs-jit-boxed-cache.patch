@@ -1,0 +1,46 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -347,4 +347,12 @@
+ #endif
+ 
++#ifdef QJS_JIT_ARM64
++typedef struct {
++    struct QJSBoxedCode *code;
++    uint16_t hot_calls;
++    bool rejected, was_evicted;
++} QJSBoxedSite;
++#endif
++
+ struct JSRuntime {
+     JSMallocFunctions mf;
+@@ -452,4 +460,7 @@
+     uint64_t jit_cache_tick, jit_cache_epoch, jit_cache_compile_ns;
+     unsigned jit_cache_attempts, jit_cache_deferrals, jit_cache_evictions, jit_cache_reinstalls;
++    struct QJSBoxedCode *jit_boxed_cache_oldest, *jit_boxed_cache_newest;
++    size_t jit_boxed_cache_bytes;
++    unsigned jit_boxed_cache_evictions[2], jit_boxed_cache_reinstalls[2], jit_boxed_cache_pinned;
+     unsigned jit_ssa_phis, jit_ssa_stores_elided, jit_ssa_zero_folded;
+     unsigned jit_ssa_f64_phis, jit_ssa_f64_stores_elided;
+@@ -1014,9 +1025,6 @@
+     struct QJSJitFeedback *jit_feedback;
+     uint32_t jit_feedback_target_id;
+-    void *jit_boxed_code;
+-    size_t jit_boxed_code_size;
++    QJSBoxedSite jit_boxed_site;
+     struct QJSBoxedCoroSites *jit_boxed_coro_sites;
+-    uint16_t jit_boxed_hot_calls;
+-    bool jit_boxed_rejected;
+ #endif
+     char *source;
+@@ -3103,4 +3111,11 @@
+         fprintf(stderr, "QuickJS JIT cache: cache_deferrals=%u cache_evictions=%u cache_reinstalls=%u\n",
+                 rt->jit_cache_deferrals, rt->jit_cache_evictions, rt->jit_cache_reinstalls);
++    assert(!rt->jit_boxed_cache_oldest && !rt->jit_boxed_cache_newest && !rt->jit_boxed_cache_bytes);
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed cache: boxed_cache_evictions=%u boxed_cache_reinstalls=%u "
++                "coro_cache_evictions=%u coro_cache_reinstalls=%u boxed_cache_pinned=%u\n",
++                rt->jit_boxed_cache_evictions[0], rt->jit_boxed_cache_reinstalls[0],
++                rt->jit_boxed_cache_evictions[1], rt->jit_boxed_cache_reinstalls[1],
++                rt->jit_boxed_cache_pinned);
+     if (rt->jit_stats)
+         fprintf(stderr, "QuickJS JIT SSA: ssa_phis=%u ssa_stores_elided=%u ssa_zero_folded=%u "

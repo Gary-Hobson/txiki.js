@@ -1,0 +1,18 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -452,4 +452,5 @@
+     unsigned jit_boxed_literal_objects, jit_boxed_literal_arrays, jit_boxed_literal_fields;
+     unsigned jit_boxed_literal_layouts, jit_boxed_literal_layout_fields;
+     unsigned jit_boxed_native_increfs, jit_boxed_native_decrefs, jit_boxed_native_drop_fallbacks;
++    unsigned jit_boxed_native_borrowed_fields, jit_boxed_native_retained_fields;
+     unsigned jit_boxed_native_shuffles, jit_boxed_stack_inserts, jit_boxed_type_checks;
+@@ -3101,4 +3102,9 @@
+                 "boxed_native_drop_fallbacks=%u\n",
+                 rt->jit_boxed_native_increfs, rt->jit_boxed_native_decrefs,
+                 rt->jit_boxed_native_drop_fallbacks);
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed field: boxed_native_borrowed_fields=%u "
++                "boxed_native_retained_fields=%u\n",
++                rt->jit_boxed_native_borrowed_fields,
++                rt->jit_boxed_native_retained_fields);
+ #endif

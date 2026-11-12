@@ -1,0 +1,39 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -402,7 +402,8 @@
+     unsigned jit_precise_fuel_exits;
+     unsigned jit_cfg_branches_folded, jit_cfg_ops_folded;
+     unsigned jit_cfg_hot_layouts;
+     unsigned jit_precise_exits;
++    unsigned jit_f64_compiles, jit_f64_hits, jit_f64_promotions;
+ #endif
+ 
+ #ifdef QJS_JIT_ARM64
+@@ -976,6 +977,9 @@
+     bool jit_rejected;
+     bool jit_optimization_attempted;
+     bool jit_optimized;
++    bool jit_f64;
++    bool jit_f64_rejected;
++    bool jit_int_rejected;
+ #endif
+ } JSFunctionBytecode;
+ 
+@@ -2952,13 +2956,15 @@
+ #ifdef QJS_JIT_ARM64
+     if (rt->jit_stats)
+         fprintf(stderr, "QuickJS JIT: baseline_compiles=%u baseline_hits=%u "
+-                "optimized_compiles=%u optimized_hits=%u guard_exits=%u fuel_exits=%u osr_hits=%u osr_exits=%u precise_exits=%u precise_fuel_exits=%u cfg_branches_folded=%u cfg_ops_folded=%u cfg_hot_layouts=%u cfg_loops_unrolled=%u cfg_invariants_hoisted=%u cfg_inductions_reduced=%u\n",
++                "optimized_compiles=%u optimized_hits=%u guard_exits=%u fuel_exits=%u osr_hits=%u osr_exits=%u precise_exits=%u precise_fuel_exits=%u cfg_branches_folded=%u cfg_ops_folded=%u cfg_hot_layouts=%u cfg_loops_unrolled=%u cfg_invariants_hoisted=%u cfg_inductions_reduced=%u "
++                "f64_compiles=%u f64_hits=%u f64_promotions=%u\n",
+                 rt->jit_baseline_compiles, rt->jit_baseline_hits,
+                 rt->jit_optimized_compiles, rt->jit_optimized_hits,
+                 rt->jit_guard_exits, rt->jit_fuel_exits, rt->jit_osr_hits, rt->jit_osr_exits,
+                 rt->jit_precise_exits, rt->jit_precise_fuel_exits,
+                 rt->jit_cfg_branches_folded, rt->jit_cfg_ops_folded, rt->jit_cfg_hot_layouts,
+-                rt->jit_cfg_loops_unrolled, rt->jit_cfg_invariants_hoisted, rt->jit_cfg_inductions_reduced);
++                rt->jit_cfg_loops_unrolled, rt->jit_cfg_invariants_hoisted, rt->jit_cfg_inductions_reduced,
++                rt->jit_f64_compiles, rt->jit_f64_hits, rt->jit_f64_promotions);
+ #endif
+     js_arena_free_all(rt);
+ 

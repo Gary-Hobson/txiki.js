@@ -1,0 +1,325 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -47,6 +47,11 @@
+ #include "quickjs.h"
+ #include "libregexp.h"
+ #include "dtoa.h"
++
++#if defined(BUILD_WITH_QUICKJS_JIT) && defined(__aarch64__) && !defined(__arm64e__) && \
++    !defined(__AARCH64EB__) && (defined(__APPLE__) || defined(__linux__))
++#define QJS_JIT_ARM64 1
++#endif
+ 
+ #if defined(EMSCRIPTEN) || defined(_MSC_VER)
+ #define DIRECT_DISPATCH  0
+@@ -381,6 +386,25 @@
+ 
+     JSInterruptHandler *interrupt_handler;
+     void *interrupt_opaque;
++#ifdef QJS_JIT_ARM64
++    bool jit_enabled;
++    bool jit_optimize;
++    bool jit_stats;
++    size_t jit_code_bytes;
++    unsigned jit_baseline_compiles;
++    unsigned jit_baseline_hits;
++    unsigned jit_optimized_compiles;
++    unsigned jit_optimized_hits;
++    unsigned jit_guard_exits;
++    unsigned jit_fuel_exits;
++    unsigned jit_osr_hits;
++    unsigned jit_osr_exits;
++    unsigned jit_cfg_loops_unrolled, jit_cfg_invariants_hoisted, jit_cfg_inductions_reduced;
++    unsigned jit_precise_fuel_exits;
++    unsigned jit_cfg_branches_folded, jit_cfg_ops_folded;
++    unsigned jit_cfg_hot_layouts;
++    unsigned jit_precise_exits;
++#endif
+ 
+     JSPromiseHook *promise_hook;
+     void *promise_hook_opaque;
+@@ -930,6 +954,21 @@
+     int pc2line_len;
+     uint8_t *pc2line_buf;
+     char *source;
++#ifdef QJS_JIT_ARM64
++    void *jit_code;
++    size_t jit_code_size;
++    uint32_t jit_osr_pc;
++    uint32_t jit_osr_word;
++    uint32_t jit_osr_locals;
++    uint16_t jit_hot_calls;
++    uint16_t jit_hot_backedges;
++    uint16_t jit_baseline_hits;
++    uint16_t jit_retry_delay;
++    uint8_t jit_failure_streak;
++    bool jit_rejected;
++    bool jit_optimization_attempted;
++    bool jit_optimized;
++#endif
+ } JSFunctionBytecode;
+ 
+ typedef struct JSBoundFunction {
+@@ -2370,6 +2409,15 @@
+     if (!rt)
+         return NULL;
+     rt->mf = *mf;
++#ifdef QJS_JIT_ARM64
++    const char *jit_mode = getenv("TJS_QUICKJS_JIT");
++    if (jit_mode) {
++        rt->jit_optimize = strcmp(jit_mode, "1") == 0;
++        rt->jit_enabled = rt->jit_optimize || strcmp(jit_mode, "baseline") == 0;
++    }
++    const char *jit_stats = getenv("TJS_QUICKJS_JIT_STATS");
++    rt->jit_stats = rt->jit_enabled && jit_stats && strcmp(jit_stats, "1") == 0;
++#endif
+     if (!rt->mf.js_malloc_usable_size) {
+         /* use dummy function if none provided */
+         rt->mf.js_malloc_usable_size = js_malloc_usable_size_unknown;
+@@ -2889,6 +2937,17 @@
+ 
+     leak &= check_dump_flag(rt, JS_ABORT_ON_LEAKS);
+ 
++#ifdef QJS_JIT_ARM64
++    if (rt->jit_stats)
++        fprintf(stderr, "QuickJS JIT: baseline_compiles=%u baseline_hits=%u "
++                "optimized_compiles=%u optimized_hits=%u guard_exits=%u fuel_exits=%u osr_hits=%u osr_exits=%u precise_exits=%u precise_fuel_exits=%u cfg_branches_folded=%u cfg_ops_folded=%u cfg_hot_layouts=%u cfg_loops_unrolled=%u cfg_invariants_hoisted=%u cfg_inductions_reduced=%u\n",
++                rt->jit_baseline_compiles, rt->jit_baseline_hits,
++                rt->jit_optimized_compiles, rt->jit_optimized_hits,
++                rt->jit_guard_exits, rt->jit_fuel_exits, rt->jit_osr_hits, rt->jit_osr_exits,
++                rt->jit_precise_exits, rt->jit_precise_fuel_exits,
++                rt->jit_cfg_branches_folded, rt->jit_cfg_ops_folded, rt->jit_cfg_hot_layouts,
++                rt->jit_cfg_loops_unrolled, rt->jit_cfg_invariants_hoisted, rt->jit_cfg_inductions_reduced);
++#endif
+     js_arena_free_all(rt);
+ 
+     {
+@@ -7705,6 +7764,9 @@
+ 
+     s->memory_used_count = 2; /* rt + rt->class_array */
+     s->memory_used_size = sizeof(JSRuntime) + sizeof(JSClass) * rt->class_count;
++#ifdef QJS_JIT_ARM64
++    s->memory_used_size += rt->jit_code_bytes;
++#endif
+ 
+     list_for_each(el, &rt->context_list) {
+         JSContext *ctx = list_entry(el, JSContext, link);
+@@ -18466,7 +18528,20 @@
+     return false;
+ #endif
+ }
++
++#ifdef QJS_JIT_ARM64
++#include "qjs-jit-frame.h"
+ 
++static bool qjs_jit_call(JSRuntime *rt, JSFunctionBytecode *b, const JSValue *args,
++                         JSValue *result, QJSJitExit *exit);
++static bool qjs_jit_osr(JSRuntime *rt, JSFunctionBytecode *b, const JSValue *args,
++                        const JSValue *vars, uint32_t pc, bool *attempted, JSValue *result,
++                        QJSJitExit *exit);
++static void qjs_jit_resume(JSContext *ctx, const JSFunctionBytecode *b, QJSJitExit *exit,
++                           JSValue *vars, JSValue *stack, uint8_t **pc, JSValue **sp);
++static void qjs_jit_free(JSRuntime *rt, JSFunctionBytecode *b);
++#endif
++
+ /* argv[] is modified if (flags & JS_CALL_FLAG_COPY_ARGV) = 0. */
+ static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
+                                JSValueConst this_obj, JSValueConst new_target,
+@@ -18482,6 +18557,10 @@
+     JSValue *local_buf, *stack_buf, *var_buf, *arg_buf, *sp, ret_val, *pval;
+     JSVarRef **var_refs;
+     size_t alloca_size;
++#ifdef QJS_JIT_ARM64
++    bool jit_osr_allowed = false, jit_osr_attempted = false;
++    QJSJitExit *jit_exit = NULL;
++#endif
+ 
+ #ifdef ENABLE_DUMPS // JS_DUMP_BYTECODE_STEP
+ #define DUMP_BYTECODE_OR_DONT(pc) \
+@@ -18510,7 +18589,31 @@
+ #define CASE(op)        case_ ## op
+ #define DEFAULT         case_default
+ #define BREAK           SWITCH(pc)
++#endif
++
++#ifdef QJS_JIT_ARM64
++#ifdef BUILD_WITH_INSPECTOR
++#define QJS_JIT_TRACE_ACTIVE() (ctx->debug_trace != NULL)
++#else
++#define QJS_JIT_TRACE_ACTIVE() false
+ #endif
++#define QJS_JIT_BRANCH_ORIGIN() const uint8_t *branch_origin = pc - 1
++#define QJS_JIT_TRY_OSR()                                                   \
++    do {                                                                    \
++        if (unlikely(jit_osr_allowed && !jit_osr_attempted &&               \
++                     pc <= branch_origin && sp == stack_buf &&              \
++                     !rt->interrupt_handler && !QJS_JIT_TRACE_ACTIVE())) {  \
++            if (qjs_jit_osr(rt, b, arg_buf, var_buf, pc - b->byte_code_buf, \
++                           &jit_osr_attempted, &ret_val, jit_exit))         \
++                goto done;                                                  \
++            if (jit_exit->pc != UINT32_MAX)                                 \
++                qjs_jit_resume(ctx, b, jit_exit, var_buf, stack_buf, &pc, &sp);\
++        }                                                                   \
++    } while (0)
++#else
++#define QJS_JIT_BRANCH_ORIGIN() ((void)0)
++#define QJS_JIT_TRY_OSR() ((void)0)
++#endif
+ 
+     if (js_poll_interrupts(caller_ctx))
+         return JS_EXCEPTION;
+@@ -18565,6 +18668,24 @@
+     if (js_check_stack_overflow(rt, alloca_size))
+         return JS_ThrowStackOverflow(caller_ctx);
+ 
++#ifdef QJS_JIT_ARM64
++    if (unlikely(rt->jit_enabled) && !rt->interrupt_handler &&
++        !(flags & JS_CALL_FLAG_CONSTRUCTOR) && argc >= b->arg_count
++#ifdef BUILD_WITH_INSPECTOR
++        && !b->realm->debug_trace
++#endif
++#ifdef ENABLE_DUMPS
++        && !check_dump_flag(rt, JS_DUMP_BYTECODE_STEP)
++#endif
++        && !js_check_stack_overflow(rt, alloca_size + sizeof(*jit_exit))) {
++        jit_exit = alloca(sizeof(*jit_exit));
++        jit_exit->pc = UINT32_MAX;
++        if (qjs_jit_call(rt, b, argv, &ret_val, jit_exit))
++            return ret_val;
++        jit_osr_allowed = !b->jit_rejected;
++    }
++#endif
++
+     sf->is_strict_mode = b->is_strict_mode;
+     sf->is_constructor = (flags & JS_CALL_FLAG_CONSTRUCTOR) != 0;
+     arg_buf = (JSValue *)argv;
+@@ -18607,6 +18728,13 @@
+ #ifdef ENABLE_DUMPS // JS_DUMP_BYTECODE_STEP
+     if (check_dump_flag(ctx->rt, JS_DUMP_BYTECODE_STEP))
+         print_func_name(b);
++#endif
++
++#ifdef QJS_JIT_ARM64
++    if (jit_exit && jit_exit->pc != UINT32_MAX) {
++        jit_osr_attempted = true;
++        qjs_jit_resume(ctx, b, jit_exit, var_buf, stack_buf, &pc, &sp);
++    }
+ #endif
+ 
+  restart:
+@@ -19611,23 +19739,33 @@
+             }
+             BREAK;
+ 
+-        CASE(OP_goto):
++        CASE(OP_goto): {
++            QJS_JIT_BRANCH_ORIGIN();
+             pc += (int32_t)get_u32(pc);
+             if (unlikely(js_poll_interrupts(ctx)))
+                 goto exception;
++            QJS_JIT_TRY_OSR();
+             BREAK;
+-        CASE(OP_goto16):
++        }
++        CASE(OP_goto16): {
++            QJS_JIT_BRANCH_ORIGIN();
+             pc += (int16_t)get_u16(pc);
+             if (unlikely(js_poll_interrupts(ctx)))
+                 goto exception;
++            QJS_JIT_TRY_OSR();
+             BREAK;
+-        CASE(OP_goto8):
++        }
++        CASE(OP_goto8): {
++            QJS_JIT_BRANCH_ORIGIN();
+             pc += (int8_t)pc[0];
+             if (unlikely(js_poll_interrupts(ctx)))
+                 goto exception;
++            QJS_JIT_TRY_OSR();
+             BREAK;
++        }
+         CASE(OP_if_true):
+             {
++                QJS_JIT_BRANCH_ORIGIN();
+                 int res;
+                 JSValue op1;
+ 
+@@ -19644,10 +19782,12 @@
+                 }
+                 if (unlikely(js_poll_interrupts(ctx)))
+                     goto exception;
++                QJS_JIT_TRY_OSR();
+             }
+             BREAK;
+         CASE(OP_if_false):
+             {
++                QJS_JIT_BRANCH_ORIGIN();
+                 int res;
+                 JSValue op1;
+ 
+@@ -19664,10 +19804,12 @@
+                 }
+                 if (unlikely(js_poll_interrupts(ctx)))
+                     goto exception;
++                QJS_JIT_TRY_OSR();
+             }
+             BREAK;
+         CASE(OP_if_true8):
+             {
++                QJS_JIT_BRANCH_ORIGIN();
+                 int res;
+                 JSValue op1;
+ 
+@@ -19684,10 +19826,12 @@
+                 }
+                 if (unlikely(js_poll_interrupts(ctx)))
+                     goto exception;
++                QJS_JIT_TRY_OSR();
+             }
+             BREAK;
+         CASE(OP_if_false8):
+             {
++                QJS_JIT_BRANCH_ORIGIN();
+                 int res;
+                 JSValue op1;
+ 
+@@ -19704,6 +19848,7 @@
+                 }
+                 if (unlikely(js_poll_interrupts(ctx)))
+                     goto exception;
++                QJS_JIT_TRY_OSR();
+             }
+             BREAK;
+         CASE(OP_catch):
+@@ -21435,6 +21580,9 @@
+     }
+     rt->current_stack_frame = sf->prev_frame;
+     return ret_val;
++#undef QJS_JIT_BRANCH_ORIGIN
++#undef QJS_JIT_TRY_OSR
++#undef QJS_JIT_TRACE_ACTIVE
+ }
+ 
+ JSValue JS_Call(JSContext *ctx, JSValueConst func_obj, JSValueConst this_obj,
+@@ -22945,6 +23093,10 @@
+     }
+ }
+ 
++#ifdef QJS_JIT_ARM64
++#include "qjs-jit.h"
++#endif
++
+ static void free_token(JSParseState *s, JSToken *token)
+ {
+     switch(token->val) {
+@@ -37677,6 +37829,10 @@
+ static void free_function_bytecode(JSRuntime *rt, JSFunctionBytecode *b)
+ {
+     int i;
++
++#ifdef QJS_JIT_ARM64
++    qjs_jit_free(rt, b);
++#endif
+     if (b->object_layout) {
+         js_object_layout_restore(b->object_layout, b->byte_code_buf);
+         for (i = 0; i < b->object_layout->site_count; i++)

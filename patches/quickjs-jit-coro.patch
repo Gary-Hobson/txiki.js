@@ -1,0 +1,67 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -418,6 +418,7 @@
+     size_t jit_feedback_bytes;
+     uint32_t jit_feedback_target_id;
+     unsigned jit_boxed_for_in_next, jit_boxed_for_of_next, jit_boxed_iterator_closes;
++    unsigned jit_boxed_coro_resumes[4], jit_boxed_iterator_await_results;
+     bool jit_boxed_enabled;
+     unsigned jit_boxed_compiles, jit_boxed_entries, jit_boxed_returns;
+     unsigned jit_boxed_resumes, jit_boxed_exceptions, jit_boxed_fuel_exits;
+@@ -1002,6 +1003,7 @@
+     uint32_t jit_feedback_target_id;
+     void *jit_boxed_code;
+     size_t jit_boxed_code_size;
++    struct QJSBoxedCoroSites *jit_boxed_coro_sites;
+     uint16_t jit_boxed_hot_calls;
+     bool jit_boxed_rejected;
+ #endif
+@@ -3026,6 +3028,15 @@
+     if (rt->jit_stats && rt->jit_boxed_enabled)
+         fprintf(stderr, "QuickJS boxed escape: boxed_escape_literals=%u boxed_escape_layouts=%u\n",
+                 rt->jit_boxed_escape_literals, rt->jit_boxed_escape_layouts);
++#endif
++#ifdef QJS_JIT_ARM64
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed coroutines: boxed_generator_resumes=%u boxed_async_resumes=%u "
++                "boxed_async_generator_resumes=%u boxed_iterator_await_results=%u\n",
++                rt->jit_boxed_coro_resumes[JS_FUNC_GENERATOR],
++                rt->jit_boxed_coro_resumes[JS_FUNC_ASYNC],
++                rt->jit_boxed_coro_resumes[JS_FUNC_ASYNC_GENERATOR],
++                rt->jit_boxed_iterator_await_results);
+ #endif
+     leak &= check_dump_flag(rt, JS_ABORT_ON_LEAKS);
+ 
+@@ -19027,6 +19038,9 @@
+ static int qjs_jit_boxed_enter(JSContext *ctx, JSContext *caller_ctx, JSFunctionBytecode *b,
+                                JSStackFrame *sf, JSVarRef **var_refs, JSValue this_obj,
+                                uint8_t **pc, JSValue **sp, JSValue *result);
++static int qjs_jit_boxed_resume(JSContext *ctx, JSContext *caller_ctx, JSFunctionBytecode *b,
++                                JSStackFrame *sf, JSVarRef **var_refs, JSValue this_obj,
++                                JSValue *stack_buf, uint8_t **pc, JSValue **sp);
+ #endif
+ 
+ #ifdef QJS_JIT_ARM64
+@@ -19177,8 +19191,20 @@
+             rt->current_stack_frame = sf;
+             if (s->throw_flag)
+                 goto exception;
+-            else
+-                goto restart;
++#ifdef QJS_JIT_ARM64
++            if (unlikely(rt->jit_enabled && rt->jit_boxed_enabled) && !rt->jit_shadow &&
++                sf->cur_gc_obj && !rt->interrupt_handler && !QJS_JIT_TRACE_ACTIVE()
++#ifdef ENABLE_DUMPS
++                && !check_dump_flag(rt, JS_DUMP_BYTECODE_STEP)
++#endif
++                ) {
++                int boxed = qjs_jit_boxed_resume(ctx, caller_ctx, b, sf, var_refs,
++                                                 unsafe_unconst(this_obj), stack_buf, &pc, &sp);
++                if (boxed == QJS_BOXED_EXCEPTION)
++                    goto exception;
++            }
++#endif
++            goto restart;
+         } else {
+             goto not_a_function;
+         }

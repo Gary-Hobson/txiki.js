@@ -1,0 +1,21 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -431,2 +431,6 @@
+     void *promise_hook_opaque;
++#ifdef QJS_JIT_ARM64
++    unsigned jit_boxed_literal_objects, jit_boxed_literal_arrays, jit_boxed_literal_fields;
++    unsigned jit_boxed_literal_layouts, jit_boxed_literal_layout_fields;
++#endif
+ #ifdef QJS_JIT_ARM64
+@@ -3044,2 +3048,11 @@
+ #ifdef QJS_JIT_ARM64
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed literal: boxed_literal_objects=%u boxed_literal_arrays=%u "
++                "boxed_literal_fields=%u boxed_literal_layouts=%u boxed_literal_layout_fields=%u\n",
++                rt->jit_boxed_literal_objects, rt->jit_boxed_literal_arrays,
++                rt->jit_boxed_literal_fields, rt->jit_boxed_literal_layouts,
++                rt->jit_boxed_literal_layout_fields);
++#endif
++
++#ifdef QJS_JIT_ARM64
+     if (rt->jit_stats)

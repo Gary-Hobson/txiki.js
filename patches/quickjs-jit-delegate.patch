@@ -1,0 +1,190 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -445,6 +445,7 @@
+     unsigned jit_boxed_literal_layouts, jit_boxed_literal_layout_fields;
+     unsigned jit_boxed_native_shuffles, jit_boxed_stack_inserts, jit_boxed_type_checks;
+     unsigned jit_boxed_membership, jit_boxed_deletes;
++    unsigned jit_boxed_delegate_next, jit_boxed_delegate_calls, jit_boxed_coro_terminals;
+ #endif
+ #ifdef QJS_JIT_ARM64
+     struct JSFunctionBytecode *jit_cache_oldest, *jit_cache_newest;
+@@ -3071,6 +3072,12 @@
+                 rt->jit_boxed_native_shuffles, rt->jit_boxed_stack_inserts, rt->jit_boxed_type_checks,
+                 rt->jit_boxed_membership, rt->jit_boxed_deletes);
+ #endif
++#ifdef QJS_JIT_ARM64
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed delegation: boxed_delegate_next=%u boxed_delegate_calls=%u "
++                "boxed_coro_terminals=%u\n", rt->jit_boxed_delegate_next,
++                rt->jit_boxed_delegate_calls, rt->jit_boxed_coro_terminals);
++#endif
+     leak &= check_dump_flag(rt, JS_ABORT_ON_LEAKS);
+ 
+ #ifdef QJS_JIT_ARM64
+@@ -17980,6 +17987,37 @@
+     return 0;
+ }
+ 
++/* The iterator record and its argument remain in the caller's rooted frame. */
++static __exception int js_op_iterator_next(JSContext *ctx, JSValue *sp)
++{
++    JSValue ret = JS_Call(ctx, sp[-3], sp[-4], 1, vc(sp - 1));
++    if (JS_IsException(ret))
++        return -1;
++    JS_FreeValue(ctx, sp[-1]);
++    sp[-1] = ret;
++    return 0;
++}
++
++static __exception int js_op_iterator_call(JSContext *ctx, JSValue *sp, unsigned flags)
++{
++    JSAtom atom = (flags & 1) ? JS_ATOM_throw : JS_ATOM_return;
++    JSValue method = JS_GetProperty(ctx, sp[-4], atom);
++    if (JS_IsException(method))
++        return -1;
++    bool absent = JS_IsUndefined(method) || JS_IsNull(method);
++    if (!absent) {
++        bool no_argument = flags & 2;
++        JSValue ret = JS_CallFree(ctx, method, sp[-4], !no_argument,
++                                 no_argument ? NULL : vc(sp - 1));
++        if (JS_IsException(ret))
++            return -1;
++        JS_FreeValue(ctx, sp[-1]);
++        sp[-1] = ret;
++    }
++    sp[0] = js_bool(absent);
++    return 0;
++}
++
+ static __exception int js_iterator_get_value_done(JSContext *ctx, JSValue *sp)
+ {
+     JSValue obj, value;
+@@ -18780,6 +18818,17 @@
+ #define FUNC_RET_YIELD      1
+ #define FUNC_RET_YIELD_STAR 2
+ 
++static inline JSValue js_coro_terminal_value(unsigned opcode)
++{
++    switch (opcode) {
++    case OP_await: return js_int32(FUNC_RET_AWAIT);
++    case OP_yield: return js_int32(FUNC_RET_YIELD);
++    case OP_yield_star: case OP_async_yield_star: return js_int32(FUNC_RET_YIELD_STAR);
++    case OP_return_async: case OP_initial_yield: return JS_UNDEFINED;
++    default: abort();
++    }
++}
++
+ #ifdef ENABLE_DUMPS // JS_DUMP_BYTECODE_*
+ static void dump_single_byte_code(JSContext *ctx, const uint8_t *pc,
+                                   JSFunctionBytecode *b, int start_pos);
+@@ -19109,13 +19158,17 @@
+     QJS_BOXED_CONTINUE,
+     QJS_BOXED_EXCEPTION,
+     QJS_BOXED_RETURN,
++    QJS_BOXED_TAKEN,
++    QJS_BOXED_RESUME,
++    QJS_BOXED_FUEL,
++    QJS_BOXED_SUSPEND,
+ };
+ static int qjs_jit_boxed_enter(JSContext *ctx, JSContext *caller_ctx, JSFunctionBytecode *b,
+                                JSStackFrame *sf, JSVarRef **var_refs, JSValue this_obj,
+                                uint8_t **pc, JSValue **sp, JSValue *result);
+ static int qjs_jit_boxed_resume(JSContext *ctx, JSContext *caller_ctx, JSFunctionBytecode *b,
+                                 JSStackFrame *sf, JSVarRef **var_refs, JSValue this_obj,
+-                                JSValue *stack_buf, uint8_t **pc, JSValue **sp);
++                                JSValue *stack_buf, uint8_t **pc, JSValue **sp, JSValue *result);
+ #endif
+ 
+ #ifdef QJS_JIT_ARM64
+@@ -19283,9 +19336,11 @@
+ #endif
+                 ) {
+                 int boxed = qjs_jit_boxed_resume(ctx, caller_ctx, b, sf, var_refs,
+-                                                 unsafe_unconst(this_obj), stack_buf, &pc, &sp);
++                                                 unsafe_unconst(this_obj), stack_buf, &pc, &sp, &ret_val);
+                 if (boxed == QJS_BOXED_EXCEPTION)
+                     goto exception;
++                if (boxed == QJS_BOXED_SUSPEND)
++                    goto done_generator;
+             }
+ #endif
+             goto restart;
+@@ -20783,49 +20838,18 @@
+             BREAK;
+ 
+         CASE(OP_iterator_next):
+-            /* stack: iter_obj next catch_offset val */
++            sf->cur_pc = pc;
++            if (js_op_iterator_next(ctx, sp))
++                goto exception;
++            BREAK;
++
++        CASE(OP_iterator_call):
+             {
+-                JSValue ret;
++                unsigned flags = *pc++;
+                 sf->cur_pc = pc;
+-                ret = JS_Call(ctx, sp[-3], sp[-4], 1, vc(sp - 1));
+-                if (JS_IsException(ret))
++                if (js_op_iterator_call(ctx, sp, flags))
+                     goto exception;
+-                JS_FreeValue(ctx, sp[-1]);
+-                sp[-1] = ret;
+-            }
+-            BREAK;
+-
+-        CASE(OP_iterator_call):
+-            /* stack: iter_obj next catch_offset val */
+-            {
+-                JSValue method, ret;
+-                bool ret_flag;
+-                int flags;
+-                flags = *pc++;
+-                sf->cur_pc = pc;
+-                method = JS_GetProperty(ctx, sp[-4], (flags & 1) ?
+-                                        JS_ATOM_throw : JS_ATOM_return);
+-                if (JS_IsException(method))
+-                    goto exception;
+-                if (JS_IsUndefined(method) || JS_IsNull(method)) {
+-                    ret_flag = true;
+-                } else {
+-                    if (flags & 2) {
+-                        /* no argument */
+-                        ret = JS_CallFree(ctx, method, sp[-4],
+-                                          0, NULL);
+-                    } else {
+-                        ret = JS_CallFree(ctx, method, sp[-4],
+-                                          1, vc(sp - 1));
+-                    }
+-                    if (JS_IsException(ret))
+-                        goto exception;
+-                    JS_FreeValue(ctx, sp[-1]);
+-                    sp[-1] = ret;
+-                    ret_flag = false;
+-                }
+-                sp[0] = js_bool(ret_flag);
+-                sp += 1;
++                sp++;
+             }
+             BREAK;
+ 
+@@ -22215,18 +22239,12 @@
+             BREAK;
+ 
+         CASE(OP_await):
+-            ret_val = js_int32(FUNC_RET_AWAIT);
+-            goto done_generator;
+         CASE(OP_yield):
+-            ret_val = js_int32(FUNC_RET_YIELD);
+-            goto done_generator;
+         CASE(OP_yield_star):
+         CASE(OP_async_yield_star):
+-            ret_val = js_int32(FUNC_RET_YIELD_STAR);
+-            goto done_generator;
+         CASE(OP_return_async):
+         CASE(OP_initial_yield):
+-            ret_val = JS_UNDEFINED;
++            ret_val = js_coro_terminal_value(opcode);
+             goto done_generator;
+ 
+         CASE(OP_nop):

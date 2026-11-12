@@ -63,6 +63,7 @@ xoption(BUILD_WITH_GC_STRESS "Force a full GC before every JS allocation (QuickJ
 xoption(BUILD_WITH_WASM "If ON (default), build with WASM/WAMR support" ON)
 xoption(BUILD_WITH_SQLITE "If ON (default), build with SQLite (the tjs:sqlite module)" ON)
 xoption(BUILD_WITH_INSPECTOR "Build with the CLI JavaScript inspector" ON)
+option(BUILD_WITH_QUICKJS_JIT "Build the experimental AArch64 QuickJS JIT" OFF)
 xoption(BUILD_WITH_STRIP "If ON, strip the tjs binary after linking" OFF)
 xoption(BUILD_WITH_LTO "If ON, enable link-time optimization" OFF)
 xoption(BUILD_WITH_GC_SECTIONS "If ON, compile with per-function/data sections and link with dead-code stripping" OFF)
@@ -245,6 +246,10 @@ add_executable(tjsc EXCLUDE_FROM_ALL
 
 include(cmake/QuickJSPatches.cmake)
 add_subdirectory("${quickjs_source}" quickjs-build EXCLUDE_FROM_ALL)
+if(BUILD_WITH_QUICKJS_JIT)
+    target_compile_definitions(qjs PRIVATE BUILD_WITH_QUICKJS_JIT)
+    target_include_directories(qjs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+endif()
 if(BUILD_WITH_INSPECTOR)
     target_sources(tjs PRIVATE src/inspector.cpp)
     target_compile_features(tjs PRIVATE cxx_std_17)

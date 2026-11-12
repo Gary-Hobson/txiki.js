@@ -1,0 +1,74 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -432,6 +432,8 @@
+ #ifdef QJS_JIT_ARM64
+     unsigned jit_boxed_literal_objects, jit_boxed_literal_arrays, jit_boxed_literal_fields;
+     unsigned jit_boxed_literal_layouts, jit_boxed_literal_layout_fields;
++    unsigned jit_boxed_native_shuffles, jit_boxed_stack_inserts, jit_boxed_type_checks;
++    unsigned jit_boxed_membership, jit_boxed_deletes;
+ #endif
+ #ifdef QJS_JIT_ARM64
+     struct JSFunctionBytecode *jit_cache_oldest, *jit_cache_newest;
+@@ -3043,6 +3045,13 @@
+                 rt->jit_boxed_coro_resumes[JS_FUNC_ASYNC_GENERATOR],
+                 rt->jit_boxed_iterator_await_results);
+ #endif
++#ifdef QJS_JIT_ARM64
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed operators: boxed_native_shuffles=%u boxed_stack_inserts=%u "
++                "boxed_type_checks=%u boxed_membership=%u boxed_deletes=%u\n",
++                rt->jit_boxed_native_shuffles, rt->jit_boxed_stack_inserts, rt->jit_boxed_type_checks,
++                rt->jit_boxed_membership, rt->jit_boxed_deletes);
++#endif
+     leak &= check_dump_flag(rt, JS_ABORT_ON_LEAKS);
+ 
+ #ifdef QJS_JIT_ARM64
+@@ -19111,6 +19120,15 @@
+                               const JSValue *args, JSValue *result);
+ #endif
+ 
++static inline JSValue *js_stack_insert(JSValue *sp, unsigned depth)
++{
++    JSValue value = sp[-1];
++    memmove(sp - depth + 1, sp - depth, (depth - 1) * sizeof(*sp));
++    sp[0] = value;
++    *(sp - depth) = js_dup(value);
++    return sp + 1;
++}
++
+ /* argv[] is modified if (flags & JS_CALL_FLAG_COPY_ARGV) = 0. */
+ static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
+                                JSValueConst this_obj, JSValueConst new_target,
+@@ -19630,26 +19648,14 @@
+             sp[-1] = js_dup(sp[-2]);
+             sp++;
+             BREAK;
+-        CASE(OP_insert2): /* obj a -> a obj a (dup_x1) */
+-            sp[0] = sp[-1];
+-            sp[-1] = sp[-2];
+-            sp[-2] = js_dup(sp[0]);
+-            sp++;
++        CASE(OP_insert2):
++            sp = js_stack_insert(sp, 2);
+             BREAK;
+-        CASE(OP_insert3): /* obj prop a -> a obj prop a (dup_x2) */
+-            sp[0] = sp[-1];
+-            sp[-1] = sp[-2];
+-            sp[-2] = sp[-3];
+-            sp[-3] = js_dup(sp[0]);
+-            sp++;
++        CASE(OP_insert3):
++            sp = js_stack_insert(sp, 3);
+             BREAK;
+-        CASE(OP_insert4): /* this obj prop a -> a this obj prop a */
+-            sp[0] = sp[-1];
+-            sp[-1] = sp[-2];
+-            sp[-2] = sp[-3];
+-            sp[-3] = sp[-4];
+-            sp[-4] = js_dup(sp[0]);
+-            sp++;
++        CASE(OP_insert4):
++            sp = js_stack_insert(sp, 4);
+             BREAK;
+         CASE(OP_perm3): /* obj a b -> a obj b (213) */
+             {

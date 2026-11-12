@@ -1,0 +1,36 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -414,4 +414,10 @@
+     JSPromiseHook *promise_hook;
+     void *promise_hook_opaque;
++#ifdef QJS_JIT_ARM64
++    struct JSFunctionBytecode *jit_cache_oldest, *jit_cache_newest;
++    size_t jit_cache_scalar_bytes;
++    uint64_t jit_cache_tick, jit_cache_epoch, jit_cache_compile_ns;
++    unsigned jit_cache_attempts, jit_cache_deferrals, jit_cache_evictions, jit_cache_reinstalls;
++#endif
+     // for smuggling the parent promise from js_promise_then
+     // to js_promise_constructor
+@@ -959,4 +965,10 @@
+     JSContext *realm; /* function realm */
+     JSValue *cpool; /* constant pool (self pointer) */
++#ifdef QJS_JIT_ARM64
++    struct JSFunctionBytecode *jit_cache_prev, *jit_cache_next;
++    uint64_t jit_cache_used, jit_cache_retry_at;
++    unsigned jit_cache_active;
++    bool jit_cache_was_evicted;
++#endif
+     JSAtom filename;
+     int line_num;
+@@ -2975,4 +2987,11 @@
+     js_arena_free_all(rt);
+ 
++#ifdef QJS_JIT_ARM64
++    assert(!rt->jit_cache_oldest && !rt->jit_cache_newest);
++    assert(!rt->jit_cache_scalar_bytes && !rt->jit_code_bytes);
++    if (rt->jit_stats)
++        fprintf(stderr, "QuickJS JIT cache: cache_deferrals=%u cache_evictions=%u cache_reinstalls=%u\n",
++                rt->jit_cache_deferrals, rt->jit_cache_evictions, rt->jit_cache_reinstalls);
++#endif
+     {
+         JSMallocState *ms = &rt->malloc_state;

@@ -1,0 +1,378 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -402,6 +402,12 @@
+     unsigned jit_precise_exits;
+ #endif
+ 
++#ifdef QJS_JIT_ARM64
++    bool jit_feedback_enabled, jit_feedback_dump;
++    size_t jit_feedback_bytes;
++    uint32_t jit_feedback_target_id;
++#endif
++
+     JSPromiseHook *promise_hook;
+     void *promise_hook_opaque;
+     // for smuggling the parent promise from js_promise_then
+@@ -955,6 +961,10 @@
+     int source_len;
+     int pc2line_len;
+     uint8_t *pc2line_buf;
++#ifdef QJS_JIT_ARM64
++    struct QJSJitFeedback *jit_feedback;
++    uint32_t jit_feedback_target_id;
++#endif
+     char *source;
+ #ifdef QJS_JIT_ARM64
+     void *jit_code;
+@@ -2413,6 +2423,10 @@
+         return NULL;
+     rt->mf = *mf;
+ #ifdef QJS_JIT_ARM64
++    const char *jit_feedback = getenv("TJS_QUICKJS_JIT_FEEDBACK");
++    rt->jit_feedback_dump = jit_feedback && strcmp(jit_feedback, "dump") == 0;
++    rt->jit_feedback_enabled = rt->jit_feedback_dump ||
++        (jit_feedback && strcmp(jit_feedback, "1") == 0);
+     const char *jit_mode = getenv("TJS_QUICKJS_JIT");
+     if (jit_mode) {
+         rt->jit_optimize = strcmp(jit_mode, "1") == 0;
+@@ -7323,11 +7337,15 @@
+         *hint = (uint32_t)(*ppr - p->prop) + 1;
+     return prs;
+ }
++
++#ifdef QJS_JIT_ARM64
++#include "qjs-jit-feedback.h"
++#endif
+ 
+ /* Borrow the local receiver while executing an adjacent plain own-field
+    load. No allocation or JavaScript reentry occurs on this fused path. */
+-static inline JSValue js_load_local_or_field(JSValueConst value,
+-                                             uint8_t **ppc)
++static inline JSValue js_load_local_or_field(JSRuntime *rt, JSFunctionBytecode *b,
++                                             JSValueConst value, uint8_t **ppc)
+ {
+     uint8_t *pc = *ppc;
+     JSProperty *pr;
+@@ -7336,7 +7354,14 @@
+     return js_dup(value);
+ #endif
+     if (*pc == OP_get_field && JS_VALUE_GET_TAG(value) == JS_TAG_OBJECT) {
+-        prs = find_own_property(&pr, JS_VALUE_GET_OBJ(value), get_u32(pc + 1));
++        JSObject *object = JS_VALUE_GET_OBJ(value);
++        JSAtom atom = get_u32(pc + 1);
++#ifdef QJS_JIT_ARM64
++        if (unlikely(rt->jit_feedback_enabled))
++            prs = qjs_jit_feedback_property(rt, b, pc, object, atom, &pr);
++        else
++#endif
++            prs = find_own_property(&pr, object, atom);
+         if (prs && !(prs->flags & JS_PROP_TMASK)) {
+             *ppc = pc + 5;
+             return js_dup(pr->u.value);
+@@ -18885,6 +18910,45 @@
+ static void qjs_jit_free(JSRuntime *rt, JSFunctionBytecode *b);
+ #endif
+ 
++#ifdef QJS_JIT_ARM64
++static no_inline bool qjs_jit_feedback_compare_branch(JSRuntime *rt, JSFunctionBytecode *b,
++                                                       bool value, uint8_t **ppc)
++{
++    uint8_t *pc = *ppc;
++    if (!js_take_comparison_branch(value, ppc))
++        return false;
++    qjs_jit_feedback_branch(rt, b, pc, value == (*pc == OP_if_true || *pc == OP_if_true8));
++    return true;
++}
++#define QJS_JIT_PROFILE_BINARY(pc, lhs, rhs) \
++    do { \
++        if (unlikely(rt->jit_feedback_enabled)) \
++            qjs_jit_feedback_binary(rt, b, pc, lhs, rhs); \
++    } while (0)
++#define QJS_JIT_PROFILE_BRANCH(pc, taken) \
++    do { \
++        if (unlikely(rt->jit_feedback_enabled)) \
++            qjs_jit_feedback_branch(rt, b, pc, taken); \
++    } while (0)
++#define QJS_JIT_PROFILE_COMPARE_BRANCH(value, ppc) \
++    (unlikely(rt->jit_feedback_enabled) ? qjs_jit_feedback_compare_branch(rt, b, value, ppc) \
++                                        : js_take_comparison_branch(value, ppc))
++#define QJS_JIT_PROFILE_CALL(pc, callee) \
++    do { \
++        if (unlikely(rt->jit_feedback_enabled)) \
++            qjs_jit_feedback_call(rt, b, pc, callee); \
++    } while (0)
++#define QJS_JIT_PROPERTY_LOOKUP(pc, object, atom, property) \
++    (unlikely(rt->jit_feedback_enabled) ? qjs_jit_feedback_property(rt, b, pc, object, atom, property) \
++                                        : find_own_property_hint(rt, property, object, atom))
++#else
++#define QJS_JIT_PROFILE_BINARY(pc, lhs, rhs) ((void)0)
++#define QJS_JIT_PROFILE_BRANCH(pc, taken) ((void)0)
++#define QJS_JIT_PROFILE_COMPARE_BRANCH(value, ppc) js_take_comparison_branch(value, ppc)
++#define QJS_JIT_PROFILE_CALL(pc, callee) ((void)0)
++#define QJS_JIT_PROPERTY_LOOKUP(pc, object, atom, property) find_own_property_hint(rt, property, object, atom)
++#endif
++
+ /* argv[] is modified if (flags & JS_CALL_FLAG_COPY_ARGV) = 0. */
+ static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
+                                JSValueConst this_obj, JSValueConst new_target,
+@@ -19500,6 +19564,8 @@
+                 goto has_call_argc;
+             has_call_argc:
+                 call_argv = sp - call_argc;
++                QJS_JIT_PROFILE_CALL(pc - (opcode >= OP_call0 && opcode <= OP_call3 ? 1 : 3),
++                                     call_argv[-1]);
+                 sf->cur_pc = pc;
+                 ret_val = JS_CallInternal(ctx, call_argv[-1], JS_UNDEFINED,
+                                           JS_UNDEFINED, call_argc,
+@@ -19519,6 +19585,7 @@
+                 call_argc = get_u16(pc);
+                 pc += 2;
+                 call_argv = sp - call_argc;
++                QJS_JIT_PROFILE_CALL(pc - 3, call_argv[-2]);
+                 sf->cur_pc = pc;
+                 ret_val = JS_CallConstructorInternal(ctx, call_argv[-2],
+                                                      call_argv[-1], call_argc,
+@@ -19537,6 +19604,7 @@
+                 call_argc = get_u16(pc);
+                 pc += 2;
+                 call_argv = sp - call_argc;
++                QJS_JIT_PROFILE_CALL(pc - 3, call_argv[-1]);
+                 sf->cur_pc = pc;
+                 ret_val = JS_CallInternal(ctx, call_argv[-1], call_argv[-2],
+                                           JS_UNDEFINED, call_argc,
+@@ -19849,7 +19917,7 @@
+                 int idx;
+                 idx = get_u16(pc);
+                 pc += 2;
+-                sp[0] = js_load_local_or_field(var_buf[idx], &pc);
++                sp[0] = js_load_local_or_field(rt, b, var_buf[idx], &pc);
+                 sp++;
+             }
+             BREAK;
+@@ -19875,7 +19943,7 @@
+                 int idx;
+                 idx = get_u16(pc);
+                 pc += 2;
+-                sp[0] = js_load_local_or_field(arg_buf[idx], &pc);
++                sp[0] = js_load_local_or_field(rt, b, arg_buf[idx], &pc);
+                 sp++;
+             }
+             BREAK;
+@@ -19897,7 +19965,7 @@
+             }
+             BREAK;
+ 
+-        CASE(OP_get_loc8): *sp++ = js_load_local_or_field(var_buf[*pc++], &pc); BREAK;
++        CASE(OP_get_loc8): *sp++ = js_load_local_or_field(rt, b, var_buf[*pc++], &pc); BREAK;
+         CASE(OP_put_loc8): set_value(ctx, &var_buf[*pc++], *--sp); BREAK;
+         CASE(OP_set_loc8): set_value(ctx, &var_buf[*pc++], js_dup(sp[-1])); BREAK;
+ 
+@@ -19909,10 +19977,10 @@
+             *sp++ = js_dup(var_buf[1]);
+             BREAK;
+ 
+-        CASE(OP_get_loc0): *sp++ = js_load_local_or_field(var_buf[0], &pc); BREAK;
+-        CASE(OP_get_loc1): *sp++ = js_load_local_or_field(var_buf[1], &pc); BREAK;
+-        CASE(OP_get_loc2): *sp++ = js_load_local_or_field(var_buf[2], &pc); BREAK;
+-        CASE(OP_get_loc3): *sp++ = js_load_local_or_field(var_buf[3], &pc); BREAK;
++        CASE(OP_get_loc0): *sp++ = js_load_local_or_field(rt, b, var_buf[0], &pc); BREAK;
++        CASE(OP_get_loc1): *sp++ = js_load_local_or_field(rt, b, var_buf[1], &pc); BREAK;
++        CASE(OP_get_loc2): *sp++ = js_load_local_or_field(rt, b, var_buf[2], &pc); BREAK;
++        CASE(OP_get_loc3): *sp++ = js_load_local_or_field(rt, b, var_buf[3], &pc); BREAK;
+         CASE(OP_put_loc0): set_value(ctx, &var_buf[0], *--sp); BREAK;
+         CASE(OP_put_loc1): set_value(ctx, &var_buf[1], *--sp); BREAK;
+         CASE(OP_put_loc2): set_value(ctx, &var_buf[2], *--sp); BREAK;
+@@ -19921,10 +19989,10 @@
+         CASE(OP_set_loc1): set_value(ctx, &var_buf[1], js_dup(sp[-1])); BREAK;
+         CASE(OP_set_loc2): set_value(ctx, &var_buf[2], js_dup(sp[-1])); BREAK;
+         CASE(OP_set_loc3): set_value(ctx, &var_buf[3], js_dup(sp[-1])); BREAK;
+-        CASE(OP_get_arg0): *sp++ = js_load_local_or_field(arg_buf[0], &pc); BREAK;
+-        CASE(OP_get_arg1): *sp++ = js_load_local_or_field(arg_buf[1], &pc); BREAK;
+-        CASE(OP_get_arg2): *sp++ = js_load_local_or_field(arg_buf[2], &pc); BREAK;
+-        CASE(OP_get_arg3): *sp++ = js_load_local_or_field(arg_buf[3], &pc); BREAK;
++        CASE(OP_get_arg0): *sp++ = js_load_local_or_field(rt, b, arg_buf[0], &pc); BREAK;
++        CASE(OP_get_arg1): *sp++ = js_load_local_or_field(rt, b, arg_buf[1], &pc); BREAK;
++        CASE(OP_get_arg2): *sp++ = js_load_local_or_field(rt, b, arg_buf[2], &pc); BREAK;
++        CASE(OP_get_arg3): *sp++ = js_load_local_or_field(rt, b, arg_buf[3], &pc); BREAK;
+         CASE(OP_put_arg0): set_value(ctx, &arg_buf[0], *--sp); BREAK;
+         CASE(OP_put_arg1): set_value(ctx, &arg_buf[1], *--sp); BREAK;
+         CASE(OP_put_arg2): set_value(ctx, &arg_buf[2], *--sp); BREAK;
+@@ -20156,6 +20224,7 @@
+                     res = JS_ToBoolFree(ctx, op1);
+                 }
+                 sp--;
++                QJS_JIT_PROFILE_BRANCH(pc - 5, res);
+                 if (res) {
+                     pc += (int32_t)get_u32(pc - 4) - 4;
+                 }
+@@ -20178,6 +20247,7 @@
+                     res = JS_ToBoolFree(ctx, op1);
+                 }
+                 sp--;
++                QJS_JIT_PROFILE_BRANCH(pc - 5, !res);
+                 if (!res) {
+                     pc += (int32_t)get_u32(pc - 4) - 4;
+                 }
+@@ -20200,6 +20270,7 @@
+                     res = JS_ToBoolFree(ctx, op1);
+                 }
+                 sp--;
++                QJS_JIT_PROFILE_BRANCH(pc - 2, res);
+                 if (res) {
+                     pc += (int8_t)pc[-1] - 1;
+                 }
+@@ -20222,6 +20293,7 @@
+                     res = JS_ToBoolFree(ctx, op1);
+                 }
+                 sp--;
++                QJS_JIT_PROFILE_BRANCH(pc - 2, !res);
+                 if (!res) {
+                     pc += (int8_t)pc[-1] - 1;
+                 }
+@@ -20540,7 +20612,7 @@
+                 obj = sp[-1];
+                 if (likely(JS_VALUE_GET_TAG(obj) == JS_TAG_OBJECT)) {
+                     p = JS_VALUE_GET_OBJ(obj);
+-                    prs = find_own_property_hint(rt, &pr, p, atom);
++                    prs = QJS_JIT_PROPERTY_LOOKUP(pc - 5, p, atom, &pr);
+                     for(;;) {
+                         if (prs) {
+                             /* found */
+@@ -20589,7 +20661,7 @@
+                 obj = sp[-1];
+                 if (likely(JS_VALUE_GET_TAG(obj) == JS_TAG_OBJECT)) {
+                     p = JS_VALUE_GET_OBJ(obj);
+-                    prs = find_own_property_hint(rt, &pr, p, atom);
++                    prs = QJS_JIT_PROPERTY_LOOKUP(pc - 5, p, atom, &pr);
+                     for(;;) {
+                         if (prs) {
+                             /* found */
+@@ -21091,6 +21163,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     int64_t r;
+                     r = (int64_t)JS_VALUE_GET_INT(op1) + JS_VALUE_GET_INT(op2);
+@@ -21133,6 +21206,7 @@
+                 pc += 1;
+ 
+                 pv = &var_buf[idx];
++                QJS_JIT_PROFILE_BINARY(pc - 2, *pv, sp[-1]);
+                 if (likely(JS_VALUE_IS_BOTH_INT(*pv, sp[-1]))) {
+                     int64_t r;
+                     r = (int64_t)JS_VALUE_GET_INT(*pv) +
+@@ -21173,6 +21247,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     int64_t r;
+                     r = (int64_t)JS_VALUE_GET_INT(op1) - JS_VALUE_GET_INT(op2);
+@@ -21209,6 +21284,7 @@
+                 double d;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     int32_t v1, v2;
+                     int64_t r;
+@@ -21254,6 +21330,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     int v1, v2;
+                     v1 = JS_VALUE_GET_INT(op1);
+@@ -21287,6 +21364,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     int v1, v2, r;
+                     v1 = JS_VALUE_GET_INT(op1);
+@@ -21304,6 +21382,7 @@
+             }
+             BREAK;
+         CASE(OP_pow):
++            QJS_JIT_PROFILE_BINARY(pc - 1, sp[-2], sp[-1]);
+         binary_arith_slow:
+             sf->cur_pc = pc;
+             if (js_binary_arith_slow(ctx, sp, opcode))
+@@ -21501,6 +21580,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     uint32_t v1, v2;
+                     v1 = JS_VALUE_GET_INT(op1);
+@@ -21520,6 +21600,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     uint32_t v2;
+                     v2 = JS_VALUE_GET_INT(op2);
+@@ -21539,6 +21620,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     uint32_t v2;
+                     v2 = JS_VALUE_GET_INT(op2);
+@@ -21560,6 +21642,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     sp[-2] = js_int32(JS_VALUE_GET_INT(op1) & JS_VALUE_GET_INT(op2));
+                     sp--;
+@@ -21576,6 +21659,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     sp[-2] = js_int32(JS_VALUE_GET_INT(op1) | JS_VALUE_GET_INT(op2));
+                     sp--;
+@@ -21592,6 +21676,7 @@
+                 JSValue op1, op2;
+                 op1 = sp[-2];
+                 op2 = sp[-1];
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {
+                     sp[-2] = js_int32(JS_VALUE_GET_INT(op1) ^ JS_VALUE_GET_INT(op2));
+                     sp--;
+@@ -21611,6 +21696,7 @@
+                 JSValue op1, op2;                         \
+                 op1 = sp[-2];                             \
+                 op2 = sp[-1];                                   \
++                QJS_JIT_PROFILE_BINARY(pc - 1, op1, op2);              \
+                 if (likely(JS_VALUE_IS_BOTH_INT(op1, op2))) {           \
+                     sp[-2] = js_bool(JS_VALUE_GET_INT(op1) binary_op JS_VALUE_GET_INT(op2)); \
+                     sp--;                                               \
+@@ -21621,7 +21707,7 @@
+                     sp--;                                               \
+                 }                                                       \
+                 }                                                       \
+-                if (js_take_comparison_branch(JS_VALUE_GET_INT(sp[-1]), &pc)) { \
++                if (QJS_JIT_PROFILE_COMPARE_BRANCH(JS_VALUE_GET_INT(sp[-1]), &pc)) { \
+                     sp--; \
+                     if (unlikely(js_poll_interrupts(ctx))) \
+                         goto exception; \
+@@ -38281,6 +38367,7 @@
+ 
+ #ifdef QJS_JIT_ARM64
+     qjs_jit_free(rt, b);
++    qjs_jit_feedback_free(rt, b);
+ #endif
+     if (b->object_layout) {
+         js_object_layout_restore(b->object_layout, b->byte_code_buf);

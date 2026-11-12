@@ -1,0 +1,280 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -457,6 +457,8 @@
+     unsigned jit_boxed_membership, jit_boxed_deletes;
+     unsigned jit_boxed_delegate_next, jit_boxed_delegate_calls, jit_boxed_coro_terminals;
+     unsigned jit_boxed_conversions, jit_boxed_ctor_checks, jit_boxed_special_objects, jit_boxed_references;
++    unsigned jit_boxed_super_reads, jit_boxed_super_writes, jit_boxed_private_reads, jit_boxed_private_writes;
++    unsigned jit_boxed_brand_checks;
+ #endif
+ #ifdef QJS_JIT_ARM64
+     struct JSFunctionBytecode *jit_cache_oldest, *jit_cache_newest;
+@@ -3095,6 +3097,13 @@
+                 "boxed_special_objects=%u boxed_references=%u\n", rt->jit_boxed_conversions,
+                 rt->jit_boxed_ctor_checks, rt->jit_boxed_special_objects, rt->jit_boxed_references);
+ #endif
++#ifdef QJS_JIT_ARM64
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed class ops: boxed_super_reads=%u boxed_super_writes=%u "
++                "boxed_private_reads=%u boxed_private_writes=%u boxed_brand_checks=%u\n",
++                rt->jit_boxed_super_reads, rt->jit_boxed_super_writes, rt->jit_boxed_private_reads,
++                rt->jit_boxed_private_writes, rt->jit_boxed_brand_checks);
++#endif
+     leak &= check_dump_flag(rt, JS_ABORT_ON_LEAKS);
+ 
+ #ifdef QJS_JIT_ARM64
+@@ -19420,6 +19429,101 @@
+     return 0;
+ }
+ 
++static inline int js_op_super(JSContext *ctx, JSValue **psp, unsigned opcode)
++{
++    JSValue *sp = *psp;
++    switch (opcode) {
++    case OP_get_super: {
++        JSValue proto = JS_GetPrototype(ctx, sp[-1]);
++        if (JS_IsException(proto))
++            return -1;
++        JS_FreeValue(ctx, sp[-1]);
++        sp[-1] = proto;
++        return 0;
++    }
++    case OP_get_super_value: {
++        JSAtom atom = JS_ValueToAtom(ctx, sp[-1]);
++        if (unlikely(atom == JS_ATOM_NULL))
++            return -1;
++        JSValue value = JS_GetPropertyInternal(ctx, sp[-2], atom, sp[-3], false);
++        JS_FreeAtom(ctx, atom);
++        if (unlikely(JS_IsException(value)))
++            return -1;
++        JS_FreeValue(ctx, sp[-1]);
++        JS_FreeValue(ctx, sp[-2]);
++        JS_FreeValue(ctx, sp[-3]);
++        sp[-3] = value;
++        *psp = sp - 2;
++        return 0;
++    }
++    case OP_put_super_value: {
++        if (!JS_IsObject(sp[-3])) {
++            JS_ThrowTypeErrorNotAnObject(ctx);
++            return -1;
++        }
++        JSAtom atom = JS_ValueToAtom(ctx, sp[-2]);
++        if (unlikely(atom == JS_ATOM_NULL))
++            return -1;
++        int ret = JS_SetPropertyInternal2(ctx, sp[-3], atom, sp[-1], sp[-4], JS_PROP_THROW_STRICT);
++        JS_FreeAtom(ctx, atom);
++        JS_FreeValue(ctx, sp[-4]);
++        JS_FreeValue(ctx, sp[-3]);
++        JS_FreeValue(ctx, sp[-2]);
++        *psp = sp - 4;
++        return ret < 0 ? -1 : 0;
++    }
++    default:
++        abort();
++    }
++}
++
++static inline int js_op_private(JSContext *ctx, JSValue **psp, unsigned opcode)
++{
++    JSValue *sp = *psp;
++    switch (opcode) {
++    case OP_check_brand: {
++        int ret = JS_CheckBrand(ctx, sp[-2], sp[-1]);
++        if (ret < 0)
++            return -1;
++        if (!ret) {
++            JS_ThrowTypeError(ctx, "invalid brand on object");
++            return -1;
++        }
++        return 0;
++    }
++    case OP_add_brand:
++        if (JS_AddBrand(ctx, sp[-2], sp[-1]) < 0)
++            return -1;
++        JS_FreeValue(ctx, sp[-2]);
++        JS_FreeValue(ctx, sp[-1]);
++        *psp = sp - 2;
++        return 0;
++    case OP_get_private_field: {
++        JSValue value = JS_GetPrivateField(ctx, sp[-2], sp[-1]);
++        JS_FreeValue(ctx, sp[-1]);
++        JS_FreeValue(ctx, sp[-2]);
++        sp[-2] = value;
++        *psp = sp - 1;
++        return JS_IsException(value) ? -1 : 0;
++    }
++    case OP_put_private_field: {
++        int ret = JS_SetPrivateField(ctx, sp[-3], sp[-1], sp[-2]);
++        JS_FreeValue(ctx, sp[-3]);
++        JS_FreeValue(ctx, sp[-1]);
++        *psp = sp - 3;
++        return ret < 0 ? -1 : 0;
++    }
++    case OP_define_private_field: {
++        int ret = JS_DefinePrivateField(ctx, sp[-3], sp[-2], sp[-1]);
++        JS_FreeValue(ctx, sp[-2]);
++        *psp = sp - 2;
++        return ret < 0 ? -1 : 0;
++    }
++    default:
++        abort();
++    }
++}
++
+ static inline JSValue *js_stack_insert(JSValue *sp, unsigned depth)
+ {
+     JSValue value = sp[-1];
+@@ -20135,22 +20239,12 @@
+             *sp++ = ret_val;
+             BREAK;
+         CASE(OP_check_brand):
+-            {
+-                int ret = JS_CheckBrand(ctx, sp[-2], sp[-1]);
+-                if (ret < 0)
+-                    goto exception;
+-                if (!ret) {
+-                    JS_ThrowTypeError(ctx, "invalid brand on object");
+-                    goto exception;
+-                }
+-            }
++            if (js_op_private(ctx, &sp, OP_check_brand))
++                goto exception;
+             BREAK;
+         CASE(OP_add_brand):
+-            if (JS_AddBrand(ctx, sp[-2], sp[-1]) < 0)
++            if (js_op_private(ctx, &sp, OP_add_brand))
+                 goto exception;
+-            JS_FreeValue(ctx, sp[-2]);
+-            JS_FreeValue(ctx, sp[-1]);
+-            sp -= 2;
+             BREAK;
+ 
+         CASE(OP_throw):
+@@ -20262,14 +20356,8 @@
+             BREAK;
+ 
+         CASE(OP_get_super):
+-            {
+-                JSValue proto;
+-                proto = JS_GetPrototype(ctx, sp[-1]);
+-                if (JS_IsException(proto))
+-                    goto exception;
+-                JS_FreeValue(ctx, sp[-1]);
+-                sp[-1] = proto;
+-            }
++            if (js_op_super(ctx, &sp, OP_get_super))
++                goto exception;
+             BREAK;
+ 
+         CASE(OP_import):
+@@ -21145,41 +21233,18 @@
+             BREAK;
+ 
+         CASE(OP_get_private_field):
+-            {
+-                JSValue val;
+-                sf->cur_pc = pc;
+-                val = JS_GetPrivateField(ctx, sp[-2], sp[-1]);
+-                JS_FreeValue(ctx, sp[-1]);
+-                JS_FreeValue(ctx, sp[-2]);
+-                sp[-2] = val;
+-                sp--;
+-                if (unlikely(JS_IsException(val)))
+-                    goto exception;
+-            }
++            sf->cur_pc = pc;
++            if (js_op_private(ctx, &sp, OP_get_private_field))
++                goto exception;
+             BREAK;
+-
+         CASE(OP_put_private_field):
+-            {
+-                int ret;
+-                sf->cur_pc = pc;
+-                ret = JS_SetPrivateField(ctx, sp[-3], sp[-1], sp[-2]);
+-                JS_FreeValue(ctx, sp[-3]);
+-                JS_FreeValue(ctx, sp[-1]);
+-                sp -= 3;
+-                if (unlikely(ret < 0))
+-                    goto exception;
+-            }
++            sf->cur_pc = pc;
++            if (js_op_private(ctx, &sp, OP_put_private_field))
++                goto exception;
+             BREAK;
+-
+         CASE(OP_define_private_field):
+-            {
+-                int ret;
+-                ret = JS_DefinePrivateField(ctx, sp[-3], sp[-2], sp[-1]);
+-                JS_FreeValue(ctx, sp[-2]);
+-                sp -= 2;
+-                if (unlikely(ret < 0))
+-                    goto exception;
+-            }
++            if (js_op_private(ctx, &sp, OP_define_private_field))
++                goto exception;
+             BREAK;
+ 
+         CASE(OP_define_field):
+@@ -21398,23 +21463,9 @@
+             BREAK;
+ 
+         CASE(OP_get_super_value):
+-            {
+-                JSValue val;
+-                JSAtom atom;
+-                sf->cur_pc = pc;
+-                atom = JS_ValueToAtom(ctx, sp[-1]);
+-                if (unlikely(atom == JS_ATOM_NULL))
+-                    goto exception;
+-                val = JS_GetPropertyInternal(ctx, sp[-2], atom, sp[-3], false);
+-                JS_FreeAtom(ctx, atom);
+-                if (unlikely(JS_IsException(val)))
+-                    goto exception;
+-                JS_FreeValue(ctx, sp[-1]);
+-                JS_FreeValue(ctx, sp[-2]);
+-                JS_FreeValue(ctx, sp[-3]);
+-                sp[-3] = val;
+-                sp -= 2;
+-            }
++            sf->cur_pc = pc;
++            if (js_op_super(ctx, &sp, OP_get_super_value))
++                goto exception;
+             BREAK;
+ 
+         CASE(OP_put_array_el):
+@@ -21483,29 +21534,9 @@
+             BREAK;
+ 
+         CASE(OP_put_super_value):
+-            {
+-                int ret;
+-                JSAtom atom;
+-                sf->cur_pc = pc;
+-                if (JS_VALUE_GET_TAG(sp[-3]) != JS_TAG_OBJECT) {
+-                    JS_ThrowTypeErrorNotAnObject(ctx);
+-                    goto exception;
+-                }
+-                atom = JS_ValueToAtom(ctx, sp[-2]);
+-                if (unlikely(atom == JS_ATOM_NULL))
+-                    goto exception;
+-                ret = JS_SetPropertyInternal2(ctx,
+-                                              sp[-3], atom,
+-                                              sp[-1], sp[-4],
+-                                              JS_PROP_THROW_STRICT);
+-                JS_FreeAtom(ctx, atom);
+-                JS_FreeValue(ctx, sp[-4]);
+-                JS_FreeValue(ctx, sp[-3]);
+-                JS_FreeValue(ctx, sp[-2]);
+-                sp -= 4;
+-                if (ret < 0)
+-                    goto exception;
+-            }
++            sf->cur_pc = pc;
++            if (js_op_super(ctx, &sp, OP_put_super_value))
++                goto exception;
+             BREAK;
+ 
+         CASE(OP_define_array_el):

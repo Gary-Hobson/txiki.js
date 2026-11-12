@@ -1,0 +1,14 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -445,2 +445,3 @@
+     unsigned jit_boxed_literal_layouts, jit_boxed_literal_layout_fields;
++    unsigned jit_boxed_native_increfs, jit_boxed_native_decrefs, jit_boxed_native_drop_fallbacks;
+     unsigned jit_boxed_native_shuffles, jit_boxed_stack_inserts, jit_boxed_type_checks;
+@@ -3082,2 +3083,7 @@
+                 rt->jit_boxed_literal_layout_fields);
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed RC: boxed_native_increfs=%u boxed_native_decrefs=%u "
++                "boxed_native_drop_fallbacks=%u\n",
++                rt->jit_boxed_native_increfs, rt->jit_boxed_native_decrefs,
++                rt->jit_boxed_native_drop_fallbacks);
+ #endif

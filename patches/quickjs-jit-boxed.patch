@@ -1,0 +1,151 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -415,6 +415,11 @@
+     bool jit_feedback_enabled, jit_feedback_dump;
+     size_t jit_feedback_bytes;
+     uint32_t jit_feedback_target_id;
++    unsigned jit_boxed_for_in_next, jit_boxed_for_of_next, jit_boxed_iterator_closes;
++    bool jit_boxed_enabled;
++    unsigned jit_boxed_compiles, jit_boxed_entries, jit_boxed_returns;
++    unsigned jit_boxed_resumes, jit_boxed_exceptions, jit_boxed_fuel_exits;
++    unsigned jit_boxed_fields, jit_boxed_elements, jit_boxed_calls, jit_boxed_rc_pairs_elided;
+ #endif
+ 
+     JSPromiseHook *promise_hook;
+@@ -990,6 +995,10 @@
+ #ifdef QJS_JIT_ARM64
+     struct QJSJitFeedback *jit_feedback;
+     uint32_t jit_feedback_target_id;
++    void *jit_boxed_code;
++    size_t jit_boxed_code_size;
++    uint16_t jit_boxed_hot_calls;
++    bool jit_boxed_rejected;
+ #endif
+     char *source;
+ #ifdef QJS_JIT_ARM64
+@@ -2452,6 +2461,8 @@
+         return NULL;
+     rt->mf = *mf;
+ #ifdef QJS_JIT_ARM64
++    const char *jit_boxed = getenv("TJS_QUICKJS_JIT_BOXED");
++    rt->jit_boxed_enabled = jit_boxed && strcmp(jit_boxed, "1") == 0;
+     const char *jit_feedback = getenv("TJS_QUICKJS_JIT_FEEDBACK");
+     rt->jit_feedback_dump = jit_feedback && strcmp(jit_feedback, "dump") == 0;
+     rt->jit_feedback_enabled = rt->jit_feedback_dump ||
+@@ -2992,6 +3003,20 @@
+     }
+ #endif
+ 
++#ifdef QJS_JIT_ARM64
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed iterators: boxed_for_in_next=%u boxed_for_of_next=%u "
++                "boxed_iterator_closes=%u\n",
++                rt->jit_boxed_for_in_next, rt->jit_boxed_for_of_next, rt->jit_boxed_iterator_closes);
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed JIT: boxed_compiles=%u boxed_entries=%u "
++                "boxed_returns=%u boxed_resumes=%u boxed_exceptions=%u boxed_fuel_exits=%u "
++                "boxed_fields=%u boxed_elements=%u boxed_calls=%u boxed_rc_pairs_elided=%u\n",
++                rt->jit_boxed_compiles, rt->jit_boxed_entries, rt->jit_boxed_returns,
++                rt->jit_boxed_resumes, rt->jit_boxed_exceptions, rt->jit_boxed_fuel_exits,
++                rt->jit_boxed_fields, rt->jit_boxed_elements, rt->jit_boxed_calls,
++                rt->jit_boxed_rc_pairs_elided);
++#endif
+     leak &= check_dump_flag(rt, JS_ABORT_ON_LEAKS);
+ 
+ #ifdef QJS_JIT_ARM64
+@@ -17709,6 +17734,22 @@
+     return res;
+ }
+ 
++/* Pop the catch marker before invoking return(), so a throw cannot close
++   the iterator again. Keep the iterator owned by the stack until success. */
++static __exception int js_iterator_close_stack(JSContext *ctx, JSValue **psp)
++{
++    JSValue *sp = *psp - 2;
++    *psp = sp;
++    JS_FreeValue(ctx, sp[0]);
++    if (!JS_IsUndefined(sp[-1])) {
++        if (JS_IteratorClose(ctx, sp[-1], false))
++            return -1;
++        JS_FreeValue(ctx, sp[-1]);
++    }
++    *psp = sp - 1;
++    return 0;
++}
++
+ /* obj -> enum_rec (3 slots) */
+ static __exception int js_for_of_start(JSContext *ctx, JSValue *sp,
+                                        bool is_async)
+@@ -18959,6 +19000,14 @@
+ static void qjs_jit_resume(JSContext *ctx, const JSFunctionBytecode *b, QJSJitExit *exit,
+                            JSValue *vars, JSValue *stack, uint8_t **pc, JSValue **sp);
+ static void qjs_jit_free(JSRuntime *rt, JSFunctionBytecode *b);
++enum {
++    QJS_BOXED_CONTINUE,
++    QJS_BOXED_EXCEPTION,
++    QJS_BOXED_RETURN,
++};
++static int qjs_jit_boxed_enter(JSContext *ctx, JSContext *caller_ctx, JSFunctionBytecode *b,
++                               JSStackFrame *sf, JSVarRef **var_refs, JSValue this_obj,
++                               uint8_t **pc, JSValue **sp, JSValue *result);
+ #endif
+ 
+ #ifdef QJS_JIT_ARM64
+@@ -19200,6 +19249,20 @@
+     if (jit_exit && jit_exit->pc != UINT32_MAX) {
+         jit_osr_attempted = true;
+         qjs_jit_resume(ctx, b, jit_exit, var_buf, stack_buf, &pc, &sp);
++    } else if (unlikely(rt->jit_enabled && rt->jit_boxed_enabled) &&
++               !rt->interrupt_handler && !(flags & JS_CALL_FLAG_CONSTRUCTOR) &&
++               !QJS_JIT_TRACE_ACTIVE()
++#ifdef ENABLE_DUMPS
++               && !check_dump_flag(rt, JS_DUMP_BYTECODE_STEP)
++#endif
++               ) {
++        int boxed = qjs_jit_boxed_enter(ctx, caller_ctx, b, sf, var_refs,
++                                        unsafe_unconst(this_obj), &pc, &sp, &ret_val);
++        if (boxed == QJS_BOXED_RETURN)
++            goto done;
++        if (boxed == QJS_BOXED_EXCEPTION)
++            goto exception;
++        jit_osr_attempted |= boxed != QJS_BOXED_CONTINUE;
+     }
+ #endif
+ 
+@@ -20446,17 +20509,9 @@
+             BREAK;
+ 
+         CASE(OP_iterator_close):
+-            /* iter_obj next catch_offset -> */
+-            sp--; /* drop the catch offset to avoid getting caught by exception */
+-            JS_FreeValue(ctx, sp[-1]); /* drop the next method */
+-            sp--;
+-            if (!JS_IsUndefined(sp[-1])) {
+-                sf->cur_pc = pc;
+-                if (JS_IteratorClose(ctx, sp[-1], false))
+-                    goto exception;
+-                JS_FreeValue(ctx, sp[-1]);
+-            }
+-            sp--;
++            sf->cur_pc = pc;
++            if (js_iterator_close_stack(ctx, &sp))
++                goto exception;
+             BREAK;
+         CASE(OP_nip_catch):
+             {
+@@ -23638,6 +23693,7 @@
+ 
+ #ifdef QJS_JIT_ARM64
+ #include "qjs-jit.h"
++#include "qjs-jit-boxed.h"
+ #endif
+ 
+ static void free_token(JSParseState *s, JSToken *token)
+@@ -38426,6 +38482,7 @@
+ #ifdef QJS_JIT_ARM64
+     qjs_jit_free(rt, b);
+     qjs_jit_feedback_free(rt, b);
++    qjs_jit_boxed_free(rt, b);
+ #endif
+     if (b->object_layout) {
+         js_object_layout_restore(b->object_layout, b->byte_code_buf);

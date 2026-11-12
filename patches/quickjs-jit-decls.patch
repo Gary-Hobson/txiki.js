@@ -1,0 +1,98 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -461,6 +461,8 @@
+     unsigned jit_boxed_conversions, jit_boxed_ctor_checks, jit_boxed_special_objects, jit_boxed_references;
+     unsigned jit_boxed_super_reads, jit_boxed_super_writes, jit_boxed_private_reads, jit_boxed_private_writes;
+     unsigned jit_boxed_brand_checks;
++    unsigned jit_boxed_global_checks, jit_boxed_global_vars, jit_boxed_global_funcs;
++    unsigned jit_boxed_short_bigints, jit_boxed_loc_closes;
+ #endif
+ #ifdef QJS_JIT_ARM64
+     struct JSFunctionBytecode *jit_cache_oldest, *jit_cache_newest;
+@@ -3106,6 +3108,13 @@
+                 rt->jit_boxed_super_reads, rt->jit_boxed_super_writes, rt->jit_boxed_private_reads,
+                 rt->jit_boxed_private_writes, rt->jit_boxed_brand_checks);
+ #endif
++#ifdef QJS_JIT_ARM64
++    if (rt->jit_stats && rt->jit_boxed_enabled)
++        fprintf(stderr, "QuickJS boxed declarations: boxed_global_checks=%u boxed_global_vars=%u "
++                "boxed_global_funcs=%u boxed_short_bigints=%u boxed_loc_closes=%u\n",
++                rt->jit_boxed_global_checks, rt->jit_boxed_global_vars, rt->jit_boxed_global_funcs,
++                rt->jit_boxed_short_bigints, rt->jit_boxed_loc_closes);
++#endif
+     leak &= check_dump_flag(rt, JS_ABORT_ON_LEAKS);
+ 
+ #ifdef QJS_JIT_ARM64
+@@ -19532,6 +19541,25 @@
+     }
+ }
+ 
++static inline int js_op_define_global(JSContext *ctx, JSValue **psp, JSAtom atom,
++                                       unsigned flags, unsigned opcode)
++{
++    switch (opcode) {
++    case OP_check_define_var:
++        return JS_CheckDefineGlobalVar(ctx, atom, flags);
++    case OP_define_var:
++        return JS_DefineGlobalVar(ctx, atom, flags);
++    case OP_define_func:
++        if (JS_DefineGlobalFunction(ctx, atom, (*psp)[-1], flags))
++            return -1;
++        JS_FreeValue(ctx, (*psp)[-1]);
++        (*psp)--;
++        return 0;
++    default:
++        abort();
++    }
++}
++
+ static inline JSValue *js_stack_insert(JSValue *sp, unsigned depth)
+ {
+     JSValue value = sp[-1];
+@@ -20409,37 +20437,29 @@
+ 
+         CASE(OP_check_define_var):
+             {
+-                JSAtom atom;
+-                int flags;
+-                atom = get_u32(pc);
+-                flags = pc[4];
++                JSAtom atom = get_u32(pc);
++                unsigned flags = pc[4];
+                 pc += 5;
+-                if (JS_CheckDefineGlobalVar(ctx, atom, flags))
++                if (js_op_define_global(ctx, &sp, atom, flags, OP_check_define_var))
+                     goto exception;
+             }
+             BREAK;
+         CASE(OP_define_var):
+             {
+-                JSAtom atom;
+-                int flags;
+-                atom = get_u32(pc);
+-                flags = pc[4];
++                JSAtom atom = get_u32(pc);
++                unsigned flags = pc[4];
+                 pc += 5;
+-                if (JS_DefineGlobalVar(ctx, atom, flags))
++                if (js_op_define_global(ctx, &sp, atom, flags, OP_define_var))
+                     goto exception;
+             }
+             BREAK;
+         CASE(OP_define_func):
+             {
+-                JSAtom atom;
+-                int flags;
+-                atom = get_u32(pc);
+-                flags = pc[4];
++                JSAtom atom = get_u32(pc);
++                unsigned flags = pc[4];
+                 pc += 5;
+-                if (JS_DefineGlobalFunction(ctx, atom, sp[-1], flags))
++                if (js_op_define_global(ctx, &sp, atom, flags, OP_define_func))
+                     goto exception;
+-                JS_FreeValue(ctx, sp[-1]);
+-                sp--;
+             }
+             BREAK;
+ 

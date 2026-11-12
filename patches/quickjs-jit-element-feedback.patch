@@ -1,0 +1,64 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -21102,6 +21102,13 @@
+         CASE(OP_get_array_el):
+             {
+                 JSValue val;
++#ifdef QJS_JIT_ARM64
++                if (unlikely(rt->jit_feedback_enabled)) {
++                    sf->cur_pc = pc;
++                    val = qjs_jit_feedback_get_element(ctx, b, pc - 1, sp[-2], sp[-1], false);
++                    goto get_array_el_finish;
++                }
++#endif
+ 
+                 /* fast path: regular/typed array element by int index */
+                 if (likely(JS_VALUE_GET_TAG(sp[-2]) == JS_TAG_OBJECT &&
+@@ -21125,6 +21132,9 @@
+                 }
+                 sf->cur_pc = pc;
+                 val = JS_GetPropertyValue(ctx, sp[-2], sp[-1]);
++#ifdef QJS_JIT_ARM64
++            get_array_el_finish:
++#endif
+                 JS_FreeValue(ctx, sp[-2]);
+                 sp[-2] = val;
+                 sp--;
+@@ -21136,6 +21146,13 @@
+         CASE(OP_get_array_el2):
+             {
+                 JSValue val;
++#ifdef QJS_JIT_ARM64
++                if (unlikely(rt->jit_feedback_enabled)) {
++                    sf->cur_pc = pc;
++                    val = qjs_jit_feedback_get_element(ctx, b, pc - 1, sp[-2], sp[-1], false);
++                    goto get_array_el2_finish;
++                }
++#endif
+ 
+                 /* fast path: regular/typed array element by int index */
+                 if (likely(JS_VALUE_GET_TAG(sp[-2]) == JS_TAG_OBJECT &&
+@@ -21154,6 +21171,9 @@
+                 }
+                 sf->cur_pc = pc;
+                 val = JS_GetPropertyValue(ctx, sp[-2], sp[-1]);
++#ifdef QJS_JIT_ARM64
++            get_array_el2_finish:
++#endif
+                 sp[-1] = val;
+                 if (unlikely(JS_IsException(val)))
+                     goto exception;
+@@ -21209,6 +21229,13 @@
+                 JSObject *p;
+ 
+                 val = sp[-1];
++#ifdef QJS_JIT_ARM64
++                if (unlikely(rt->jit_feedback_enabled)) {
++                    QJSJitElementFeedback *feedback = qjs_jit_feedback_element(rt, b, pc - 1,
++                        sp[-3], sp[-2], true, false);
++                    qjs_jit_feedback_element_value(feedback, val);
++                }
++#endif
+                 if (likely(JS_VALUE_GET_TAG(sp[-2]) == JS_TAG_INT)) {
+                     idx = JS_VALUE_GET_INT(sp[-2]);
+                     if (likely(JS_VALUE_GET_TAG(sp[-3]) == JS_TAG_OBJECT)) {

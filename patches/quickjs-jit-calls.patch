@@ -1,0 +1,59 @@
+--- a/quickjs.c
++++ b/quickjs.c
+@@ -18982,4 +18982,11 @@
+     (unlikely(rt->jit_feedback_enabled) ? qjs_jit_feedback_compare_branch(rt, b, value, ppc) \
+                                         : js_take_comparison_branch(value, ppc))
++static bool qjs_jit_profiled_call(JSContext *ctx, JSFunctionBytecode *caller,
++                                  const uint8_t *pc, JSValueConst callee,
++                                  int argc, const JSValue *argv, JSValue *result,
++                                  bool from_boxed);
++#define QJS_JIT_PROFILED_CALL(pc, callee, argc, argv, result) \
++    (unlikely(rt->jit_feedback_enabled) && \
++     qjs_jit_profiled_call(ctx, b, pc, callee, argc, argv, result, false))
+ #define QJS_JIT_PROFILE_CALL(pc, callee) \
+     do { \
+@@ -18994,4 +19001,5 @@
+ #define QJS_JIT_PROFILE_BRANCH(pc, taken) ((void)0)
+ #define QJS_JIT_PROFILE_COMPARE_BRANCH(value, ppc) js_take_comparison_branch(value, ppc)
++#define QJS_JIT_PROFILED_CALL(pc, callee, argc, argv, result) false
+ #define QJS_JIT_PROFILE_CALL(pc, callee) ((void)0)
+ #define QJS_JIT_PROPERTY_LOOKUP(pc, object, atom, property) find_own_property_hint(rt, property, object, atom)
+@@ -19620,10 +19628,11 @@
+             has_call_argc:
+                 call_argv = sp - call_argc;
+-                QJS_JIT_PROFILE_CALL(pc - (opcode >= OP_call0 && opcode <= OP_call3 ? 1 : 3),
+-                                     call_argv[-1]);
+                 sf->cur_pc = pc;
+-                ret_val = JS_CallInternal(ctx, call_argv[-1], JS_UNDEFINED,
+-                                          JS_UNDEFINED, call_argc,
+-                                          vc(call_argv), 0);
++                if (!QJS_JIT_PROFILED_CALL(pc - (opcode >= OP_call0 && opcode <= OP_call3 ? 1 : 3),
++                                           call_argv[-1], call_argc, call_argv, &ret_val)) {
++                    ret_val = JS_CallInternal(ctx, call_argv[-1], JS_UNDEFINED,
++                                              JS_UNDEFINED, call_argc,
++                                              vc(call_argv), 0);
++                }
+                 if (unlikely(JS_IsException(ret_val)))
+                     goto exception;
+@@ -19660,9 +19669,10 @@
+                 pc += 2;
+                 call_argv = sp - call_argc;
+-                QJS_JIT_PROFILE_CALL(pc - 3, call_argv[-1]);
+                 sf->cur_pc = pc;
+-                ret_val = JS_CallInternal(ctx, call_argv[-1], call_argv[-2],
+-                                          JS_UNDEFINED, call_argc,
+-                                          vc(call_argv), 0);
++                if (!QJS_JIT_PROFILED_CALL(pc - 3, call_argv[-1], call_argc, call_argv, &ret_val)) {
++                    ret_val = JS_CallInternal(ctx, call_argv[-1], call_argv[-2],
++                                              JS_UNDEFINED, call_argc,
++                                              vc(call_argv), 0);
++                }
+                 if (unlikely(JS_IsException(ret_val)))
+                     goto exception;
+@@ -23636,5 +23646,6 @@
+ #ifdef QJS_JIT_ARM64
+ #include "qjs-jit.h"
++#include "qjs-jit-calls.h"
+ #include "qjs-jit-boxed.h"
+ #endif
+ 
